@@ -1,0 +1,2298 @@
+{
+  "abi": [
+    {
+      "inputs": [],
+      "name": "CallerNotCollected",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "DataTokenFactoryNotWhitelisted",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotPublisher",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotUnionOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "name": "ResourceNotExists",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenIdNotOwned",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "UnionAlreadyClosed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAddress",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "dataUnionId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "endBlockNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "Closed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "dataBaseId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "dataToken",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "collectTokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Collected",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "dataUnionId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "publisher",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "resourceId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "dataToken",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "subscribeModule",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "startBlockNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "Published",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "dataBaseId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "collectTokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "subscribeModule",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "startAt",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "endAt",
+          "type": "uint256"
+        }
+      ],
+      "name": "Subscribed",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "dataUnionId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "close",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "dataBaseId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "collect",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "dataUnionId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getDataUnionById",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "startBlockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "endBlockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "publisher",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "resourceId",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "dataToken",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "subscribeModule",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct IDataUnionDefinitions.Union",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "dataUnionId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getDataUnionOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "dataUnionId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "collectTokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSubscriptionData",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "startAt",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "endAt",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IDataBaseDefinitions.SubscriptionData[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "dataTokenHub",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "dappTableRegistry",
+          "type": "address"
+        }
+      ],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "dataUnionId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "collectTokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "isAccessible",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "dataBaseId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "isCollected",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "dataTokenFactory",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "string",
+          "name": "resourceId",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "subscribeModule",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "subscribeModuleInitData",
+          "type": "bytes"
+        }
+      ],
+      "name": "publish",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "dataBaseId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "uint256",
+          "name": "collectTokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "subscribe",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "close(bytes32)": "39c79e0c",
+    "collect(bytes32,bytes)": "4ee374de",
+    "getDataUnionById(bytes32)": "6263675a",
+    "getDataUnionOwner(bytes32)": "b8fd6d51",
+    "getSubscriptionData(bytes32,uint256)": "fad9e9a2",
+    "initialize(address,address)": "485cc955",
+    "isAccessible(bytes32,uint256,uint256)": "1dfda6ce",
+    "isCollected(bytes32,address)": "dd4c9b4c",
+    "publish(address,bytes,string,address,bytes)": "e118bfbd",
+    "subscribe(bytes32,bytes,uint256)": "1aa68643"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.21+commit.d9974bed\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"CallerNotCollected\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"DataTokenFactoryNotWhitelisted\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotPublisher\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotUnionOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"name\":\"ResourceNotExists\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TokenIdNotOwned\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"UnionAlreadyClosed\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ZeroAddress\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"dataUnionId\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"endBlockNumber\",\"type\":\"uint256\"}],\"name\":\"Closed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"dataBaseId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"dataToken\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"collectTokenId\",\"type\":\"uint256\"}],\"name\":\"Collected\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"dataUnionId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"publisher\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"resourceId\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"dataToken\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"subscribeModule\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"startBlockNumber\",\"type\":\"uint256\"}],\"name\":\"Published\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"dataBaseId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"collectTokenId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"subscribeModule\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"startAt\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"endAt\",\"type\":\"uint256\"}],\"name\":\"Subscribed\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"dataUnionId\",\"type\":\"bytes32\"}],\"name\":\"close\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"dataBaseId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"collect\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"dataUnionId\",\"type\":\"bytes32\"}],\"name\":\"getDataUnionById\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"startBlockNumber\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"endBlockNumber\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"publisher\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"resourceId\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"dataToken\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"subscribeModule\",\"type\":\"address\"}],\"internalType\":\"struct IDataUnionDefinitions.Union\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"dataUnionId\",\"type\":\"bytes32\"}],\"name\":\"getDataUnionOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"dataUnionId\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"collectTokenId\",\"type\":\"uint256\"}],\"name\":\"getSubscriptionData\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"startAt\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"endAt\",\"type\":\"uint256\"}],\"internalType\":\"struct IDataBaseDefinitions.SubscriptionData[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"dataTokenHub\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"dappTableRegistry\",\"type\":\"address\"}],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"dataUnionId\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"collectTokenId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"blockNumber\",\"type\":\"uint256\"}],\"name\":\"isAccessible\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"dataBaseId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"isCollected\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"dataTokenFactory\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"string\",\"name\":\"resourceId\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"subscribeModule\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"subscribeModuleInitData\",\"type\":\"bytes\"}],\"name\":\"publish\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"dataBaseId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"collectTokenId\",\"type\":\"uint256\"}],\"name\":\"subscribe\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/data-union/IDataUnion.sol\":\"IDataUnion\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":chainlink/=lib/dataToken-contracts/lib/cybercontracts/lib/chainlink/\",\":cybercontracts/=lib/dataToken-contracts/lib/cybercontracts/\",\":dataToken-contracts/=lib/dataToken-contracts/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/\",\":forge-std/=lib/forge-std/src/\",\":kernel/=lib/dataToken-contracts/lib/cybergraph/lib/kernel/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":openzeppelin/=lib/openzeppelin-contracts/contracts/\",\":solady/=lib/dataToken-contracts/lib/cybergraph/lib/kernel/lib/solady/\",\":solmate/=lib/dataToken-contracts/lib/cybergraph/lib/solmate/\"]},\"sources\":{\"contracts/data-union/IDataUnion.sol\":{\"keccak256\":\"0x723cd0185b12305c65d25e9f5e2c17a0fbe00172919e820d89c841ac827422db\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7def02c556ede77019978130295b3fc366b50490284269565fb02ef6a490fed2\",\"dweb:/ipfs/QmTuoTmbFZmgpVVKw377miLVUBGuaJbDvUGvUBW1hTwNL5\"]},\"contracts/interfaces/IDataBase.sol\":{\"keccak256\":\"0x7c161f07c1fb09776ba55cb61b4c6bcf487ecb88a895802f5e4632182972e2c7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d7937d39c87215aebaf2e1628d0c54981dd9f4c09a3c677df65945f7d57579c1\",\"dweb:/ipfs/QmNiRwF29CohmdKHCzorSuZB35AwYoG4ccarxvhDRq44y3\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.21+commit.d9974bed"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "CallerNotCollected"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "DataTokenFactoryNotWhitelisted"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "NotPublisher"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "NotUnionOwner"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "type": "error",
+          "name": "ResourceNotExists"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "TokenIdNotOwned"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "UnionAlreadyClosed"
+        },
+        {
+          "inputs": [],
+          "type": "error",
+          "name": "ZeroAddress"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "dataUnionId",
+              "type": "bytes32",
+              "indexed": true
+            },
+            {
+              "internalType": "address",
+              "name": "operator",
+              "type": "address",
+              "indexed": false
+            },
+            {
+              "internalType": "uint256",
+              "name": "endBlockNumber",
+              "type": "uint256",
+              "indexed": false
+            }
+          ],
+          "type": "event",
+          "name": "Closed",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "dataBaseId",
+              "type": "bytes32",
+              "indexed": true
+            },
+            {
+              "internalType": "address",
+              "name": "dataToken",
+              "type": "address",
+              "indexed": true
+            },
+            {
+              "internalType": "uint256",
+              "name": "collectTokenId",
+              "type": "uint256",
+              "indexed": false
+            }
+          ],
+          "type": "event",
+          "name": "Collected",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "dataUnionId",
+              "type": "bytes32",
+              "indexed": true
+            },
+            {
+              "internalType": "address",
+              "name": "publisher",
+              "type": "address",
+              "indexed": true
+            },
+            {
+              "internalType": "string",
+              "name": "resourceId",
+              "type": "string",
+              "indexed": false
+            },
+            {
+              "internalType": "address",
+              "name": "dataToken",
+              "type": "address",
+              "indexed": false
+            },
+            {
+              "internalType": "address",
+              "name": "subscribeModule",
+              "type": "address",
+              "indexed": false
+            },
+            {
+              "internalType": "uint256",
+              "name": "startBlockNumber",
+              "type": "uint256",
+              "indexed": false
+            }
+          ],
+          "type": "event",
+          "name": "Published",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "dataBaseId",
+              "type": "bytes32",
+              "indexed": true
+            },
+            {
+              "internalType": "uint256",
+              "name": "collectTokenId",
+              "type": "uint256",
+              "indexed": true
+            },
+            {
+              "internalType": "address",
+              "name": "subscribeModule",
+              "type": "address",
+              "indexed": true
+            },
+            {
+              "internalType": "uint256",
+              "name": "startAt",
+              "type": "uint256",
+              "indexed": false
+            },
+            {
+              "internalType": "uint256",
+              "name": "endAt",
+              "type": "uint256",
+              "indexed": false
+            }
+          ],
+          "type": "event",
+          "name": "Subscribed",
+          "anonymous": false
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "dataUnionId",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "close",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "dataBaseId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "collect",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "dataUnionId",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getDataUnionById",
+          "outputs": [
+            {
+              "internalType": "struct IDataUnionDefinitions.Union",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "startBlockNumber",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "endBlockNumber",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "publisher",
+                  "type": "address"
+                },
+                {
+                  "internalType": "string",
+                  "name": "resourceId",
+                  "type": "string"
+                },
+                {
+                  "internalType": "address",
+                  "name": "dataToken",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "subscribeModule",
+                  "type": "address"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "dataUnionId",
+              "type": "bytes32"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getDataUnionOwner",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "dataUnionId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "collectTokenId",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getSubscriptionData",
+          "outputs": [
+            {
+              "internalType": "struct IDataBaseDefinitions.SubscriptionData[]",
+              "name": "",
+              "type": "tuple[]",
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "startAt",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "endAt",
+                  "type": "uint256"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "dataTokenHub",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "dappTableRegistry",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "initialize"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "dataUnionId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "collectTokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "isAccessible",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "dataBaseId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "isCollected",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "dataTokenFactory",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            },
+            {
+              "internalType": "string",
+              "name": "resourceId",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "subscribeModule",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "subscribeModuleInitData",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "publish",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "",
+              "type": "bytes32"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "bytes32",
+              "name": "dataBaseId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "collectTokenId",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "subscribe",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "chainlink/=lib/dataToken-contracts/lib/cybercontracts/lib/chainlink/",
+        "cybercontracts/=lib/dataToken-contracts/lib/cybercontracts/",
+        "dataToken-contracts/=lib/dataToken-contracts/",
+        "ds-test/=lib/forge-std/lib/ds-test/src/",
+        "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+        "forge-std/=lib/forge-std/src/",
+        "kernel/=lib/dataToken-contracts/lib/cybergraph/lib/kernel/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/",
+        "openzeppelin/=lib/openzeppelin-contracts/contracts/",
+        "solady/=lib/dataToken-contracts/lib/cybergraph/lib/kernel/lib/solady/",
+        "solmate/=lib/dataToken-contracts/lib/cybergraph/lib/solmate/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "contracts/data-union/IDataUnion.sol": "IDataUnion"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "contracts/data-union/IDataUnion.sol": {
+        "keccak256": "0x723cd0185b12305c65d25e9f5e2c17a0fbe00172919e820d89c841ac827422db",
+        "urls": [
+          "bzz-raw://7def02c556ede77019978130295b3fc366b50490284269565fb02ef6a490fed2",
+          "dweb:/ipfs/QmTuoTmbFZmgpVVKw377miLVUBGuaJbDvUGvUBW1hTwNL5"
+        ],
+        "license": "MIT"
+      },
+      "contracts/interfaces/IDataBase.sol": {
+        "keccak256": "0x7c161f07c1fb09776ba55cb61b4c6bcf487ecb88a895802f5e4632182972e2c7",
+        "urls": [
+          "bzz-raw://d7937d39c87215aebaf2e1628d0c54981dd9f4c09a3c677df65945f7d57579c1",
+          "dweb:/ipfs/QmNiRwF29CohmdKHCzorSuZB35AwYoG4ccarxvhDRq44y3"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "contracts/data-union/IDataUnion.sol",
+    "id": 2397,
+    "exportedSymbols": {
+      "IDataBase": [
+        3729
+      ],
+      "IDataUnion": [
+        2396
+      ],
+      "IDataUnionDefinitions": [
+        2340
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:1385:8",
+    "nodes": [
+      {
+        "id": 2298,
+        "nodeType": "PragmaDirective",
+        "src": "32:24:8",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".13"
+        ]
+      },
+      {
+        "id": 2300,
+        "nodeType": "ImportDirective",
+        "src": "58:54:8",
+        "nodes": [],
+        "absolutePath": "contracts/interfaces/IDataBase.sol",
+        "file": "../interfaces/IDataBase.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 2397,
+        "sourceUnit": 3730,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 2299,
+              "name": "IDataBase",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 3729,
+              "src": "66:9:8",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 2340,
+        "nodeType": "ContractDefinition",
+        "src": "114:611:8",
+        "nodes": [
+          {
+            "id": 2313,
+            "nodeType": "StructDefinition",
+            "src": "152:200:8",
+            "nodes": [],
+            "canonicalName": "IDataUnionDefinitions.Union",
+            "members": [
+              {
+                "constant": false,
+                "id": 2302,
+                "mutability": "mutable",
+                "name": "startBlockNumber",
+                "nameLocation": "183:16:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 2313,
+                "src": "175:24:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 2301,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "175:7:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 2304,
+                "mutability": "mutable",
+                "name": "endBlockNumber",
+                "nameLocation": "217:14:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 2313,
+                "src": "209:22:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 2303,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "209:7:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 2306,
+                "mutability": "mutable",
+                "name": "publisher",
+                "nameLocation": "249:9:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 2313,
+                "src": "241:17:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 2305,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "241:7:8",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 2308,
+                "mutability": "mutable",
+                "name": "resourceId",
+                "nameLocation": "275:10:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 2313,
+                "src": "268:17:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 2307,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "268:6:8",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 2310,
+                "mutability": "mutable",
+                "name": "dataToken",
+                "nameLocation": "303:9:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 2313,
+                "src": "295:17:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 2309,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "295:7:8",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 2312,
+                "mutability": "mutable",
+                "name": "subscribeModule",
+                "nameLocation": "330:15:8",
+                "nodeType": "VariableDeclaration",
+                "scope": 2313,
+                "src": "322:23:8",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 2311,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "322:7:8",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "Union",
+            "nameLocation": "159:5:8",
+            "scope": 2340,
+            "visibility": "public"
+          },
+          {
+            "id": 2315,
+            "nodeType": "ErrorDefinition",
+            "src": "358:22:8",
+            "nodes": [],
+            "errorSelector": "5874793c",
+            "name": "NotUnionOwner",
+            "nameLocation": "364:13:8",
+            "parameters": {
+              "id": 2314,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "377:2:8"
+            }
+          },
+          {
+            "id": 2317,
+            "nodeType": "ErrorDefinition",
+            "src": "385:27:8",
+            "nodes": [],
+            "errorSelector": "73dc6eee",
+            "name": "UnionAlreadyClosed",
+            "nameLocation": "391:18:8",
+            "parameters": {
+              "id": 2316,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "409:2:8"
+            }
+          },
+          {
+            "id": 2331,
+            "nodeType": "EventDefinition",
+            "src": "418:215:8",
+            "nodes": [],
+            "anonymous": false,
+            "eventSelector": "b759b56ceba472e56803fecce4bed845b54fccce4fc18cc29071840462a57b6c",
+            "name": "Published",
+            "nameLocation": "424:9:8",
+            "parameters": {
+              "id": 2330,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2319,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "dataUnionId",
+                  "nameLocation": "459:11:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2331,
+                  "src": "443:27:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 2318,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "443:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2321,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "publisher",
+                  "nameLocation": "496:9:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2331,
+                  "src": "480:25:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 2320,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "480:7:8",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2323,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "resourceId",
+                  "nameLocation": "522:10:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2331,
+                  "src": "515:17:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 2322,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "515:6:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2325,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "dataToken",
+                  "nameLocation": "550:9:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2331,
+                  "src": "542:17:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 2324,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "542:7:8",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2327,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "subscribeModule",
+                  "nameLocation": "577:15:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2331,
+                  "src": "569:23:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 2326,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "569:7:8",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2329,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "startBlockNumber",
+                  "nameLocation": "610:16:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2331,
+                  "src": "602:24:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 2328,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "602:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "433:199:8"
+            }
+          },
+          {
+            "id": 2339,
+            "nodeType": "EventDefinition",
+            "src": "639:84:8",
+            "nodes": [],
+            "anonymous": false,
+            "eventSelector": "609707de829d80bde55b06589fddf18eeacf35fe1e3716346fcfba0824a62c81",
+            "name": "Closed",
+            "nameLocation": "645:6:8",
+            "parameters": {
+              "id": 2338,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2333,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "dataUnionId",
+                  "nameLocation": "668:11:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2339,
+                  "src": "652:27:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 2332,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "652:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2335,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "operator",
+                  "nameLocation": "689:8:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2339,
+                  "src": "681:16:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 2334,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "681:7:8",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2337,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "endBlockNumber",
+                  "nameLocation": "707:14:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2339,
+                  "src": "699:22:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 2336,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "699:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "651:71:8"
+            }
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IDataUnionDefinitions",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": true,
+        "linearizedBaseContracts": [
+          2340
+        ],
+        "name": "IDataUnionDefinitions",
+        "nameLocation": "124:21:8",
+        "scope": 2397,
+        "usedErrors": [
+          2315,
+          2317
+        ],
+        "usedEvents": [
+          2331,
+          2339
+        ]
+      },
+      {
+        "id": 2396,
+        "nodeType": "ContractDefinition",
+        "src": "727:689:8",
+        "nodes": [
+          {
+            "id": 2351,
+            "nodeType": "FunctionDefinition",
+            "src": "790:78:8",
+            "nodes": [],
+            "functionSelector": "485cc955",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "initialize",
+            "nameLocation": "799:10:8",
+            "parameters": {
+              "id": 2349,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2346,
+                  "mutability": "mutable",
+                  "name": "dataTokenHub",
+                  "nameLocation": "818:12:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2351,
+                  "src": "810:20:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 2345,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "810:7:8",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2348,
+                  "mutability": "mutable",
+                  "name": "dappTableRegistry",
+                  "nameLocation": "840:17:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2351,
+                  "src": "832:25:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 2347,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "832:7:8",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "809:49:8"
+            },
+            "returnParameters": {
+              "id": 2350,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "867:0:8"
+            },
+            "scope": 2396,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 2358,
+            "nodeType": "FunctionDefinition",
+            "src": "874:63:8",
+            "nodes": [],
+            "functionSelector": "39c79e0c",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "close",
+            "nameLocation": "883:5:8",
+            "parameters": {
+              "id": 2354,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2353,
+                  "mutability": "mutable",
+                  "name": "dataUnionId",
+                  "nameLocation": "897:11:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2358,
+                  "src": "889:19:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 2352,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "889:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "888:21:8"
+            },
+            "returnParameters": {
+              "id": 2357,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2356,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2358,
+                  "src": "928:7:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 2355,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "928:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "927:9:8"
+            },
+            "scope": 2396,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 2365,
+            "nodeType": "FunctionDefinition",
+            "src": "943:80:8",
+            "nodes": [],
+            "functionSelector": "b8fd6d51",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getDataUnionOwner",
+            "nameLocation": "952:17:8",
+            "parameters": {
+              "id": 2361,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2360,
+                  "mutability": "mutable",
+                  "name": "dataUnionId",
+                  "nameLocation": "978:11:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2365,
+                  "src": "970:19:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 2359,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "970:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "969:21:8"
+            },
+            "returnParameters": {
+              "id": 2364,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2363,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2365,
+                  "src": "1014:7:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 2362,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1014:7:8",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1013:9:8"
+            },
+            "scope": 2396,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 2373,
+            "nodeType": "FunctionDefinition",
+            "src": "1029:84:8",
+            "nodes": [],
+            "functionSelector": "6263675a",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getDataUnionById",
+            "nameLocation": "1038:16:8",
+            "parameters": {
+              "id": 2368,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2367,
+                  "mutability": "mutable",
+                  "name": "dataUnionId",
+                  "nameLocation": "1063:11:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2373,
+                  "src": "1055:19:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 2366,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1055:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1054:21:8"
+            },
+            "returnParameters": {
+              "id": 2372,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2371,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2373,
+                  "src": "1099:12:8",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Union_$2313_memory_ptr",
+                    "typeString": "struct IDataUnionDefinitions.Union"
+                  },
+                  "typeName": {
+                    "id": 2370,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 2369,
+                      "name": "Union",
+                      "nameLocations": [
+                        "1099:5:8"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 2313,
+                      "src": "1099:5:8"
+                    },
+                    "referencedDeclaration": 2313,
+                    "src": "1099:5:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Union_$2313_storage_ptr",
+                      "typeString": "struct IDataUnionDefinitions.Union"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1098:14:8"
+            },
+            "scope": 2396,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 2384,
+            "nodeType": "FunctionDefinition",
+            "src": "1119:148:8",
+            "nodes": [],
+            "functionSelector": "fad9e9a2",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getSubscriptionData",
+            "nameLocation": "1128:19:8",
+            "parameters": {
+              "id": 2378,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2375,
+                  "mutability": "mutable",
+                  "name": "dataUnionId",
+                  "nameLocation": "1156:11:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2384,
+                  "src": "1148:19:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 2374,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1148:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2377,
+                  "mutability": "mutable",
+                  "name": "collectTokenId",
+                  "nameLocation": "1177:14:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2384,
+                  "src": "1169:22:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 2376,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1169:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1147:45:8"
+            },
+            "returnParameters": {
+              "id": 2383,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2382,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2384,
+                  "src": "1240:25:8",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_struct$_SubscriptionData_$3645_memory_ptr_$dyn_memory_ptr",
+                    "typeString": "struct IDataBaseDefinitions.SubscriptionData[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 2380,
+                      "nodeType": "UserDefinedTypeName",
+                      "pathNode": {
+                        "id": 2379,
+                        "name": "SubscriptionData",
+                        "nameLocations": [
+                          "1240:16:8"
+                        ],
+                        "nodeType": "IdentifierPath",
+                        "referencedDeclaration": 3645,
+                        "src": "1240:16:8"
+                      },
+                      "referencedDeclaration": 3645,
+                      "src": "1240:16:8",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_SubscriptionData_$3645_storage_ptr",
+                        "typeString": "struct IDataBaseDefinitions.SubscriptionData"
+                      }
+                    },
+                    "id": 2381,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1240:18:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_struct$_SubscriptionData_$3645_storage_$dyn_storage_ptr",
+                      "typeString": "struct IDataBaseDefinitions.SubscriptionData[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1239:27:8"
+            },
+            "scope": 2396,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 2395,
+            "nodeType": "FunctionDefinition",
+            "src": "1273:141:8",
+            "nodes": [],
+            "functionSelector": "1dfda6ce",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "isAccessible",
+            "nameLocation": "1282:12:8",
+            "parameters": {
+              "id": 2391,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2386,
+                  "mutability": "mutable",
+                  "name": "dataUnionId",
+                  "nameLocation": "1303:11:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2395,
+                  "src": "1295:19:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 2385,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1295:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2388,
+                  "mutability": "mutable",
+                  "name": "collectTokenId",
+                  "nameLocation": "1324:14:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2395,
+                  "src": "1316:22:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 2387,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1316:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 2390,
+                  "mutability": "mutable",
+                  "name": "blockNumber",
+                  "nameLocation": "1348:11:8",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2395,
+                  "src": "1340:19:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 2389,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1340:7:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1294:66:8"
+            },
+            "returnParameters": {
+              "id": 2394,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 2393,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 2395,
+                  "src": "1408:4:8",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 2392,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1408:4:8",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1407:6:8"
+            },
+            "scope": 2396,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 2341,
+              "name": "IDataBase",
+              "nameLocations": [
+                "751:9:8"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 3729,
+              "src": "751:9:8"
+            },
+            "id": 2342,
+            "nodeType": "InheritanceSpecifier",
+            "src": "751:9:8"
+          },
+          {
+            "baseName": {
+              "id": 2343,
+              "name": "IDataUnionDefinitions",
+              "nameLocations": [
+                "762:21:8"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 2340,
+              "src": "762:21:8"
+            },
+            "id": 2344,
+            "nodeType": "InheritanceSpecifier",
+            "src": "762:21:8"
+          }
+        ],
+        "canonicalName": "IDataUnion",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          2396,
+          2340,
+          3729,
+          3680
+        ],
+        "name": "IDataUnion",
+        "nameLocation": "737:10:8",
+        "scope": 2397,
+        "usedErrors": [
+          2315,
+          2317,
+          3647,
+          3649,
+          3651,
+          3653,
+          3657,
+          3659
+        ],
+        "usedEvents": [
+          2331,
+          2339,
+          3667,
+          3679
+        ]
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 8
+}

@@ -1,0 +1,80 @@
+{
+    "name": "@dataverse/monetizer",
+    "version": "1.0.0",
+    "license": "MIT",
+    "files": [
+        "/dist",
+        "/data-token",
+        "/data-union"
+    ],
+    "types": "dist/cjs/index.d.ts",
+    "main": "dist/cjs/index.js",
+    "module": "dist/esm/index.js",
+    "exports": {
+        ".": {
+            "types": "./dist/cjs/index.d.ts",
+            "main": "./dist/cjs/index.js",
+            "module": "./dist/esm/index.js"
+        },
+        "./data-token": {
+            "types": "./dist/cjs/data-token/index.d.ts",
+            "main": "./dist/cjs/data-token/index.js",
+            "module": "./dist/esm/data-token/index.js"
+        },
+        "./data-union": {
+            "types": "./dist/cjs/data-union/index.d.ts",
+            "main": "./dist/cjs/data-union/index.js",
+            "module": "./dist/esm/data-union/index.js"
+        }
+    },
+    "scripts": {
+        "typechain:data-token": "rimraf src/data-token/contracts/* && typechain --target ethers-v5 --out-dir src/data-token/contracts './src/data-token/abi/**/*.json'",
+        "typechain:data-union": "rimraf src/data-union/contracts/* && typechain --target ethers-v5 --out-dir src/data-union/contracts './src/data-union/abi/**/*.json'",
+        "fork:polygon_mumbai": "source .env && anvil --fork-url $POLYGON_MUMBAI_RPC_URL",
+        "fork:bsc_testnet": "source .env && anvil --fork-url $BSC_TESTNET_RPC_URL",
+        "fork:scroll_sepolia": "source .env && anvil --fork-url $SCROLL_SEPOLIA_RPC_URL",
+        "test:polygon_mumbai": "source .env && PRIVATE_KEY=$PRIVATE_KEY CHAIN_ENV=PolygonMumbai NODE_OPTIONS='--loader ts-node/esm' mocha --timeout 600000 ./test/**/*.test.ts",
+        "test:bsc_testnet": "source .env && PRIVATE_KEY=$PRIVATE_KEY CHAIN_ENV=BSCTestnet NODE_OPTIONS='--loader ts-node/esm' mocha --timeout 600000 ./test/**/*.test.ts",
+        "test:scroll_sepolia": "source .env && PRIVATE_KEY=$PRIVATE_KEY CHAIN_ENV=ScrollSepolia NODE_OPTIONS='--loader ts-node/esm' mocha --timeout 600000 ./test/**/*.test.ts",
+        "build": "rimraf dist && npm run build:esm && npm run build:cjs",
+        "build:esm": "tsc -p tsconfig.json",
+        "build:cjs": "tsc -p tsconfig-cjs.json",
+        "format": "prettier --config .prettierrc . --write",
+        "lint": "eslint . --ext .ts",
+        "lint:fix": "eslint . --ext .ts --fix",
+        "prepare": "husky install"
+    },
+    "dependencies": {
+        "@dataverse/dataverse-connector": "^1.0.33",
+        "@dataverse/utils": "^1.0.10",
+        "@lit-protocol/constants": "^2.2.61",
+        "axios": "^1.5.1",
+        "ethers": "^5.7.2",
+        "graphql": "16.6.0",
+        "graphql-request": "^6.1.0",
+        "moralis": "^2.23.1",
+        "nanoid": "4.0.0"
+    },
+    "devDependencies": {
+        "@ethersproject/abi": "^5.7.0",
+        "@ethersproject/providers": "^5.7.2",
+        "@typechain/ethers-v5": "^11.1.1",
+        "@types/chai": "^4.3.6",
+        "@types/mocha": "^10.0.1",
+        "@types/node": "^20.8.7",
+        "@typescript-eslint/eslint-plugin": "^6.7.5",
+        "@typescript-eslint/parser": "^6.7.5",
+        "chai": "^4.3.8",
+        "eslint": "^8.45.0",
+        "eslint-config-prettier": "^8.8.0",
+        "eslint-plugin-import": "^2.28.0",
+        "eslint-plugin-prettier": "^5.0.0",
+        "husky": "^8.0.3",
+        "mocha": "^10.2.0",
+        "prettier": "3.0.3",
+        "rimraf": "^5.0.5",
+        "ts-node": "^10.9.1",
+        "typechain": "^8.3.1",
+        "typescript": "^5.2.2"
+    }
+}

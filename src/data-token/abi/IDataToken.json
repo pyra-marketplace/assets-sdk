@@ -1,0 +1,990 @@
+{
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "dataToken",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "collector",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "collectNFT",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Collected",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "collect",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getCollectNFT",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getContentURI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getDataTokenOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getMetadata",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "originalContract",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "profileId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "pubId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "collectMiddleware",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct DataTypes.Metadata",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "graphType",
+      "outputs": [
+        {
+          "internalType": "enum DataTypes.GraphType",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "isCollected",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "collect(bytes)": "a9b5ffd9",
+    "getCollectNFT()": "e1e4818b",
+    "getContentURI()": "77b46d4d",
+    "getDataTokenOwner()": "83e46e78",
+    "getMetadata()": "7a5b4f59",
+    "graphType()": "79ea4d6b",
+    "isCollected(address)": "9824aab5"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.14+commit.80d49f37\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"collect\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getCollectNFT\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getContentURI\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getDataTokenOwner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getMetadata\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"originalContract\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"profileId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"pubId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"collectMiddleware\",\"type\":\"address\"}],\"internalType\":\"struct DataTypes.Metadata\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"graphType\",\"outputs\":[{\"internalType\":\"enum DataTypes.GraphType\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"isCollected\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"collect(bytes)\":{\"details\":\"execute collect\",\"params\":{\"data\":\"eg. encoded LensTypes.CollectWithSigData bytes\"},\"returns\":{\"_0\":\"tokenId\"}},\"getCollectNFT()\":{\"details\":\"get collect NFT contract address\"},\"getContentURI()\":{\"details\":\"get current contentURI from DataToken contract\",\"returns\":{\"_0\":\"string current contentURI\"}},\"getDataTokenOwner()\":{\"details\":\"get the owner of data token, the same as the original token owner\",\"returns\":{\"_0\":\"address the owner address\"}},\"getMetadata()\":{\"details\":\"get metadata from DataToken contract\",\"returns\":{\"_0\":\"DataTypes.Metadata\"}},\"graphType()\":{\"details\":\"get graph type (Lens, Cyber or Profileless)\"},\"isCollected(address)\":{\"details\":\"check whether the user has collected\",\"params\":{\"user\":\"user account\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/interfaces/IDataToken.sol\":\"IDataToken\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":chainlink/=lib/cybercontracts/lib/chainlink/\",\":cybercontracts/=lib/cybercontracts/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":kernel/=lib/cybergraph/lib/kernel/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":solady/=lib/cybergraph/lib/kernel/lib/solady/\",\":solmate/=lib/cybergraph/lib/solmate/\"]},\"sources\":{\"contracts/interfaces/IDataToken.sol\":{\"keccak256\":\"0x35a74e71c6dd993b7b95057d4053948a6c2be92c84d9f42b6516a7911b345fb9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://eb5efbb6f0e5c4399ad9e6333d6c13afa93e36a9c718615c2686817151d653ac\",\"dweb:/ipfs/QmeQvBmDsaeiJ25uJ7UPTquP3UWCFifHQbsqVh5ZMQ4MJe\"]},\"contracts/libraries/DataTypes.sol\":{\"keccak256\":\"0x75958d29fbcfbb22f311a6d5dc89e736177e193a2a0b43e2f93ab780d2484593\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://64a9e249e015253b144259592f4a0c7782e1e72a38655d21f7eed6eae33b151a\",\"dweb:/ipfs/QmSPq6XtdVXcGxmaywFTnE814ew7iR3iqWhbVELt6YXNom\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.14+commit.80d49f37"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "collect",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getCollectNFT",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getContentURI",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getDataTokenOwner",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getMetadata",
+          "outputs": [
+            {
+              "internalType": "struct DataTypes.Metadata",
+              "name": "",
+              "type": "tuple",
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "originalContract",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "profileId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "pubId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "collectMiddleware",
+                  "type": "address"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "graphType",
+          "outputs": [
+            {
+              "internalType": "enum DataTypes.GraphType",
+              "name": "",
+              "type": "uint8"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "isCollected",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "collect(bytes)": {
+            "details": "execute collect",
+            "params": {
+              "data": "eg. encoded LensTypes.CollectWithSigData bytes"
+            },
+            "returns": {
+              "_0": "tokenId"
+            }
+          },
+          "getCollectNFT()": {
+            "details": "get collect NFT contract address"
+          },
+          "getContentURI()": {
+            "details": "get current contentURI from DataToken contract",
+            "returns": {
+              "_0": "string current contentURI"
+            }
+          },
+          "getDataTokenOwner()": {
+            "details": "get the owner of data token, the same as the original token owner",
+            "returns": {
+              "_0": "address the owner address"
+            }
+          },
+          "getMetadata()": {
+            "details": "get metadata from DataToken contract",
+            "returns": {
+              "_0": "DataTypes.Metadata"
+            }
+          },
+          "graphType()": {
+            "details": "get graph type (Lens, Cyber or Profileless)"
+          },
+          "isCollected(address)": {
+            "details": "check whether the user has collected",
+            "params": {
+              "user": "user account"
+            }
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        "chainlink/=lib/cybercontracts/lib/chainlink/",
+        "cybercontracts/=lib/cybercontracts/",
+        "ds-test/=lib/forge-std/lib/ds-test/src/",
+        "forge-std/=lib/forge-std/src/",
+        "kernel/=lib/cybergraph/lib/kernel/",
+        "openzeppelin-contracts/=lib/openzeppelin-contracts/",
+        "solady/=lib/cybergraph/lib/kernel/lib/solady/",
+        "solmate/=lib/cybergraph/lib/solmate/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "contracts/interfaces/IDataToken.sol": "IDataToken"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "contracts/interfaces/IDataToken.sol": {
+        "keccak256": "0x35a74e71c6dd993b7b95057d4053948a6c2be92c84d9f42b6516a7911b345fb9",
+        "urls": [
+          "bzz-raw://eb5efbb6f0e5c4399ad9e6333d6c13afa93e36a9c718615c2686817151d653ac",
+          "dweb:/ipfs/QmeQvBmDsaeiJ25uJ7UPTquP3UWCFifHQbsqVh5ZMQ4MJe"
+        ],
+        "license": "MIT"
+      },
+      "contracts/libraries/DataTypes.sol": {
+        "keccak256": "0x75958d29fbcfbb22f311a6d5dc89e736177e193a2a0b43e2f93ab780d2484593",
+        "urls": [
+          "bzz-raw://64a9e249e015253b144259592f4a0c7782e1e72a38655d21f7eed6eae33b151a",
+          "dweb:/ipfs/QmSPq6XtdVXcGxmaywFTnE814ew7iR3iqWhbVELt6YXNom"
+        ],
+        "license": "MIT"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "contracts/interfaces/IDataToken.sol",
+    "id": 4140,
+    "exportedSymbols": {
+      "DataTypes": [
+        4253
+      ],
+      "IDataToken": [
+        4139
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "32:1306:27",
+    "nodes": [
+      {
+        "id": 4088,
+        "nodeType": "PragmaDirective",
+        "src": "32:24:27",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".10"
+        ]
+      },
+      {
+        "id": 4090,
+        "nodeType": "ImportDirective",
+        "src": "58:53:27",
+        "nodes": [],
+        "absolutePath": "contracts/libraries/DataTypes.sol",
+        "file": "../libraries/DataTypes.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 4140,
+        "sourceUnit": 4254,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 4089,
+              "name": "DataTypes",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "referencedDeclaration": 4253,
+              "src": "66:9:27",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 4139,
+        "nodeType": "ContractDefinition",
+        "src": "113:1224:27",
+        "nodes": [
+          {
+            "id": 4097,
+            "nodeType": "FunctionDefinition",
+            "src": "212:65:27",
+            "nodes": [],
+            "documentation": {
+              "id": 4091,
+              "nodeType": "StructuredDocumentation",
+              "src": "140:67:27",
+              "text": " @dev get graph type (Lens, Cyber or Profileless)"
+            },
+            "functionSelector": "79ea4d6b",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "graphType",
+            "nameLocation": "221:9:27",
+            "parameters": {
+              "id": 4092,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "230:2:27"
+            },
+            "returnParameters": {
+              "id": 4096,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4095,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4097,
+                  "src": "256:19:27",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_GraphType_$4243",
+                    "typeString": "enum DataTypes.GraphType"
+                  },
+                  "typeName": {
+                    "id": 4094,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 4093,
+                      "name": "DataTypes.GraphType",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 4243,
+                      "src": "256:19:27"
+                    },
+                    "referencedDeclaration": 4243,
+                    "src": "256:19:27",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_enum$_GraphType_$4243",
+                      "typeString": "enum DataTypes.GraphType"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "255:21:27"
+            },
+            "scope": 4139,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 4105,
+            "nodeType": "FunctionDefinition",
+            "src": "416:63:27",
+            "nodes": [],
+            "documentation": {
+              "id": 4098,
+              "nodeType": "StructuredDocumentation",
+              "src": "283:128:27",
+              "text": " @dev execute collect\n @param data eg. encoded LensTypes.CollectWithSigData bytes\n @return tokenId"
+            },
+            "functionSelector": "a9b5ffd9",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "collect",
+            "nameLocation": "425:7:27",
+            "parameters": {
+              "id": 4101,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4100,
+                  "mutability": "mutable",
+                  "name": "data",
+                  "nameLocation": "446:4:27",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4105,
+                  "src": "433:17:27",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_memory_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 4099,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "433:5:27",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "432:19:27"
+            },
+            "returnParameters": {
+              "id": 4104,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4103,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4105,
+                  "src": "470:7:27",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 4102,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "470:7:27",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "469:9:27"
+            },
+            "scope": 4139,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 4111,
+            "nodeType": "FunctionDefinition",
+            "src": "601:63:27",
+            "nodes": [],
+            "documentation": {
+              "id": 4106,
+              "nodeType": "StructuredDocumentation",
+              "src": "485:111:27",
+              "text": " @dev get current contentURI from DataToken contract\n @return string current contentURI"
+            },
+            "functionSelector": "77b46d4d",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getContentURI",
+            "nameLocation": "610:13:27",
+            "parameters": {
+              "id": 4107,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "623:2:27"
+            },
+            "returnParameters": {
+              "id": 4110,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4109,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4111,
+                  "src": "649:13:27",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 4108,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "649:6:27",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "648:15:27"
+            },
+            "scope": 4139,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 4119,
+            "nodeType": "FunctionDefinition",
+            "src": "767:64:27",
+            "nodes": [],
+            "documentation": {
+              "id": 4112,
+              "nodeType": "StructuredDocumentation",
+              "src": "670:92:27",
+              "text": " @dev check whether the user has collected\n @param user user account"
+            },
+            "functionSelector": "9824aab5",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "isCollected",
+            "nameLocation": "776:11:27",
+            "parameters": {
+              "id": 4115,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4114,
+                  "mutability": "mutable",
+                  "name": "user",
+                  "nameLocation": "796:4:27",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4119,
+                  "src": "788:12:27",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 4113,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "788:7:27",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "787:14:27"
+            },
+            "returnParameters": {
+              "id": 4118,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4117,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4119,
+                  "src": "825:4:27",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 4116,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "825:4:27",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "824:6:27"
+            },
+            "scope": 4139,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 4125,
+            "nodeType": "FunctionDefinition",
+            "src": "898:57:27",
+            "nodes": [],
+            "documentation": {
+              "id": 4120,
+              "nodeType": "StructuredDocumentation",
+              "src": "837:56:27",
+              "text": " @dev get collect NFT contract address"
+            },
+            "functionSelector": "e1e4818b",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getCollectNFT",
+            "nameLocation": "907:13:27",
+            "parameters": {
+              "id": 4121,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "920:2:27"
+            },
+            "returnParameters": {
+              "id": 4124,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4123,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4125,
+                  "src": "946:7:27",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 4122,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "946:7:27",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "945:9:27"
+            },
+            "scope": 4139,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 4132,
+            "nodeType": "FunctionDefinition",
+            "src": "1060:73:27",
+            "nodes": [],
+            "documentation": {
+              "id": 4126,
+              "nodeType": "StructuredDocumentation",
+              "src": "961:94:27",
+              "text": " @dev get metadata from DataToken contract\n @return DataTypes.Metadata"
+            },
+            "functionSelector": "7a5b4f59",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getMetadata",
+            "nameLocation": "1069:11:27",
+            "parameters": {
+              "id": 4127,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1080:2:27"
+            },
+            "returnParameters": {
+              "id": 4131,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4130,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4132,
+                  "src": "1106:25:27",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Metadata_$4252_memory_ptr",
+                    "typeString": "struct DataTypes.Metadata"
+                  },
+                  "typeName": {
+                    "id": 4129,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 4128,
+                      "name": "DataTypes.Metadata",
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 4252,
+                      "src": "1106:18:27"
+                    },
+                    "referencedDeclaration": 4252,
+                    "src": "1106:18:27",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Metadata_$4252_storage_ptr",
+                      "typeString": "struct DataTypes.Metadata"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1105:27:27"
+            },
+            "scope": 4139,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 4138,
+            "nodeType": "FunctionDefinition",
+            "src": "1274:61:27",
+            "nodes": [],
+            "documentation": {
+              "id": 4133,
+              "nodeType": "StructuredDocumentation",
+              "src": "1139:130:27",
+              "text": " @dev get the owner of data token, the same as the original token owner\n @return address the owner address"
+            },
+            "functionSelector": "83e46e78",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getDataTokenOwner",
+            "nameLocation": "1283:17:27",
+            "parameters": {
+              "id": 4134,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1300:2:27"
+            },
+            "returnParameters": {
+              "id": 4137,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 4136,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 4138,
+                  "src": "1326:7:27",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 4135,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1326:7:27",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1325:9:27"
+            },
+            "scope": 4139,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IDataToken",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          4139
+        ],
+        "name": "IDataToken",
+        "nameLocation": "123:10:27",
+        "scope": 4140,
+        "usedErrors": []
+      }
+    ],
+    "license": "MIT"
+  },
+  "id": 27
+}

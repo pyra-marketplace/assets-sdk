@@ -1,0 +1,12 @@
+# Dotenv file
+.env
+
+# sdk
+node_modules
+pnpm-lock.yaml
+yarn.lock
+bun.lockb
+dist
+.vscode
+
+.DS_Store

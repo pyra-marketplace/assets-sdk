@@ -1,0 +1,1231 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "collector",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "collectNFT",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "emitCollected",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getGovernor",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "factory",
+          "type": "address"
+        }
+      ],
+      "name": "isDataTokenFactoryWhitelisted",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "dataToken",
+          "type": "address"
+        }
+      ],
+      "name": "isDataTokenRegistered",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "dataTokenOwner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "originalContract",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "dataToken",
+          "type": "address"
+        }
+      ],
+      "name": "registerDataToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newGovernor",
+          "type": "address"
+        }
+      ],
+      "name": "setGovernor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "version",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "factory",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "whitelistStatus",
+          "type": "bool"
+        }
+      ],
+      "name": "whitelistDataTokenFactory",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "emitCollected(address,address,uint256)": "cf706cc2",
+    "getGovernor()": "4fc07d75",
+    "initialize()": "8129fc1c",
+    "isDataTokenFactoryWhitelisted(address)": "21fd70aa",
+    "isDataTokenRegistered(address)": "6f358e55",
+    "registerDataToken(address,address,address)": "45042df8",
+    "setGovernor(address)": "c42cf535",
+    "version()": "54fd4d50",
+    "whitelistDataTokenFactory(address,bool)": "9cbaec8a"
+  },
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.10+commit.fc410830\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"collector\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"collectNFT\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"emitCollected\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getGovernor\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"initialize\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"factory\",\"type\":\"address\"}],\"name\":\"isDataTokenFactoryWhitelisted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"dataToken\",\"type\":\"address\"}],\"name\":\"isDataTokenRegistered\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"dataTokenOwner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"originalContract\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"dataToken\",\"type\":\"address\"}],\"name\":\"registerDataToken\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newGovernor\",\"type\":\"address\"}],\"name\":\"setGovernor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"version\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"factory\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"whitelistStatus\",\"type\":\"bool\"}],\"name\":\"whitelistDataTokenFactory\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"getGovernor()\":{\"details\":\"get the governor of DataTokenHub contract\"},\"isDataTokenFactoryWhitelisted(address)\":{\"details\":\"get whitelisted status\",\"params\":{\"factory\":\"DataTokenFactory address\"}},\"isDataTokenRegistered(address)\":{\"details\":\"check whether this dataToken registered\",\"params\":{\"dataToken\":\"data token contract address\"},\"returns\":{\"_0\":\"bool\"}},\"registerDataToken(address,address,address)\":{\"details\":\"register data token address to DataTokenHub\",\"params\":{\"dataToken\":\"data token contract address\",\"dataTokenOwner\":\"the owner of the data token\",\"originalContract\":\"the original contract\"}},\"setGovernor(address)\":{\"details\":\"set new governor\",\"params\":{\"newGovernor\":\"new governor\"}},\"version()\":{\"details\":\"get currenct version of implementation contract\",\"returns\":{\"_0\":\"version string\"}},\"whitelistDataTokenFactory(address,bool)\":{\"params\":{\"factory\":\"DataTokenFactory address\",\"whitelistStatus\":\"true or false\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"initialize()\":{\"notice\":\"initializer\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/interfaces/IDataTokenHub.sol\":\"IDataTokenHub\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[\":@openzeppelin/=lib/openzeppelin-contracts/\",\":chainlink/=lib/cybercontracts/lib/chainlink/\",\":core/=lib/core/contracts/\",\":cybercontracts/=lib/cybercontracts/\",\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\",\":kernel/=lib/cybergraph/lib/kernel/\",\":lens-core/=lib/core/\",\":openzeppelin-contracts/=lib/openzeppelin-contracts/\",\":solady/=lib/cybergraph/lib/kernel/lib/solady/\",\":solmate/=lib/cybergraph/lib/solmate/\"]},\"sources\":{\"src/interfaces/IDataTokenHub.sol\":{\"keccak256\":\"0xc46c75eab3d4b8666156832fceb1593c8c7a935ca74390ddbca8ca26b2c74f52\",\"license\":\"AGPL-3.0-or-later\",\"urls\":[\"bzz-raw://ddf6730a1d69770a8c1dbf55576b476fe628770c7d4d73699918689eb030e937\",\"dweb:/ipfs/QmcHEUr1iWqwHQMcULvVy6gacebmDNc1Jzz2AYKKiLwMHe\"]},\"src/libraries/DataTypes.sol\":{\"keccak256\":\"0x01f2c6ddaa2d86619dd23c6496e2fbfcf6ab89f05ac6bfce3409af1ff8eca63d\",\"license\":\"AGPL-3.0-or-later\",\"urls\":[\"bzz-raw://25ad57a152dab2b2619496d4dae9dee3c929506009590a30c5304382c229c3c9\",\"dweb:/ipfs/QmZhKcdWhoYfRcNBLASQ4ycPjGzNEysRAiRWu4M4uN8SKX\"]}},\"version\":1}",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.10+commit.fc410830"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "collector",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "collectNFT",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "emitCollected"
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "getGovernor",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ]
+        },
+        {
+          "inputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "initialize"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "factory",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "isDataTokenFactoryWhitelisted",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "dataToken",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "isDataTokenRegistered",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "dataTokenOwner",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "originalContract",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "dataToken",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "registerDataToken"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "newGovernor",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "setGovernor"
+        },
+        {
+          "inputs": [],
+          "stateMutability": "view",
+          "type": "function",
+          "name": "version",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "factory",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "whitelistStatus",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+          "name": "whitelistDataTokenFactory"
+        }
+      ],
+      "devdoc": {
+        "kind": "dev",
+        "methods": {
+          "getGovernor()": {
+            "details": "get the governor of DataTokenHub contract"
+          },
+          "isDataTokenFactoryWhitelisted(address)": {
+            "details": "get whitelisted status",
+            "params": {
+              "factory": "DataTokenFactory address"
+            }
+          },
+          "isDataTokenRegistered(address)": {
+            "details": "check whether this dataToken registered",
+            "params": {
+              "dataToken": "data token contract address"
+            },
+            "returns": {
+              "_0": "bool"
+            }
+          },
+          "registerDataToken(address,address,address)": {
+            "details": "register data token address to DataTokenHub",
+            "params": {
+              "dataToken": "data token contract address",
+              "dataTokenOwner": "the owner of the data token",
+              "originalContract": "the original contract"
+            }
+          },
+          "setGovernor(address)": {
+            "details": "set new governor",
+            "params": {
+              "newGovernor": "new governor"
+            }
+          },
+          "version()": {
+            "details": "get currenct version of implementation contract",
+            "returns": {
+              "_0": "version string"
+            }
+          },
+          "whitelistDataTokenFactory(address,bool)": {
+            "params": {
+              "factory": "DataTokenFactory address",
+              "whitelistStatus": "true or false"
+            }
+          }
+        },
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "initialize()": {
+            "notice": "initializer"
+          }
+        },
+        "version": 1
+      }
+    },
+    "settings": {
+      "remappings": [
+        ":@openzeppelin/=lib/openzeppelin-contracts/",
+        ":chainlink/=lib/cybercontracts/lib/chainlink/",
+        ":core/=lib/core/contracts/",
+        ":cybercontracts/=lib/cybercontracts/",
+        ":ds-test/=lib/forge-std/lib/ds-test/src/",
+        ":forge-std/=lib/forge-std/src/",
+        ":kernel/=lib/cybergraph/lib/kernel/",
+        ":lens-core/=lib/core/",
+        ":openzeppelin-contracts/=lib/openzeppelin-contracts/",
+        ":solady/=lib/cybergraph/lib/kernel/lib/solady/",
+        ":solmate/=lib/cybergraph/lib/solmate/"
+      ],
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "compilationTarget": {
+        "src/interfaces/IDataTokenHub.sol": "IDataTokenHub"
+      },
+      "libraries": {}
+    },
+    "sources": {
+      "src/interfaces/IDataTokenHub.sol": {
+        "keccak256": "0xc46c75eab3d4b8666156832fceb1593c8c7a935ca74390ddbca8ca26b2c74f52",
+        "urls": [
+          "bzz-raw://ddf6730a1d69770a8c1dbf55576b476fe628770c7d4d73699918689eb030e937",
+          "dweb:/ipfs/QmcHEUr1iWqwHQMcULvVy6gacebmDNc1Jzz2AYKKiLwMHe"
+        ],
+        "license": "AGPL-3.0-or-later"
+      },
+      "src/libraries/DataTypes.sol": {
+        "keccak256": "0x01f2c6ddaa2d86619dd23c6496e2fbfcf6ab89f05ac6bfce3409af1ff8eca63d",
+        "urls": [
+          "bzz-raw://25ad57a152dab2b2619496d4dae9dee3c929506009590a30c5304382c229c3c9",
+          "dweb:/ipfs/QmZhKcdWhoYfRcNBLASQ4ycPjGzNEysRAiRWu4M4uN8SKX"
+        ],
+        "license": "AGPL-3.0-or-later"
+      }
+    },
+    "version": 1
+  },
+  "ast": {
+    "absolutePath": "src/interfaces/IDataTokenHub.sol",
+    "id": 49789,
+    "exportedSymbols": {
+      "DataTypes": [
+        49929
+      ],
+      "IDataTokenHub": [
+        49788
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "46:1678:118",
+    "nodes": [
+      {
+        "id": 49720,
+        "nodeType": "PragmaDirective",
+        "src": "46:24:118",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".10"
+        ]
+      },
+      {
+        "id": 49722,
+        "nodeType": "ImportDirective",
+        "src": "72:53:118",
+        "nodes": [],
+        "absolutePath": "src/libraries/DataTypes.sol",
+        "file": "../libraries/DataTypes.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 49789,
+        "sourceUnit": 49930,
+        "symbolAliases": [
+          {
+            "foreign": {
+              "id": 49721,
+              "name": "DataTypes",
+              "nodeType": "Identifier",
+              "overloadedDeclarations": [],
+              "src": "80:9:118",
+              "typeDescriptions": {}
+            },
+            "nameLocation": "-1:-1:-1"
+          }
+        ],
+        "unitAlias": ""
+      },
+      {
+        "id": 49788,
+        "nodeType": "ContractDefinition",
+        "src": "127:1596:118",
+        "nodes": [
+          {
+            "id": 49728,
+            "nodeType": "FunctionDefinition",
+            "src": "263:57:118",
+            "nodes": [],
+            "documentation": {
+              "id": 49723,
+              "nodeType": "StructuredDocumentation",
+              "src": "157:101:118",
+              "text": " @dev get currenct version of implementation contract\n @return version string"
+            },
+            "functionSelector": "54fd4d50",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "version",
+            "nameLocation": "272:7:118",
+            "parameters": {
+              "id": 49724,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "279:2:118"
+            },
+            "returnParameters": {
+              "id": 49727,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 49726,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49728,
+                  "src": "305:13:118",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 49725,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "305:6:118",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "304:15:118"
+            },
+            "scope": 49788,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 49732,
+            "nodeType": "FunctionDefinition",
+            "src": "369:31:118",
+            "nodes": [],
+            "documentation": {
+              "id": 49729,
+              "nodeType": "StructuredDocumentation",
+              "src": "326:38:118",
+              "text": " @notice initializer"
+            },
+            "functionSelector": "8129fc1c",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "initialize",
+            "nameLocation": "378:10:118",
+            "parameters": {
+              "id": 49730,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "388:2:118"
+            },
+            "returnParameters": {
+              "id": 49731,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "399:0:118"
+            },
+            "scope": 49788,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 49742,
+            "nodeType": "FunctionDefinition",
+            "src": "640:105:118",
+            "nodes": [],
+            "documentation": {
+              "id": 49733,
+              "nodeType": "StructuredDocumentation",
+              "src": "406:229:118",
+              "text": " @dev register data token address to DataTokenHub\n @param dataTokenOwner the owner of the data token\n @param originalContract the original contract\n @param dataToken data token contract address"
+            },
+            "functionSelector": "45042df8",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "registerDataToken",
+            "nameLocation": "649:17:118",
+            "parameters": {
+              "id": 49740,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 49735,
+                  "mutability": "mutable",
+                  "name": "dataTokenOwner",
+                  "nameLocation": "675:14:118",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49742,
+                  "src": "667:22:118",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 49734,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "667:7:118",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 49737,
+                  "mutability": "mutable",
+                  "name": "originalContract",
+                  "nameLocation": "699:16:118",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49742,
+                  "src": "691:24:118",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 49736,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "691:7:118",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 49739,
+                  "mutability": "mutable",
+                  "name": "dataToken",
+                  "nameLocation": "725:9:118",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49742,
+                  "src": "717:17:118",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 49738,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "717:7:118",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "666:69:118"
+            },
+            "returnParameters": {
+              "id": 49741,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "744:0:118"
+            },
+            "scope": 49788,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 49750,
+            "nodeType": "FunctionDefinition",
+            "src": "891:79:118",
+            "nodes": [],
+            "documentation": {
+              "id": 49743,
+              "nodeType": "StructuredDocumentation",
+              "src": "751:135:118",
+              "text": " @dev check whether this dataToken registered\n @param dataToken data token contract address\n @return bool"
+            },
+            "functionSelector": "6f358e55",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "isDataTokenRegistered",
+            "nameLocation": "900:21:118",
+            "parameters": {
+              "id": 49746,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 49745,
+                  "mutability": "mutable",
+                  "name": "dataToken",
+                  "nameLocation": "930:9:118",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49750,
+                  "src": "922:17:118",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 49744,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "922:7:118",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "921:19:118"
+            },
+            "returnParameters": {
+              "id": 49749,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 49748,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49750,
+                  "src": "964:4:118",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 49747,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "964:4:118",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "963:6:118"
+            },
+            "scope": 49788,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 49756,
+            "nodeType": "FunctionDefinition",
+            "src": "1060:51:118",
+            "nodes": [],
+            "documentation": {
+              "id": 49751,
+              "nodeType": "StructuredDocumentation",
+              "src": "976:79:118",
+              "text": " @dev set new governor\n @param newGovernor new governor"
+            },
+            "functionSelector": "c42cf535",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setGovernor",
+            "nameLocation": "1069:11:118",
+            "parameters": {
+              "id": 49754,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 49753,
+                  "mutability": "mutable",
+                  "name": "newGovernor",
+                  "nameLocation": "1089:11:118",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49756,
+                  "src": "1081:19:118",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 49752,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1081:7:118",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1080:21:118"
+            },
+            "returnParameters": {
+              "id": 49755,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1110:0:118"
+            },
+            "scope": 49788,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 49762,
+            "nodeType": "FunctionDefinition",
+            "src": "1187:55:118",
+            "nodes": [],
+            "documentation": {
+              "id": 49757,
+              "nodeType": "StructuredDocumentation",
+              "src": "1117:65:118",
+              "text": " @dev get the governor of DataTokenHub contract"
+            },
+            "functionSelector": "4fc07d75",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getGovernor",
+            "nameLocation": "1196:11:118",
+            "parameters": {
+              "id": 49758,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1207:2:118"
+            },
+            "returnParameters": {
+              "id": 49761,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 49760,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49762,
+                  "src": "1233:7:118",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 49759,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1233:7:118",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1232:9:118"
+            },
+            "scope": 49788,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 49770,
+            "nodeType": "FunctionDefinition",
+            "src": "1355:83:118",
+            "nodes": [],
+            "documentation": {
+              "id": 49763,
+              "nodeType": "StructuredDocumentation",
+              "src": "1248:102:118",
+              "text": " @param factory DataTokenFactory address\n @param whitelistStatus true or false"
+            },
+            "functionSelector": "9cbaec8a",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "whitelistDataTokenFactory",
+            "nameLocation": "1364:25:118",
+            "parameters": {
+              "id": 49768,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 49765,
+                  "mutability": "mutable",
+                  "name": "factory",
+                  "nameLocation": "1398:7:118",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49770,
+                  "src": "1390:15:118",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 49764,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1390:7:118",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 49767,
+                  "mutability": "mutable",
+                  "name": "whitelistStatus",
+                  "nameLocation": "1412:15:118",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49770,
+                  "src": "1407:20:118",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 49766,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1407:4:118",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1389:39:118"
+            },
+            "returnParameters": {
+              "id": 49769,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1437:0:118"
+            },
+            "scope": 49788,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 49778,
+            "nodeType": "FunctionDefinition",
+            "src": "1542:85:118",
+            "nodes": [],
+            "documentation": {
+              "id": 49771,
+              "nodeType": "StructuredDocumentation",
+              "src": "1444:93:118",
+              "text": " @dev get whitelisted status\n @param factory DataTokenFactory address"
+            },
+            "functionSelector": "21fd70aa",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "isDataTokenFactoryWhitelisted",
+            "nameLocation": "1551:29:118",
+            "parameters": {
+              "id": 49774,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 49773,
+                  "mutability": "mutable",
+                  "name": "factory",
+                  "nameLocation": "1589:7:118",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49778,
+                  "src": "1581:15:118",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 49772,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1581:7:118",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1580:17:118"
+            },
+            "returnParameters": {
+              "id": 49777,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 49776,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49778,
+                  "src": "1621:4:118",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 49775,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1621:4:118",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1620:6:118"
+            },
+            "scope": 49788,
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 49787,
+            "nodeType": "FunctionDefinition",
+            "src": "1633:88:118",
+            "nodes": [],
+            "functionSelector": "cf706cc2",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "emitCollected",
+            "nameLocation": "1642:13:118",
+            "parameters": {
+              "id": 49785,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 49780,
+                  "mutability": "mutable",
+                  "name": "collector",
+                  "nameLocation": "1664:9:118",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49787,
+                  "src": "1656:17:118",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 49779,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1656:7:118",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 49782,
+                  "mutability": "mutable",
+                  "name": "collectNFT",
+                  "nameLocation": "1683:10:118",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49787,
+                  "src": "1675:18:118",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 49781,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1675:7:118",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 49784,
+                  "mutability": "mutable",
+                  "name": "tokenId",
+                  "nameLocation": "1703:7:118",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 49787,
+                  "src": "1695:15:118",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 49783,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1695:7:118",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1655:56:118"
+            },
+            "returnParameters": {
+              "id": 49786,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1720:0:118"
+            },
+            "scope": 49788,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IDataTokenHub",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          49788
+        ],
+        "name": "IDataTokenHub",
+        "nameLocation": "137:13:118",
+        "scope": 49789,
+        "usedErrors": []
+      }
+    ],
+    "license": "AGPL-3.0-or-later"
+  },
+  "id": 118
+}

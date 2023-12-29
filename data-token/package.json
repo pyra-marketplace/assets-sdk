@@ -1,0 +1,5 @@
+{
+  "types": "../dist/cjs/data-token/index.d.ts",
+  "main": "../dist/cjs/data-token/index.js",
+  "module": "../dist/esm/data-token/index.js"
+}
