@@ -50,7 +50,7 @@
         "@lit-protocol/constants": "^2.2.61",
         "axios": "^1.5.1",
         "ethers": "^5.7.2",
-        "graphql": "16.6.0",
+        "graphql": "16.8.1",
         "graphql-request": "^6.1.0",
         "moralis": "^2.23.1",
         "nanoid": "4.0.0"
