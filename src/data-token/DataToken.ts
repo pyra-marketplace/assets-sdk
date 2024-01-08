@@ -1,16 +1,9 @@
-import { BigNumberish, Signer, Wallet, ethers } from "ethers";
+import { BigNumberish, Wallet, ethers } from "ethers";
 import {
   DataverseConnector,
-  EncryptionProtocol,
-  SYSTEM_CALL,
-  MonetizationProvider,
-  DecryptionConditions,
-  DecryptionConditionsType,
+  DataAsset,
+  Attached,
 } from "@dataverse/dataverse-connector";
-import {
-  UnifiedAccessControlCondition,
-  BooleanCondition,
-} from "@dataverse/dataverse-connector/dist/esm/types/data-monetize";
 import { DeployedContracts } from "../config";
 import {
   isDataTokenCollectedBy,
@@ -25,11 +18,8 @@ import {
   DataToken as DataTokenGraphType,
 } from "../graphql/types";
 import { abiCoder } from "../utils/abi-coder";
-import {
-  currentTimestamp,
-  getChainByChainId,
-  getChainNameFromChainId,
-} from "../utils";
+import { currentTimestamp } from "../utils";
+import { DataAssetBase } from "../data-asset/DataAssetBase";
 import { EMPTY_BYTES, ZERO_ADDRESS } from "./constants";
 import {
   IDataToken,
@@ -54,66 +44,52 @@ import {
   CollectDataTokenOutput,
   CyberCollectParams,
   GraphType,
-  Chain,
   LensActParams,
   EIP712Signature,
   ChainId,
   ProfilelessCollectParams,
   CreateDataTokenInput,
-  AssetType,
+  Chain,
 } from "./types";
 import { DataTokenFactory } from "./DataTokenFactory";
 
-export class DataToken {
-  chainId?: ChainId;
-  chain?: Chain;
-  signer: Signer;
+export class DataToken extends DataAssetBase {
   instance?: IDataToken;
-  dataverseConnector: DataverseConnector;
 
   constructor({
     chainId,
     dataTokenAddress,
+    fileId,
     dataverseConnector,
   }: {
-    chainId?: ChainId;
-    dataTokenAddress?: string;
+    chainId: ChainId;
+    dataTokenAddress: string;
+    fileId: string;
     dataverseConnector: DataverseConnector;
   }) {
-    if (chainId) {
-      this.chainId = chainId;
-      this.chain = getChainByChainId(chainId);
-    }
-    this.dataverseConnector = dataverseConnector;
-    try {
-      const provider = this.dataverseConnector.getProvider();
-      const ethersProvider = new ethers.providers.Web3Provider(provider);
-      this.signer = ethersProvider.getSigner();
-      if (dataTokenAddress) {
-        this.instance = IDataToken__factory.connect(
-          dataTokenAddress,
-          this.signer,
-        );
-      }
-    } catch (error) {
-      throw new Error("No avaliable signer in dataverseConnector");
+    super({
+      chainId,
+      assetContract: dataTokenAddress,
+      fileOrFolderId: fileId,
+      dataverseConnector,
+    });
+    if (dataTokenAddress) {
+      this.instance = IDataToken__factory.connect(
+        dataTokenAddress,
+        this.signer,
+      );
     }
   }
 
-  async getAssetHandler({
-    fileOrFolderId,
-    params,
-    signer,
-  }: {
-    fileOrFolderId: string;
-    params: object;
-    signer: Signer;
-  }): Promise<string> {
+  async createDataToken(
+    params: CreateDataTokenInput<GraphType.Profileless>,
+  ): Promise<string> {
+    this.assertCheckChain();
+
     let input = {} as CreateDataTokenInput;
     let dataTokenFactory = {} as DataTokenFactory;
 
     const {
-      chainId,
       type,
       collectModule,
       collectLimit,
@@ -121,22 +97,20 @@ export class DataToken {
       currency,
       recipient,
       endTimestamp,
-    } = params as CreateDataTokenInput<GraphType.Profileless> & {
-      chainId: number;
-    };
+    } = params;
 
     dataTokenFactory = new DataTokenFactory({
-      chainId: chainId ?? ChainId.PolygonMumbai,
-      signer,
+      chainId: this.chainId ?? ChainId.PolygonMumbai,
+      signer: this.signer,
     });
 
     input = {
       type: type ?? GraphType.Profileless,
-      contentURI: fileOrFolderId,
+      contentURI: this.fileOrFolderId,
       collectModule: collectModule ?? "LimitedFeeCollectModule",
       collectLimit: collectLimit ?? 2 ** 52,
       ...(collectModule !== "FreeCollectModule" && {
-        recipient: recipient ?? (await signer.getAddress()),
+        recipient: recipient ?? (await this.signer.getAddress()),
         currency,
         amount: ethers.utils.parseUnits(
           String(amount),
@@ -148,79 +122,25 @@ export class DataToken {
       }),
     };
 
-    const { dataToken: dataTokenId } =
-      await dataTokenFactory.createDataToken(input);
+    const assetId = await this.createAssetHandler(() =>
+      dataTokenFactory.createDataToken(input),
+    );
 
-    this.instance = IDataToken__factory.connect(dataTokenId, signer);
+    this.instance = IDataToken__factory.connect(assetId, this.signer);
 
-    return dataTokenId;
+    return assetId;
   }
 
-  async applyMonetizerToFile({
-    fileId,
-    creator,
-    dataTokenId,
-    chainId,
+  async applyConditionsToFile({
     unlockingTimeStamp,
+    linkedAsset,
+    attached,
   }: {
-    fileId: string;
-    creator: string;
-    dataTokenId: string;
-    chainId: number;
     unlockingTimeStamp?: number;
+    linkedAsset?: DataAsset;
+    attached?: Attached;
   }) {
-    const monetizationProvider = {
-      dataAsset: {
-        assetType: AssetType[AssetType.dataToken],
-        assetId: dataTokenId,
-        assetContract: dataTokenId,
-        chainId,
-      },
-    };
-
-    const decryptionConditions = await this.getAccessControlConditions({
-      creator,
-      unlockingTimeStamp,
-      monetizationProvider,
-    });
-
-    const encryptionProvider = {
-      protocol: EncryptionProtocol.Lit,
-      decryptionConditions,
-      decryptionConditionsType:
-        DecryptionConditionsType.UnifiedAccessControlCondition,
-      unlockingTimeStamp,
-    };
-
-    const res = await this.dataverseConnector.runOS({
-      method: SYSTEM_CALL.monetizeFile,
-      params: {
-        fileId,
-        monetizationProvider,
-        encryptionProvider,
-      },
-    });
-
-    return res;
-  }
-
-  async getAccessControlConditions({
-    creator,
-    unlockingTimeStamp,
-    monetizationProvider,
-  }: {
-    creator: string;
-    unlockingTimeStamp?: number;
-    monetizationProvider: MonetizationProvider;
-  }): Promise<DecryptionConditions> {
-    const conditions = [];
-
-    unlockingTimeStamp &&
-      conditions.push(
-        this.getTimeStampAccessControlConditions(String(unlockingTimeStamp)),
-      );
-
-    const unifiedAccessControlConditions = [
+    this.addGeneralCondition([
       {
         conditionType: "evmBasic",
         contractAddress: "",
@@ -230,86 +150,89 @@ export class DataToken {
         parameters: [":userAddress"],
         returnValueTest: {
           comparator: "=",
-          value: `${creator}`,
+          value: await this.signer.getAddress(),
         },
       },
-    ] as (UnifiedAccessControlCondition | BooleanCondition)[];
+    ]);
 
-    if (
-      monetizationProvider?.dataAsset?.assetId &&
-      monetizationProvider?.dataAsset?.chainId
-    ) {
-      unifiedAccessControlConditions.push(
-        ...[
-          { operator: "or" },
-          this.getIsDataTokenCollectedAccessControlConditions({
-            contractAddress: monetizationProvider.dataAsset.assetId,
-            chain: getChainNameFromChainId(
-              monetizationProvider.dataAsset.chainId,
-            ),
-          }),
-        ],
-      );
-    }
-
-    conditions.push(unifiedAccessControlConditions);
-
-    return conditions;
-  }
-
-  getIsDataTokenCollectedAccessControlConditions({
-    contractAddress,
-    chain,
-  }: {
-    contractAddress: string;
-    chain: string;
-  }) {
-    return {
-      contractAddress,
-      conditionType: "evmContract",
-      functionName: "isCollected",
-      functionParams: [":userAddress"],
-      functionAbi: {
-        inputs: [
-          {
-            internalType: "address",
-            name: "user",
-            type: "address",
-          },
-        ],
-        name: "isCollected",
-        outputs: [
-          {
-            internalType: "bool",
-            name: "",
-            type: "bool",
-          },
-        ],
-        stateMutability: "view",
-        type: "function",
+    this.addSourceCondition({
+      acl: {
+        conditionType: "evmContract",
+        functionName: "isCollected",
+        functionAbi: {
+          inputs: [
+            {
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+          ],
+          name: "isCollected",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        returnValueTest: {
+          key: "",
+          comparator: "=",
+          value: "true",
+        },
       },
-      chain,
-      returnValueTest: {
-        key: "",
-        comparator: "=",
-        value: "true",
-      },
-    };
-  }
+      unlockingTimeStamp,
+    });
 
-  getTimeStampAccessControlConditions(value: string) {
-    return {
-      conditionType: "evmBasic",
-      contractAddress: "",
-      standardContractType: "timestamp",
-      chain: "ethereum",
-      method: "eth_getBlockByNumber",
-      parameters: ["latest"],
-      returnValueTest: {
-        comparator: ">=",
-        value,
+    this.addLinkCondition({
+      acl: {
+        conditionType: "evmContract",
+        functionName: "isAccessible",
+        functionAbi: {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "dataUnionId",
+              type: "bytes32",
+            },
+            {
+              internalType: "address",
+              name: "subscriber",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "blockNumber",
+              type: "uint256",
+            },
+          ],
+          name: "isAccessible",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        returnValueTest: {
+          key: "",
+          comparator: "=",
+          value: "true",
+        },
       },
-    };
+      linkedAsset,
+      attached,
+    });
+
+    const res = await this.applyFileConditions();
+
+    return res;
   }
 
   private assertCheckInstance() {
@@ -319,7 +242,7 @@ export class DataToken {
   }
 
   private assertCheckChain() {
-    if (!this.chain) {
+    if (!this.chainId || !ChainId[this.chainId]) {
       throw new Error("Chain is not set");
     }
   }
@@ -346,7 +269,6 @@ export class DataToken {
 
   updateChain(chainId: ChainId) {
     this.chainId = chainId;
-    this.chain = getChainByChainId(chainId);
   }
 
   public async getType(): Promise<GraphType> {
@@ -458,7 +380,8 @@ export class DataToken {
       this.signer!,
     ).getCollectData(meta.profileId, meta.pubId);
     switch (collectModule) {
-      case DeployedContracts[this.chain!].Lens.SimpleFeeCollectModule: {
+      case DeployedContracts[ChainId[this.chainId!]].Lens
+        .SimpleFeeCollectModule: {
         const moduleInfo = await SimpleFeeCollectModule__factory.connect(
           collectModule,
           this.signer!,
@@ -487,7 +410,7 @@ export class DataToken {
     }
 
     const lensHub = LensHub__factory.connect(
-      DeployedContracts[this.chain!].Lens.LensHubProxy,
+      DeployedContracts[ChainId[this.chainId!]].Lens.LensHubProxy,
       this.signer!,
     );
 
@@ -496,7 +419,7 @@ export class DataToken {
     ).toNumber();
 
     const signature: EIP712Signature = await _buildLensCollectSig({
-      chain: this.chain!,
+      chain: ChainId[this.chainId!] as Chain,
       wallet: this.signer! as Wallet,
       publicationActedProfileId: meta.profileId,
       publicationActedId: meta.pubId,
@@ -535,7 +458,8 @@ export class DataToken {
     this.assertCheckChain();
     let collectModuleValidateData;
     switch (meta.collectMiddleware) {
-      case DeployedContracts[this.chain!].Profileless.LimitedFeeCollectModule: {
+      case DeployedContracts[ChainId[this.chainId!]].Profileless
+        .LimitedFeeCollectModule: {
         const collectModuleInst = LimitedFeeCollectModule__factory.connect(
           meta.collectMiddleware,
           this.signer!,
@@ -552,7 +476,7 @@ export class DataToken {
         break;
       }
 
-      case DeployedContracts[this.chain!].Profileless
+      case DeployedContracts[ChainId[this.chainId!]].Profileless
         .LimitedTimedFeeCollectModule: {
         const collectModuleInst = LimitedTimedFeeCollectModule__factory.connect(
           meta.collectMiddleware,
@@ -571,7 +495,8 @@ export class DataToken {
         break;
       }
 
-      case DeployedContracts[this.chain!].Profileless.FreeCollectModule: {
+      case DeployedContracts[ChainId[this.chainId!]].Profileless
+        .FreeCollectModule: {
         collectModuleValidateData = EMPTY_BYTES;
         break;
       }
@@ -580,7 +505,7 @@ export class DataToken {
     }
 
     const profilelessHub = ProfilelessHub__factory.connect(
-      DeployedContracts[this.chain!].Profileless.ProfilelessHub,
+      DeployedContracts[ChainId[this.chainId!]].Profileless.ProfilelessHub,
       this.signer!,
     );
 
@@ -589,7 +514,7 @@ export class DataToken {
     ).toNumber();
 
     const signature = await _buildProfilelessCollectSig({
-      chain: this.chain!,
+      chain: ChainId[this.chainId!] as Chain,
       wallet: this.signer! as Wallet,
       pubId: meta.pubId,
       collectModuleValidateData,
@@ -623,12 +548,14 @@ export class DataToken {
     } as CyberCollectParams;
 
     const cyberProfile = ProfileNFT__factory.connect(
-      DeployedContracts[this.chain!].Cyber.CyberProfileProxy,
+      DeployedContracts[ChainId[this.chainId!]].Cyber.CyberProfileProxy,
       this.signer!,
     );
 
     switch (meta.collectMiddleware.toLowerCase()) {
-      case DeployedContracts[this.chain!].Cyber.CollectPaidMw.toLowerCase(): {
+      case DeployedContracts[
+        ChainId[this.chainId!]
+      ].Cyber.CollectPaidMw.toLowerCase(): {
         const { currency, amount } = await getCollectPaidMwData({
           chainId: this.chainId!,
           profileId: meta.profileId,
@@ -652,7 +579,7 @@ export class DataToken {
 
     const signature: Omit<EIP712Signature, "signer"> =
       await _buildCyberCollectSig({
-        chain: this.chain!,
+        chain: ChainId[this.chainId!] as Chain,
         wallet: this.signer! as Wallet,
         profileId: collectParams.profileId,
         collector: collectParams.collector,
@@ -734,12 +661,12 @@ export class DataToken {
 
   private _checkGraphNetwork(graphType: GraphType) {
     if (graphType === GraphType.Lens) {
-      if (this.chain !== "PolygonMumbai") {
-        throw new Error(`Lens graph not support ${this.chain}`);
+      if (ChainId[this.chainId!] !== "PolygonMumbai") {
+        throw new Error(`Lens graph not support ${ChainId[this.chainId!]}`);
       }
     } else if (graphType == GraphType.Cyber) {
-      if (this.chain !== "BSCTestnet") {
-        throw new Error(`Cyber graph not support ${this.chain}`);
+      if (ChainId[this.chainId!] !== "BSCTestnet") {
+        throw new Error(`Cyber graph not support ${ChainId[this.chainId!]}`);
       }
     } else {
       return;

@@ -1,23 +1,10 @@
 import { LIT_CHAINS } from "@lit-protocol/constants";
-import { Chain, ChainId } from "../data-token";
-
-export const getChainByChainId = (chainId: ChainId | number): Chain => {
-  switch (chainId) {
-    case ChainId.BSCTestnet: {
-      return "BSCTestnet";
-    }
-    case ChainId.PolygonMumbai: {
-      return "PolygonMumbai";
-    }
-    case ChainId.ScrollSepolia: {
-      return "ScrollSepolia";
-    }
-    default:
-      throw new Error("Unsupported Network");
-  }
-};
 
 export function getChainNameFromChainId(chainId: number): string {
+  if (chainId === 314) {
+    return "filecoin";
+  }
+
   for (let i = 0; i < Object.keys(LIT_CHAINS).length; i++) {
     const chainName = Object.keys(LIT_CHAINS)[i];
     const litChainId = LIT_CHAINS[chainName].chainId;
@@ -25,8 +12,21 @@ export function getChainNameFromChainId(chainId: number): string {
       return chainName;
     }
   }
-  if (chainId === 314) {
-    return "filecoin";
-  }
+
   throw new Error(`cannot parse chainId ${chainId} for lit protocol`);
+}
+
+export function getChainIdFromChainName(chainName: string): number {
+  if (chainName === "filecoin") {
+    return 314;
+  }
+
+  for (let i = 0; i < Object.keys(LIT_CHAINS).length; i++) {
+    const litChainName = Object.keys(LIT_CHAINS)[i];
+    if (litChainName === chainName) {
+      return LIT_CHAINS[chainName].chainId;
+    }
+  }
+
+  throw new Error(`cannot parse chainName ${chainName} for lit protocol`);
 }

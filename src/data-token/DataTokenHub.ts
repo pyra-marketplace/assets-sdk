@@ -2,7 +2,6 @@ import { Signer } from "ethers";
 
 import { Provider } from "@ethersproject/providers";
 import { DeployedContracts } from "../config";
-import { getChainByChainId } from "../utils";
 import { IDataTokenHub__factory, IDataTokenHub } from "./contracts";
 import { Chain, ChainId } from "./types";
 export class DataTokenHub {
@@ -19,16 +18,16 @@ export class DataTokenHub {
     signer?: Signer;
     provider?: Provider;
   }) {
-    this.chain = getChainByChainId(chainId);
+    this.chain = ChainId[chainId] as Chain;
     if (signer) {
       this.signer = signer;
       this.instance = IDataTokenHub__factory.connect(
-        DeployedContracts[this.chain].DataTokenHub,
+        DeployedContracts[ChainId[chainId]].DataTokenHub,
         signer,
       );
     } else if (provider) {
       this.instance = IDataTokenHub__factory.connect(
-        DeployedContracts[this.chain].DataTokenHub,
+        DeployedContracts[ChainId[chainId]].DataTokenHub,
         provider,
       );
     } else {

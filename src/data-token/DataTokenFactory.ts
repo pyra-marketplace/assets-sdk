@@ -3,7 +3,6 @@ import { Signer, Wallet } from "ethers";
 import { Provider } from "@ethersproject/providers";
 import { DeployedContracts } from "../config";
 import { abiCoder } from "../utils/abi-coder";
-import { getChainByChainId } from "../utils";
 import {
   EMPTY_BYTES,
   ESSEBCE_NFT_SYMBOL,
@@ -52,7 +51,7 @@ export class DataTokenFactory {
     provider?: Provider;
   }) {
     this.chainId = chainId;
-    this.chain = getChainByChainId(chainId);
+    this.chain = ChainId[chainId] as Chain;
     if (signer) {
       this.signer = signer;
       this.instance = IDataTokenFactory__factory.connect(ZERO_ADDRESS, signer);
@@ -69,31 +68,30 @@ export class DataTokenFactory {
   public getAddress(graphType: GraphType): string {
     switch (graphType) {
       case GraphType.Lens:
-        return DeployedContracts[this.chain].Lens.DataTokenFactory;
+        return DeployedContracts[ChainId[this.chainId]].Lens.DataTokenFactory;
       case GraphType.Cyber:
-        return DeployedContracts[this.chain].Cyber.DataTokenFactory;
+        return DeployedContracts[ChainId[this.chainId]].Cyber.DataTokenFactory;
       case GraphType.Profileless:
-        return DeployedContracts[this.chain].Profileless.DataTokenFactory;
+        return DeployedContracts[ChainId[this.chainId]].Profileless
+          .DataTokenFactory;
     }
   }
 
-  public async createDataToken(
-    input: CreateDataTokenInput,
-  ): Promise<CreateDataTokenOutput> {
+  public async createDataToken(input: CreateDataTokenInput): Promise<string> {
     if (input.type === GraphType.Cyber) {
       this._checkGraphNetwork(GraphType.Cyber);
       this.instance = this.instance.attach(
-        DeployedContracts[this.chain].Cyber.DataTokenFactory,
+        DeployedContracts[ChainId[this.chainId]].Cyber.DataTokenFactory,
       );
     } else if (input.type === GraphType.Lens) {
       this._checkGraphNetwork(GraphType.Lens);
       this.instance = this.instance.attach(
-        DeployedContracts[this.chain].Lens.DataTokenFactory,
+        DeployedContracts[ChainId[this.chainId]].Lens.DataTokenFactory,
       );
     } else {
       this._checkGraphNetwork(GraphType.Profileless);
       this.instance = this.instance.attach(
-        DeployedContracts[this.chain].Profileless.DataTokenFactory,
+        DeployedContracts[ChainId[this.chainId]].Profileless.DataTokenFactory,
       );
     }
 
@@ -110,7 +108,7 @@ export class DataTokenFactory {
         }
       });
     });
-    return output;
+    return output.dataToken;
   }
 
   public async _generateDataTokenInitData(
@@ -123,7 +121,7 @@ export class DataTokenFactory {
       const actionModuleInitData = this._generateLensModuleInitData(inputLens);
 
       const lensHub = LensHub__factory.connect(
-        DeployedContracts[this.chain].Lens.LensHubProxy,
+        DeployedContracts[ChainId[this.chainId]].Lens.LensHubProxy,
         this.signer!,
       );
 
@@ -132,12 +130,13 @@ export class DataTokenFactory {
       ).toNumber();
 
       const signature: EIP712Signature = await _buildLensPostSig({
-        chain: this.chain,
+        chain: ChainId[this.chainId] as Chain,
         wallet: this.signer! as Wallet,
         profileId: inputLens.profileId,
         contentURI: inputLens.contentURI,
         actionModules: [
-          DeployedContracts[this.chain].Lens.CollectPublicationAction,
+          DeployedContracts[ChainId[this.chainId]].Lens
+            .CollectPublicationAction,
         ],
         actionModulesInitDatas: [actionModuleInitData],
         referenceModule: ZERO_ADDRESS,
@@ -149,7 +148,8 @@ export class DataTokenFactory {
         profileId: inputLens.profileId,
         contentURI: inputLens.contentURI,
         actionModules: [
-          DeployedContracts[this.chain].Lens.CollectPublicationAction,
+          DeployedContracts[ChainId[this.chainId]].Lens
+            .CollectPublicationAction,
         ],
         actionModulesInitDatas: [actionModuleInitData],
         referenceModule: ZERO_ADDRESS,
@@ -172,21 +172,23 @@ export class DataTokenFactory {
       const collectModuleAddress =
         inputCyber.essenseMw === "None"
           ? ZERO_ADDRESS
-          : DeployedContracts[this.chain].Cyber[inputCyber.essenseMw];
+          : DeployedContracts[ChainId[this.chainId]].Cyber[
+              inputCyber.essenseMw
+            ];
 
       const collectModuleInitData =
         await this._generateCyberModuleInitData(inputCyber);
       const walletAddr = await this.signer!.getAddress();
 
       const cyberProfile = ProfileNFT__factory.connect(
-        DeployedContracts[this.chain].Cyber.CyberProfileProxy,
+        DeployedContracts[ChainId[this.chainId]].Cyber.CyberProfileProxy,
         this.signer!,
       );
 
       const nonce = await cyberProfile.nonces(walletAddr);
 
       const signature = await _buildCyberPostSig({
-        chain: this.chain,
+        chain: ChainId[this.chainId] as Chain,
         wallet: this.signer! as Wallet,
         profileId: inputCyber.profileId,
         name: ESSENCE_NFT_NAME,
@@ -222,7 +224,7 @@ export class DataTokenFactory {
         input as CreateDataTokenInput<GraphType.Profileless>;
 
       const collectModuleAddress =
-        DeployedContracts[this.chain].Profileless[
+        DeployedContracts[ChainId[this.chainId]].Profileless[
           inputProfileless.collectModule
         ];
 
@@ -236,7 +238,7 @@ export class DataTokenFactory {
       } as ProfilelessPostParams;
 
       const profilelessHub = ProfilelessHub__factory.connect(
-        DeployedContracts[this.chain].Profileless.ProfilelessHub,
+        DeployedContracts[ChainId[this.chainId]].Profileless.ProfilelessHub,
         this.signer!,
       );
 
@@ -245,7 +247,7 @@ export class DataTokenFactory {
       ).toNumber();
 
       const signature: EIP712Signature = await _buildProfilelessPostSig({
-        chain: this.chain,
+        chain: ChainId[this.chainId] as Chain,
         wallet: this.signer! as Wallet,
         contentURI: input.contentURI,
         collectModule: collectModuleAddress,
@@ -282,7 +284,7 @@ export class DataTokenFactory {
         const collectModuleInitParams: LensBaseFeeCollectModuleInitData = {
           amount: input.amount!,
           collectLimit: input.collectLimit,
-          currency: DeployedContracts[this.chain][input.currency!],
+          currency: DeployedContracts[ChainId[this.chainId]][input.currency!],
           referralFee,
           followerOnly,
           endTimestamp,
@@ -298,7 +300,8 @@ export class DataTokenFactory {
         const actionModuleInitData = abiCoder.encode(
           ["address collectModule", "bytes collectModuleInitData"],
           [
-            DeployedContracts[this.chain].Lens.SimpleFeeCollectModule,
+            DeployedContracts[ChainId[this.chainId]].Lens
+              .SimpleFeeCollectModule,
             collectModuleInitData,
           ],
         );
@@ -328,7 +331,8 @@ export class DataTokenFactory {
         const actionModuleInitData = abiCoder.encode(
           ["address collectModule", "bytes collectModuleInitData"],
           [
-            DeployedContracts[this.chain].Lens.SimpleFeeCollectModule,
+            DeployedContracts[ChainId[this.chainId]].Lens
+              .SimpleFeeCollectModule,
             collectModuleInitData,
           ],
         );
@@ -356,7 +360,7 @@ export class DataTokenFactory {
             input.totalSupply!,
             input.amount!,
             input.recipient!,
-            DeployedContracts[this.chain][input.currency!],
+            DeployedContracts[ChainId[this.chainId]][input.currency!],
             subscribeRequired,
           ],
         );
@@ -388,7 +392,7 @@ export class DataTokenFactory {
           [
             input.collectLimit,
             input.amount!,
-            DeployedContracts[this.chain][input.currency!],
+            DeployedContracts[ChainId[this.chainId]][input.currency!],
             input.recipient!,
           ],
         );
@@ -399,7 +403,7 @@ export class DataTokenFactory {
           [
             input.collectLimit,
             input.amount!,
-            DeployedContracts[this.chain][input.currency!],
+            DeployedContracts[ChainId[this.chainId]][input.currency!],
             input.recipient!,
             input.endTimestamp!,
           ],
@@ -412,12 +416,12 @@ export class DataTokenFactory {
 
   private _checkGraphNetwork(graphType: GraphType) {
     if (graphType === GraphType.Lens) {
-      if (this.chain !== "PolygonMumbai") {
-        throw new Error(`Lens graph not support ${this.chain}`);
+      if (ChainId[this.chainId] !== "PolygonMumbai") {
+        throw new Error(`Lens graph not support ${ChainId[this.chainId]}`);
       }
     } else if (graphType == GraphType.Cyber) {
-      if (this.chain !== "BSCTestnet") {
-        throw new Error(`Cyber graph not support ${this.chain}`);
+      if (ChainId[this.chainId] !== "BSCTestnet") {
+        throw new Error(`Cyber graph not support ${ChainId[this.chainId]}`);
       }
     } else {
       return;

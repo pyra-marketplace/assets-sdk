@@ -12,7 +12,7 @@ import { ProfileNFT__factory } from "../contracts";
 import { Chain, ChainId, EIP712Signature } from "../types";
 import { ApiConfig, DeployedContracts, RpcUrlConfig } from "../../config";
 import { DataTypes } from "../contracts/Cyber/ProfileNFT";
-import { getChainByChainId, oneDayLater } from "../../utils";
+import { oneDayLater } from "../../utils";
 import { getSigByWallet } from "./signature";
 
 export async function createCyberProfile({
@@ -26,7 +26,7 @@ export async function createCyberProfile({
   handle: string;
   imageURI?: string;
 }) {
-  const chain = getChainByChainId(chainId);
+  const chain = ChainId[chainId];
   const cyberProfileProxy = ProfileNFT__factory.connect(
     DeployedContracts[chain].Cyber.CyberProfileProxy,
     signer,
@@ -81,7 +81,7 @@ export async function getHandleByCyberProfileId({
   profileId: BigNumberish;
   signerOrProvider?: Signer | Provider;
 }) {
-  const chain = getChainByChainId(chainId);
+  const chain = ChainId[chainId];
   if (chain !== "BSCTestnet") {
     throw new Error("Unsupported Chain");
   }
@@ -105,7 +105,7 @@ export async function getCyberProfileIdByHandle({
   handle: string;
   signerOrProvider?: Signer | Provider;
 }) {
-  const chain = getChainByChainId(chainId);
+  const chain = ChainId[chainId];
   if (chain !== "BSCTestnet") {
     throw new Error("Unsupported Chain");
   }

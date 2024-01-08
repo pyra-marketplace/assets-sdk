@@ -13,6 +13,7 @@
     "prettier/prettier": "error",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-asserted-optional-chain": "off",
+    "@typescript-eslint/ban-types": "off",
     "import/order": "error"
   },
   "overrides": [

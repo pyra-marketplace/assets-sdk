@@ -3,7 +3,7 @@ import { gql, GraphQLClient } from "graphql-request";
 import { LENS_DOMAIN_NAME, LENS_DOMAIN_VERSION } from "../constants";
 import { Chain, ChainId, EIP712Signature } from "../types";
 import { DeployedContracts, ApiConfig, RpcUrlConfig } from "../../config";
-import { getChainByChainId, oneDayLater } from "../../utils";
+import { oneDayLater } from "../../utils";
 import { getSigByWallet } from "./signature";
 
 function getLensGqlClient(chainId: ChainId) {
@@ -88,8 +88,10 @@ export async function createLensProfile({
 
   const txHash = result.createProfileWithHandle.txHash;
 
-  const chain = getChainByChainId(chainId);
-  const provider = new ethers.providers.JsonRpcProvider(RpcUrlConfig[chain]);
+  const chain = ChainId[chainId];
+  const provider = new ethers.providers.JsonRpcProvider(
+    RpcUrlConfig[chain as keyof typeof ChainId],
+  );
   let txRes;
   try {
     while (!txRes) {
