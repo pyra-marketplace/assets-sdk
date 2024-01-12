@@ -3,6 +3,7 @@ import {
   DataverseConnector,
   DataAsset,
   Attached,
+  SYSTEM_CALL,
 } from "@dataverse/dataverse-connector";
 import { DeployedContracts } from "../config";
 import {
@@ -140,52 +141,56 @@ export class DataToken extends DataAssetBase {
     linkedAsset?: DataAsset;
     attached?: Attached;
   }) {
-    this.addGeneralCondition([
-      {
-        conditionType: "evmBasic",
-        contractAddress: "",
-        standardContractType: "",
-        chain: "ethereum",
-        method: "",
-        parameters: [":userAddress"],
-        returnValueTest: {
-          comparator: "=",
-          value: await this.signer.getAddress(),
+    this.signer &&
+      this.addGeneralCondition([
+        {
+          conditionType: "evmBasic",
+          contractAddress: "",
+          standardContractType: "",
+          chain: "ethereum",
+          method: "",
+          parameters: [":userAddress"],
+          returnValueTest: {
+            comparator: "=",
+            value: await this.signer.getAddress(),
+          },
         },
-      },
-    ]);
+      ]);
 
-    this.addSourceCondition({
-      acl: {
-        conditionType: "evmContract",
-        functionName: "isCollected",
-        functionAbi: {
-          inputs: [
-            {
-              internalType: "address",
-              name: "user",
-              type: "address",
-            },
-          ],
-          name: "isCollected",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
+    this.assetContract &&
+      this.chainId &&
+      this.assetId &&
+      this.addSourceCondition({
+        acl: {
+          conditionType: "evmContract",
+          functionName: "isCollected",
+          functionAbi: {
+            inputs: [
+              {
+                internalType: "address",
+                name: "user",
+                type: "address",
+              },
+            ],
+            name: "isCollected",
+            outputs: [
+              {
+                internalType: "bool",
+                name: "",
+                type: "bool",
+              },
+            ],
+            stateMutability: "view",
+            type: "function",
+          },
+          returnValueTest: {
+            key: "",
+            comparator: "=",
+            value: "true",
+          },
         },
-        returnValueTest: {
-          key: "",
-          comparator: "=",
-          value: "true",
-        },
-      },
-      unlockingTimeStamp,
-    });
+        unlockingTimeStamp,
+      });
 
     this.addLinkCondition({
       acl: {
@@ -265,6 +270,36 @@ export class DataToken extends DataAssetBase {
       });
     });
     return output;
+  }
+
+  public async loadCreatedDataTokenFiles(creator: string) {
+    const dataTokens = await DataToken.loadDataTokensCreatedBy(creator);
+
+    const fileIds = dataTokens.map(dataToken =>
+      dataToken.source.replace("ceramic://", ""),
+    );
+
+    const res = await this.dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadFilesBy,
+      params: { fileIds },
+    });
+
+    return res;
+  }
+
+  public async loadCollectedDataTokenFiles(collector: string) {
+    const dataTokens = await DataToken.loadDataTokensCollectedBy(collector);
+
+    const fileIds = dataTokens.map(dataToken =>
+      dataToken.source.replace("ceramic://", ""),
+    );
+
+    const res = await this.dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadFilesBy,
+      params: { fileIds },
+    });
+
+    return res;
   }
 
   updateChain(chainId: ChainId) {

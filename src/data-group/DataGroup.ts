@@ -1,8 +1,10 @@
+// to-do
+
 import { BigNumber, BigNumberish, BytesLike, ethers } from "ethers";
 import {
   DataverseConnector,
   SYSTEM_CALL,
-  Signal,
+  SignalType,
 } from "@dataverse/dataverse-connector";
 import { ChainId, DataToken, DataTokenFactory, GraphType } from "../data-token";
 import { DeployedContracts } from "../config";
@@ -44,7 +46,7 @@ import {
   TimeSegment,
 } from "./types";
 
-export class DataUnion extends DataAssetBase {
+export class DataGroup extends DataAssetBase {
   instance: IDataUnion;
 
   constructor({
@@ -69,7 +71,7 @@ export class DataUnion extends DataAssetBase {
     this.instance = IDataUnion__factory.connect(assetContract, this.signer);
   }
 
-  public async createDataUnion(params: PublishDataUnionInput) {
+  public async createDataGroup(params: PublishDataUnionInput) {
     this.assertCheckChain();
 
     const {
@@ -154,11 +156,11 @@ export class DataUnion extends DataAssetBase {
     }
   }
 
-  public async collectDataUnion(dataUnionId: BytesLike) {
+  public async collectDataGroup(dataGroupId: BytesLike) {
     const collector = await this.signer!.getAddress();
 
     const union: IDataUnionDefinitions.UnionStructOutput =
-      await this.instance.getDataUnionById(dataUnionId);
+      await this.instance.getDataUnionById(dataGroupId);
 
     const dataToken = new DataToken({
       chainId: this.chainId!,
@@ -184,7 +186,7 @@ export class DataUnion extends DataAssetBase {
 
     const collectData = await dataToken._generateCollectData(collector);
 
-    const tx = await this.instance.collect(dataUnionId, collectData);
+    const tx = await this.instance.collect(dataGroupId, collectData);
     const result = await tx.wait();
     const targetEvents = result.events?.filter(e => e.event === "Collected");
     if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
@@ -198,7 +200,7 @@ export class DataUnion extends DataAssetBase {
     } as CollectDataUnionOutput;
   }
 
-  public async subscribeDataUnion({
+  public async subscribeDataGroup({
     dataUnionId,
     collectTokenId,
     subscribeInput,
@@ -232,43 +234,23 @@ export class DataUnion extends DataAssetBase {
     } as SubscribeDataUnionOutput;
   }
 
-  public async loadCreatedDataUnionFolders(creator: string) {
-    const dataUnions = await DataUnion.loadDataUnionsPublishedBy(creator);
-
-    const folderIds = dataUnions.map(dataUnion =>
-      dataUnion.data_token_info.source.replace("ceramic://", ""),
-    );
+  public async loadFilesInDataGroup(groupId: string) {
+    if (!groupId) {
+      throw new Error("groupId cannot be empty");
+    }
 
     const res = await this.dataverseConnector.runOS({
       method: SYSTEM_CALL.loadFoldersBy,
-      params: { folderIds },
+      params: { signal: { type: SignalType.asset, id: groupId } },
     });
 
-    return res;
-  }
-
-  public async loadCollectedDataUnionFolders(collector: string) {
-    const dataUnions = await DataUnion.loadDataUnionsCollectedBy(collector);
-
-    const folderIds = dataUnions.map(dataUnion =>
-      dataUnion.data_token_info.source.replace("ceramic://", ""),
+    return Object.assign(
+      {},
+      ...Object.values(res).map(item => item.mirrorRecord),
     );
-
-    const res = await this.dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadFoldersBy,
-      params: { folderIds },
-    });
-
-    return res;
   }
 
-  async applyConditionsToFolder(signal?: Signal) {
-    const res = await this.applyFolderConditions(signal);
-
-    return res;
-  }
-
-  public getDataUnionById(
+  public getDataGroupById(
     dataUnionId: BytesLike,
   ): Promise<IDataUnionDefinitions.UnionStructOutput> {
     return this.instance.getDataUnionById(dataUnionId);
@@ -339,25 +321,25 @@ export class DataUnion extends DataAssetBase {
     } as CloseDataUnionOutput;
   }
 
-  static async loadDataUnionsPublishedBy(
+  static async loadDataGroupsPublishedBy(
     publisher: string,
   ): Promise<Array<DataUnionGraphType>> {
     return loadDataUnionsPublishedBy(publisher);
   }
 
-  static async loadDataUnionsCollectedBy(
+  static async loadDataGroupsCollectedBy(
     collector: string,
   ): Promise<Array<DataUnionGraphType>> {
     return loadDataUnionsCollectedBy(collector);
   }
 
-  static async loadDataUnionCollectors(
+  static async loadDataGroupCollectors(
     dataUnionId: string,
   ): Promise<Array<Data_Union_Subscriber>> {
     return loadDataUnionCollectors(dataUnionId);
   }
 
-  static async loadDataUnionSubscribers(
+  static async loadDataGroupSubscribers(
     dataUnionId: string,
   ): Promise<Array<Data_Union_Subscriber>> {
     const result: Array<Data_Union_Subscriber> = [];
@@ -370,17 +352,17 @@ export class DataUnion extends DataAssetBase {
     return result;
   }
 
-  static async loadDataUnion(dataUnionId: string): Promise<DataUnionGraphType> {
+  static async loadDataGroup(dataUnionId: string): Promise<DataUnionGraphType> {
     return loadDataUnion(dataUnionId);
   }
 
-  static async loadDataUnions(
+  static async loadDataGroups(
     dataUnionIds: Array<string>,
   ): Promise<Array<DataUnionGraphType>> {
     return loadDataUnions(dataUnionIds);
   }
 
-  static async loadDataUnionSubscriptionsBy({
+  static async loadDataGroupSubscriptionsBy({
     dataUnionId,
     collector,
   }: {
@@ -390,7 +372,7 @@ export class DataUnion extends DataAssetBase {
     return loadDataUnionSubscriptionsBy(dataUnionId, collector);
   }
 
-  static async isDataUnionCollectedBy({
+  static async isDataGroupCollectedBy({
     dataUnionId,
     collector,
   }: {
@@ -400,7 +382,7 @@ export class DataUnion extends DataAssetBase {
     return isDataUnionCollectedBy(dataUnionId, collector);
   }
 
-  static async isDataUnionSubscribedBy({
+  static async isDataGroupSubscribedBy({
     dataUnionId,
     subscriber,
     timestamp,
