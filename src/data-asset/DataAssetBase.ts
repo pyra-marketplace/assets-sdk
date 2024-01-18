@@ -11,12 +11,14 @@ import {
   SYSTEM_CALL,
   Signal,
 } from "@dataverse/dataverse-connector";
-import { Signer, ethers } from "ethers";
+import { BigNumberish, BytesLike, Signer, Wallet, ethers } from "ethers";
 import {
   getChainIdFromChainName,
   getChainNameFromChainId,
   getTimestampByBlockNumber,
+  oneDayLater,
 } from "../utils";
+import { ChainId } from "../types";
 import {
   GeneralAccessConditions,
   SourceAssetConditionInput,
@@ -26,12 +28,17 @@ import {
   TimestampCondition,
   OrCondition,
   AndCondition,
+  ActParams,
+  EIP712Signature,
+  PublishParams,
+  AddActionsParams,
 } from "./types";
+import { DataMonetizerBase__factory, IERC20__factory } from "./abi/typechain";
 
 export class DataAssetBase {
   fileOrFolderId: string;
   assetContract?: string;
-  chainId?: number;
+  chainId?: ChainId;
   assetId?: string;
   generalAccessConditions?: GeneralAccessConditions;
   sourceAssetCondition?: SourceAssetCondition;
@@ -48,10 +55,10 @@ export class DataAssetBase {
     dataverseConnector,
     assetId,
   }: {
+    chainId?: ChainId;
+    assetContract?: string;
     fileOrFolderId: string;
     dataverseConnector: DataverseConnector;
-    chainId?: number;
-    assetContract?: string;
     assetId?: string;
   }) {
     if (!fileOrFolderId) {
@@ -76,17 +83,17 @@ export class DataAssetBase {
     }
   }
 
-  async createAssetHandler(method: Function): Promise<string> {
-    const assetId = await method();
-    this.assetId = assetId;
-    return assetId;
-  }
+  // public async createAssetHandler(method: Function): Promise<string> {
+  //   const assetId = await method();
+  //   this.assetId = assetId;
+  //   return assetId;
+  // }
 
-  addGeneralCondition(acl: GeneralAccessConditions) {
+  public addGeneralCondition(acl: GeneralAccessConditions) {
     this.generalAccessConditions = acl;
   }
 
-  addSourceCondition({
+  public addSourceCondition({
     acl,
     unlockingTimeStamp,
   }: {
@@ -140,7 +147,7 @@ export class DataAssetBase {
     }
   }
 
-  async addLinkCondition({
+  public async addLinkCondition({
     acl,
     linkedAsset,
     attached,
@@ -217,7 +224,7 @@ export class DataAssetBase {
     }
   }
 
-  async applyFileConditions() {
+  public async applyFileConditions() {
     const dependencies = this.linkedAssetConditions?.map(item => {
       if ((item as OrCondition)?.operator) {
         return;
@@ -290,7 +297,7 @@ export class DataAssetBase {
     return res;
   }
 
-  async applyFolderConditions(signal?: Signal) {
+  public async applyFolderConditions(signal?: Signal) {
     const monetizationProvider = {
       dataAsset: {
         assetId: this.assetId,
@@ -311,5 +318,328 @@ export class DataAssetBase {
     });
 
     return res;
+  }
+
+  public async getAssetOwner(assetId: BytesLike) {
+    if (!this.assetContract) {
+      throw new Error(
+        "AssetContract cannot be empty, please pass in through constructor",
+      );
+    }
+    const dataMonetizerBase = DataMonetizerBase__factory.connect(
+      this.assetContract,
+      this.signer,
+    );
+    return await dataMonetizerBase.getAssetOwner(assetId);
+  }
+
+  protected async _publish(
+    publishParams: PublishParams,
+    withSig: boolean = false,
+  ) {
+    if (!this.assetContract) {
+      throw new Error(
+        "AssetContract cannot be empty, please pass in through constructor",
+      );
+    }
+    const dataMonetizerBase = DataMonetizerBase__factory.connect(
+      this.assetContract,
+      this.signer,
+    );
+
+    let receipt;
+    if (!withSig) {
+      const tx = await dataMonetizerBase.publish(publishParams);
+      receipt = await tx.wait();
+    } else {
+      const signature = await this._buildPublishSignature(publishParams);
+      const tx = await dataMonetizerBase.publishWithSig(
+        publishParams,
+        signature,
+      );
+      receipt = await tx.wait();
+    }
+    const targetEvents = receipt.events?.filter(
+      e => e.event === "AssetPublished",
+    );
+    if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
+      throw new Error("Filter Published event failed");
+    }
+    const assetId: BytesLike = targetEvents[0].args[0];
+    return assetId;
+  }
+
+  protected async _act(actParams: ActParams, withSig: boolean = false) {
+    if (!this.assetContract) {
+      throw new Error(
+        "AssetContract cannot be empty, please pass in through constructor",
+      );
+    }
+    const dataMonetizerBase = DataMonetizerBase__factory.connect(
+      this.assetContract,
+      this.signer,
+    );
+    let receipt;
+    if (!withSig) {
+      const tx = await dataMonetizerBase.act(actParams);
+      receipt = await tx.wait();
+    } else {
+      const signature = await this._buildActSignature(actParams);
+      const tx = await dataMonetizerBase.actWithSig(actParams, signature);
+      receipt = await tx.wait();
+    }
+    const targetEvents = receipt.events?.filter(e => e.event === "AssetActed");
+    if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
+      throw new Error("Filter Published event failed");
+    }
+    const actionReturnDatas: BytesLike[] = targetEvents[0].args[4];
+    return actionReturnDatas;
+  }
+
+  protected async _addActions(
+    addActionsParams: AddActionsParams,
+    withSig: boolean = false,
+  ) {
+    if (!this.assetContract) {
+      throw new Error(
+        "AssetContract cannot be empty, please pass in through constructor",
+      );
+    }
+    const dataMonetizerBase = DataMonetizerBase__factory.connect(
+      this.assetContract,
+      this.signer,
+    );
+
+    if (!withSig) {
+      const tx = await dataMonetizerBase.addActions(addActionsParams);
+      await tx.wait();
+    } else {
+      const signature = await this._buildAddActionsSignature(addActionsParams);
+      const tx = await dataMonetizerBase.addActionsWithSig(
+        addActionsParams,
+        signature,
+      );
+      await tx.wait();
+    }
+  }
+
+  private async _buildPublishSignature(publishParams: PublishParams) {
+    if (!this.assetContract) {
+      throw new Error(
+        "AssetContract cannot be empty, please pass in through constructor",
+      );
+    }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor",
+      );
+    }
+    const dataMonetizerBase = DataMonetizerBase__factory.connect(
+      this.assetContract,
+      this.signer,
+    );
+    const nonce = await dataMonetizerBase.getSigNonce(
+      await this.signer.getAddress(),
+    );
+    const { name, version } = await dataMonetizerBase.eip712Domain();
+
+    const deadline = oneDayLater();
+
+    const msgParams = {
+      types: {
+        PublishWithSig: [
+          { name: "resourceId", type: "string" },
+          { name: "data", type: "bytes" },
+          { name: "actions", type: "address[]" },
+          { name: "actionInitDatas", type: "bytes[]" },
+          { name: "images", type: "bytes32[]" },
+          { name: "nonce", type: "uint256" },
+          { name: "deadline", type: "uint256" },
+        ],
+      },
+      domain: {
+        name,
+        version,
+        chainId: this.chainId,
+        verifyingContract: this.assetContract,
+      },
+      value: {
+        resourceId: publishParams.resourceId,
+        data: publishParams.data,
+        actions: publishParams.actions,
+        actionInitDatas: publishParams.actionInitDatas,
+        images: publishParams.images,
+        nonce,
+        deadline,
+      },
+    };
+
+    const { v, r, s } = ethers.utils.splitSignature(
+      await (this.signer as Wallet)._signTypedData(
+        msgParams.domain,
+        msgParams.types,
+        msgParams.value,
+      ),
+    );
+
+    const sig: EIP712Signature = {
+      signer: await this.signer.getAddress(),
+      v,
+      r,
+      s,
+      deadline,
+    };
+
+    return sig;
+  }
+
+  private async _buildActSignature(actParams: ActParams) {
+    if (!this.assetContract) {
+      throw new Error(
+        "AssetContract cannot be empty, please pass in through constructor",
+      );
+    }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor",
+      );
+    }
+    const dataMonetizerBase = DataMonetizerBase__factory.connect(
+      this.assetContract,
+      this.signer,
+    );
+    const nonce = await dataMonetizerBase.getSigNonce(
+      await this.signer.getAddress(),
+    );
+    const { name, version } = await dataMonetizerBase.eip712Domain();
+
+    const deadline = oneDayLater();
+
+    const msgParams = {
+      types: {
+        ActWithSig: [
+          { name: "assetId", type: "bytes32" },
+          { name: "actions", type: "address[]" },
+          { name: "actionProcessDatas", type: "bytes[]" },
+          { name: "nonce", type: "uint256" },
+          { name: "deadline", type: "uint256" },
+        ],
+      },
+      domain: {
+        name,
+        version,
+        chainId: this.chainId,
+        verifyingContract: this.assetContract,
+      },
+      value: {
+        assetId: actParams.assetId,
+        actions: actParams.actions,
+        actionProcessDatas: actParams.actionProcessDatas,
+        nonce,
+        deadline,
+      },
+    };
+
+    const { v, r, s } = ethers.utils.splitSignature(
+      await (this.signer as Wallet)._signTypedData(
+        msgParams.domain,
+        msgParams.types,
+        msgParams.value,
+      ),
+    );
+
+    const sig: EIP712Signature = {
+      signer: await this.signer.getAddress(),
+      v,
+      r,
+      s,
+      deadline,
+    };
+
+    return sig;
+  }
+
+  private async _buildAddActionsSignature(addActionsParams: AddActionsParams) {
+    if (!this.assetContract) {
+      throw new Error(
+        "AssetContract cannot be empty, please pass in through constructor",
+      );
+    }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor",
+      );
+    }
+    const dataMonetizerBase = DataMonetizerBase__factory.connect(
+      this.assetContract,
+      this.signer,
+    );
+    const nonce = await dataMonetizerBase.getSigNonce(
+      await this.signer.getAddress(),
+    );
+    const { name, version } = await dataMonetizerBase.eip712Domain();
+
+    const deadline = oneDayLater();
+
+    const msgParams = {
+      types: {
+        AddActionsWithSig: [
+          { name: "assetId", type: "bytes32" },
+          { name: "actions", type: "address[]" },
+          { name: "actionInitDatas", type: "bytes[]" },
+          { name: "nonce", type: "uint256" },
+          { name: "deadline", type: "uint256" },
+        ],
+      },
+      domain: {
+        name,
+        version,
+        chainId: this.chainId,
+        verifyingContract: this.assetContract,
+      },
+      value: {
+        assetId: addActionsParams.assetId,
+        actions: addActionsParams.actions,
+        actionInitDatas: addActionsParams.actionInitDatas,
+        nonce,
+        deadline,
+      },
+    };
+
+    const { v, r, s } = ethers.utils.splitSignature(
+      await (this.signer as Wallet)._signTypedData(
+        msgParams.domain,
+        msgParams.types,
+        msgParams.value,
+      ),
+    );
+
+    const sig: EIP712Signature = {
+      signer: await this.signer.getAddress(),
+      v,
+      r,
+      s,
+      deadline,
+    };
+
+    return sig;
+  }
+
+  protected async _checkERC20BalanceAndAllowance(
+    currency: string,
+    amount: BigNumberish,
+    spender: string,
+  ) {
+    const erc20 = IERC20__factory.connect(currency, this.signer!);
+    const signerAddr = await this.signer!.getAddress();
+    const userBalance = await erc20.balanceOf(signerAddr);
+    if (userBalance.lt(amount)) {
+      throw new Error("Insufficient Balance");
+    }
+    const allowance = await erc20.allowance(signerAddr, spender);
+    if (allowance.lt(amount)) {
+      const tx = await erc20.approve(spender, amount);
+      await tx.wait();
+    }
   }
 }

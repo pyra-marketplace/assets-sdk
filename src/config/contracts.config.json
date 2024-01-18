@@ -1,33 +1,11 @@
 {
   "PolygonMumbai": {
-    "GlobalConfig": "0xaD6AE1eBDdcd7186158207585e2F0d41072c6e24",
-    "DappTableRegistry": "0xEfc3754b26c1BBcb7b8b1bFb37A3e8c47ebD6329",
-    "DVC": "0x77047acFE49323e9B8Fa871A28cAa004e96A7F3B",
-    "DataPool": {
-      "DataPool": "0x9aA3326B08b8b18d24E2B284Afa77F94A4947999",
-      "WriteUntilSubscribeModule": "0xFEC5e03f7d5a803032Fd3Cd47e5e095CfA9c215E"
+    "DappTableRegistry": "",
+    "ActionConfig": "",
+    "DataToken": {
+      
     },
-    "DataUnion": {
-      "DataUnion": "0x475933CD597B7376D73Ba2A47D58250e81b1E206",
-      "LitACL": "0xF727abC7211Db9FcDfCB003122Be9a9F003f2795",
-      "BlockSubscribeModule": "0xeCE8c6bE86a21E9C046f446c4107c16D8716CF0D",
-      "TimeSegmentSubscribeModule": "0x83757C8d3314beB662ebFec59c4d4A6DBCd52f19"
-    },
-    "DataTokenHub": "0x6cd98CE726C672a7EDE4ca1453C8275d67391Ef1",
-    "Lens": {
-      "DataTokenFactory": "0xF4E0D83B585e3d11746F3a22E6bdB78D44feda12",
-      "LensHubProxy": "0x4fbffF20302F3326B20052ab9C217C44F6480900",
-      "ProfileCreationProxy": "0x0554a7163C3aa423429719940FFE179F21cD83f6",
-      "CollectPublicationAction": "0x4FdAae7fC16Ef41eAE8d8f6578d575C9d64722f2",
-      "SimpleFeeCollectModule": "0x345Cc3A3F9127DE2C69819C2E07bB748dE6E45ee"
-    },
-    "Profileless": {
-      "DataTokenFactory": "0xfA72d5Fb9a874E89A41214bF53D1DD874d466BeB",
-      "ProfilelessHub": "0xE280DCb31Dd08ea1249dd03f8aB63cB29EFcc48e",
-      "FreeCollectModule": "0xFdbEce9f127556F8d41965573db6bAf8DB2dAf93",
-      "LimitedFeeCollectModule": "0x2874193036f3142a0F86E3232cEe3cc39D4d086b",
-      "LimitedTimedFeeCollectModule": "0xd75789f8E81AAC2DA1Eb42eE49c4e5e7b6F66409"
-    },
+
     "WMATIC": "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
     "WETH": "0x3c68ce8504087f89c640d02d133646d98e64ddd9",
     "USDC": "0x2058A9D7613eEE744279e3856Ef0eAda5FCbaA7e",

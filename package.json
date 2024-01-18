@@ -28,8 +28,9 @@
         }
     },
     "scripts": {
-        "typechain:data-token": "rimraf src/data-token/contracts/* && typechain --target ethers-v5 --out-dir src/data-token/contracts './src/data-token/abi/**/*.json'",
-        "typechain:data-union": "rimraf src/data-union/contracts/* && typechain --target ethers-v5 --out-dir src/data-union/contracts './src/data-union/abi/**/*.json'",
+        "typechain:data-asset": "rimraf src/data-asset/abi/typechain/* && typechain --target ethers-v5 --out-dir src/data-asset/abi/typechain './src/data-asset/abi/**/*.json'",
+        "typechain:data-token": "rimraf src/data-token/abi/typechain/* && typechain --target ethers-v5 --out-dir src/data-token/abi/typechain './src/data-token/abi/**/*.json'",
+        "typechain:data-union": "rimraf src/data-union/abi/typechain/* && typechain --target ethers-v5 --out-dir src/data-union/abi/typechain './src/data-union/abi/**/*.json'",
         "fork:polygon_mumbai": "source .env && anvil --fork-url $POLYGON_MUMBAI_RPC_URL",
         "fork:bsc_testnet": "source .env && anvil --fork-url $BSC_TESTNET_RPC_URL",
         "fork:scroll_sepolia": "source .env && anvil --fork-url $SCROLL_SEPOLIA_RPC_URL",

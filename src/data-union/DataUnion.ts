@@ -1,52 +1,39 @@
-import { BigNumber, BigNumberish, BytesLike, ethers } from "ethers";
-import {
-  DataverseConnector,
-  SYSTEM_CALL,
-  Signal,
-} from "@dataverse/dataverse-connector";
-import { ChainId, DataToken, DataTokenFactory, GraphType } from "../data-token";
-import { DeployedContracts } from "../config";
-import {
-  loadDataUnionsPublishedBy,
-  loadDataUnionsCollectedBy,
-  loadDataUnionSubscriptionsBy,
-  loadDataUnionCollectors,
-  loadDataUnion,
-  Data_Union_Subscriber,
-  loadDataUnionSubscribers,
-  DataUnion as DataUnionGraphType,
-  Data_Union_Subscription,
-  isDataUnionCollectedBy,
-  loadDataUnions,
-} from "../graphql";
-import { getBlockNumberByTimestamp } from "../utils";
+import { BigNumber, BigNumberish, Wallet, ethers } from "ethers";
+import { DataverseConnector, Signal } from "@dataverse/dataverse-connector";
+// import {
+//   loadDataUnionsPublishedBy,
+//   loadDataUnionsCollectedBy,
+//   loadDataUnionSubscriptionsBy,
+//   loadDataUnionCollectors,
+//   loadDataUnion,
+//   Data_Union_Subscriber,
+//   loadDataUnionSubscribers,
+//   DataUnion as DataUnionGraphType,
+//   Data_Union_Subscription,
+//   isDataUnionCollectedBy,
+//   loadDataUnions,
+// } from "../graphql";
+import { oneDayLater } from "../utils";
 import { abiCoder } from "../utils";
-import BlockNumberConfig from "../config/block.config.json";
 import { DataAssetBase } from "../data-asset/DataAssetBase";
 import {
-  BlockSubscribeModule__factory,
-  IDataUnion,
-  IDataUnion__factory,
-  IERC20__factory,
-  LitACL__factory,
-  TimeSegmentSubscribeModule__factory,
-} from "./contracts";
-import { IDataUnionDefinitions } from "./contracts/IDataUnion";
-
+  ActParams,
+  AddActionsParams,
+  EIP712Signature,
+  PublishParams,
+} from "../data-asset/types";
+import { DataMonetizerBase__factory } from "../data-asset/abi/typechain";
+import { ChainId } from "../types";
 import {
-  CloseDataUnionOutput,
-  CollectDataUnionOutput,
-  Currency,
-  PublishDataUnionInput,
-  SubscribeDataUnionInput,
-  SubscribeDataUnionOutput,
-  SubscribeModule,
-  TimeSegment,
-} from "./types";
+  DataUnion__factory,
+  FeeCollectModule__factory,
+  MonthlySubscribeModule__factory,
+  SubscribeAction__factory,
+} from "./abi/typechain";
+import { UnionAsset } from "./types";
+import { DEPLOYED_ADDRESSES } from "./addresses";
 
 export class DataUnion extends DataAssetBase {
-  instance: IDataUnion;
-
   constructor({
     chainId,
     folderId,
@@ -56,211 +43,398 @@ export class DataUnion extends DataAssetBase {
     folderId: string;
     dataverseConnector: DataverseConnector;
   }) {
-    const assetContract =
-      DeployedContracts[ChainId[chainId]].DataUnion.DataUnion;
-
     super({
       chainId,
-      assetContract,
+      assetContract: DEPLOYED_ADDRESSES[chainId].DataUnion,
       fileOrFolderId: folderId,
       dataverseConnector,
     });
-
-    this.instance = IDataUnion__factory.connect(assetContract, this.signer);
   }
 
-  public async createDataUnion(params: PublishDataUnionInput) {
-    this.assertCheckChain();
-
-    const {
-      createDataTokenInput: {
-        type,
-        collectModule,
-        collectLimit,
-        amount,
-        currency,
-        recipient,
-        endTimestamp,
-      },
-      resourceId,
-      subscribeModule,
-      subscribeModuleInput,
-    } = params;
-
-    const creator = await this.signer.getAddress();
-
-    const input = {
-      type: type ?? GraphType.Profileless,
-      contentURI: this.fileOrFolderId,
-      collectModule: collectModule ?? "LimitedFeeCollectModule",
-      collectLimit: collectLimit ?? 2 ** 52,
-      recipient: recipient ?? creator,
-      currency,
-      amount: ethers.utils.parseUnits(
-        String(amount),
-        currency === "USDC" ? 6 : 18,
-      ),
-      endTimestamp,
-    };
-
-    const dataTokenFactory = new DataTokenFactory({
-      chainId: this.chainId!,
-      signer: this.signer,
-    });
-
-    const createData = await dataTokenFactory._generateDataTokenInitData(input);
-
-    const dataTokenFactoryAddress = dataTokenFactory.getAddress(type);
-
-    const subscribeModuleInitData = this._generateSubscribeModuleInitData({
-      subscribeModule,
-      ...subscribeModuleInput,
-      amount: ethers.utils.parseEther(String(subscribeModuleInput.amount)),
-    });
-
-    const publish = async () => {
-      const tx = await this.instance.publish(
-        dataTokenFactoryAddress,
-        createData,
-        resourceId,
-        DeployedContracts[ChainId[this.chainId!]].DataUnion[subscribeModule],
-        subscribeModuleInitData,
+  public async getUnionAsset() {
+    if (!this.assetContract) {
+      throw new Error(
+        "AssetContract cannot be empty, please pass in through constructor",
       );
+    }
+    if (!this.assetId) {
+      throw new Error(
+        "AssetId cannot be empty, please call createAssetHandler first",
+      );
+    }
+    const dataUnion = DataUnion__factory.connect(
+      this.assetContract,
+      this.signer,
+    );
+    const unionAsset: UnionAsset = await dataUnion.getUnionAsset(this.assetId);
+    return unionAsset;
+  }
 
-      const result = await tx.wait();
-      const targetEvents = result.events?.filter(e => e.event === "Published");
-      if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
-        throw new Error("Filter Published event failed");
-      }
-      return targetEvents[0].args[3];
-      // return {
-      //   dataUnionId: targetEvents[0].args[0],
-      //   publisher: targetEvents[0].args[1],
-      //   resourceId: targetEvents[0].args[2],
-      //   dataToken: targetEvents[0].args[3],
-      //   subscribeModule: targetEvents[0].args[4],
-      //   startBlockNumber: targetEvents[0].args[5],
-      // } as PublishDataUnionOutput;
+  public async publish({
+    resourceId,
+    fileId,
+    actionsConfig,
+    withSig,
+  }: {
+    resourceId: string;
+    fileId: string;
+    actionsConfig?: {
+      collectAction?: {
+        currency: string;
+        amount: BigNumberish;
+        totalSupply?: BigNumberish;
+      };
+      subscribeAction?: {
+        currency: string;
+        amount: BigNumberish;
+      };
+    };
+    withSig?: boolean;
+  }) {
+    if (this.assetId) {
+      return this.assetId;
+    }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor",
+      );
+    }
+
+    const data: string = abiCoder.encode(["string"], [fileId]);
+
+    const actions: string[] = [];
+    const actionInitDatas: string[] = [];
+
+    if (actionsConfig?.collectAction) {
+      actions.push(DEPLOYED_ADDRESSES[this.chainId].CollectAction);
+
+      const collectModuleInitData = abiCoder.encode(
+        ["uint256", "address", "uint256"],
+        [
+          actionsConfig.collectAction.totalSupply ??
+            ethers.constants.MaxUint256,
+          actionsConfig.collectAction.currency,
+          actionsConfig.collectAction.amount,
+        ],
+      );
+      const actionInitData = abiCoder.encode(
+        ["address", "bytes"],
+        [
+          DEPLOYED_ADDRESSES[this.chainId].FeeCollectModule,
+          collectModuleInitData,
+        ],
+      );
+      actionInitDatas.push(actionInitData);
+    }
+
+    if (actionsConfig?.subscribeAction) {
+      actions.push(DEPLOYED_ADDRESSES[this.chainId].SubscribeAction);
+
+      const subscribeModuleInitData = abiCoder.encode(
+        ["address", "uint256"],
+        [
+          actionsConfig.subscribeAction.currency,
+          actionsConfig.subscribeAction.amount,
+        ],
+      );
+      const actionInitData = abiCoder.encode(
+        ["address", "bytes"],
+        [
+          DEPLOYED_ADDRESSES[this.chainId].MonthlySubscribeModule,
+          subscribeModuleInitData,
+        ],
+      );
+      actionInitDatas.push(actionInitData);
+    }
+
+    const publishParams: PublishParams = {
+      resourceId,
+      data,
+      actions,
+      actionInitDatas,
+      images: [],
     };
 
-    const assetId = await this.createAssetHandler(publish);
-
-    return assetId;
+    const assetId = await this._publish(publishParams, withSig);
+    this.assetId = assetId.toString();
   }
 
-  private assertCheckChain() {
-    if (!this.chainId || !ChainId[this.chainId]) {
-      throw new Error("Chain is not set");
+  public async addActions({
+    collectAction,
+    subscribeAction,
+    withSig,
+  }: {
+    collectAction?: {
+      currency: string;
+      amount: BigNumberish;
+      totalSupply?: BigNumberish;
+    };
+    subscribeAction?: {
+      currency: string;
+      amount: BigNumberish;
+    };
+    withSig?: boolean;
+  }) {
+    if (!this.assetId) {
+      throw new Error(
+        "AssetId cannot be empty, please call createAssetHandler first",
+      );
     }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor",
+      );
+    }
+    const unionAsset = await this.getUnionAsset();
+
+    const actions: string[] = [];
+    const actionInitDatas: string[] = [];
+
+    if (collectAction) {
+      if (
+        unionAsset.actions.includes(
+          DEPLOYED_ADDRESSES[this.chainId].CollectAction,
+        )
+      ) {
+        throw new Error("CollectAction already enabled.");
+      }
+      actions.push(DEPLOYED_ADDRESSES[this.chainId].CollectAction);
+
+      const collectModuleInitData = abiCoder.encode(
+        ["uint256", "address", "uint256"],
+        [
+          collectAction.totalSupply ?? ethers.constants.MaxUint256,
+          collectAction.currency,
+          collectAction.amount,
+        ],
+      );
+      const actionInitData = abiCoder.encode(
+        ["address", "bytes"],
+        [
+          DEPLOYED_ADDRESSES[this.chainId].FeeCollectModule,
+          collectModuleInitData,
+        ],
+      );
+      actionInitDatas.push(actionInitData);
+    }
+
+    if (subscribeAction) {
+      if (
+        unionAsset.actions.includes(
+          DEPLOYED_ADDRESSES[this.chainId].SubscribeAction,
+        )
+      ) {
+        throw new Error("SubscribeAction already enabled.");
+      }
+      actions.push(DEPLOYED_ADDRESSES[this.chainId].SubscribeAction);
+
+      const subscribeModuleInitData = abiCoder.encode(
+        ["address", "uint256"],
+        [subscribeAction.currency, subscribeAction.amount],
+      );
+      const actionInitData = abiCoder.encode(
+        ["address", "bytes"],
+        [
+          DEPLOYED_ADDRESSES[this.chainId].MonthlySubscribeModule,
+          subscribeModuleInitData,
+        ],
+      );
+      actionInitDatas.push(actionInitData);
+    }
+
+    const addActionsParams: AddActionsParams = {
+      assetId: this.assetId,
+      actions,
+      actionInitDatas,
+    };
+
+    return await this._addActions(addActionsParams, withSig);
   }
 
-  public async collectDataUnion(dataUnionId: BytesLike) {
-    const collector = await this.signer!.getAddress();
+  public async close(withSig: boolean = false) {
+    if (!this.assetId) {
+      throw new Error(
+        "AssetId cannot be empty, please call createAssetHandler first",
+      );
+    }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor",
+      );
+    }
 
-    const union: IDataUnionDefinitions.UnionStructOutput =
-      await this.instance.getDataUnionById(dataUnionId);
-
-    const dataToken = new DataToken({
-      chainId: this.chainId!,
-      fileId: "",
-      dataTokenAddress: union.dataToken,
-      dataverseConnector: this.dataverseConnector,
-    });
-
-    const unionFolderId = (await dataToken.getContentURI()).replace(
-      "ceramic://",
-      "",
+    const dataUnion = DataUnion__factory.connect(
+      DEPLOYED_ADDRESSES[this.chainId].DataUnion,
+      this.signer,
     );
 
-    const dataUnion = await this.dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadDataUnionById,
-      params: unionFolderId,
-    });
+    let receipt;
+    if (!withSig) {
+      const tx = await dataUnion.close(this.assetId);
+      receipt = await tx.wait();
+    } else {
+      const signature = await this._buildCloseSignature();
+      const tx = await dataUnion.closeWithSig(this.assetId, signature);
+      receipt = await tx.wait();
+    }
 
-    const linkedAsset =
-      dataUnion.accessControl?.monetizationProvider?.dataAsset!;
-
-    dataToken.updateChain(linkedAsset.chainId);
-
-    const collectData = await dataToken._generateCollectData(collector);
-
-    const tx = await this.instance.collect(dataUnionId, collectData);
-    const result = await tx.wait();
-    const targetEvents = result.events?.filter(e => e.event === "Collected");
+    const targetEvents = receipt.events?.filter(e => e.event === "UnionClosed");
     if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
-      throw new Error("Filter Collected event failed");
+      throw new Error("Filter Published event failed");
+    }
+    return BigNumber.from(targetEvents[0].args[2]).toNumber();
+  }
+
+  public async collect(withSig?: boolean) {
+    if (!this.assetId) {
+      throw new Error(
+        "AssetId cannot be empty, please call createAssetHandler first",
+      );
+    }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor",
+      );
     }
 
-    return {
-      dataUnionId: targetEvents[0].args[0],
-      dataToken: targetEvents[0].args[1],
-      collectTokenId: targetEvents[0].args[2],
-    } as CollectDataUnionOutput;
-  }
+    const feeCollectModuleContract = FeeCollectModule__factory.connect(
+      DEPLOYED_ADDRESSES[this.chainId].FeeCollectModule,
+      this.signer,
+    );
+    const { currency, amount } =
+      await feeCollectModuleContract.getAssetCollectDetail(this.assetId);
 
-  public async subscribeDataUnion({
-    dataUnionId,
-    collectTokenId,
-    subscribeInput,
-  }: SubscribeDataUnionInput) {
-    const { subscribeModule } =
-      await this.instance.getDataUnionById(dataUnionId);
-    const subscribeData = await this._generateSubscribeData({
-      dataUnionId,
-      subscribeModule,
-      subscribeInput,
-    });
-
-    const tx = await this.instance.subscribe(
-      dataUnionId,
-      subscribeData,
-      collectTokenId,
+    await this._checkERC20BalanceAndAllowance(
+      currency,
+      amount,
+      DEPLOYED_ADDRESSES[this.chainId].CollectAction,
     );
 
-    const result = await tx.wait();
-    const targetEvents = result.events?.filter(e => e.event === "Subscribed");
-    if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
-      throw new Error("Filter Subscribed event failed");
+    const actionProcessData = abiCoder.encode(
+      ["address", "uint256"],
+      [currency, amount],
+    );
+
+    const actParams: ActParams = {
+      assetId: this.assetId,
+      actions: [DEPLOYED_ADDRESSES[this.chainId].CollectAction],
+      actionProcessDatas: [actionProcessData],
+    };
+
+    const [actionReturnData] = await this._act(actParams, withSig);
+    const [collectionId] = abiCoder.decode(
+      ["uint256", "bytes"],
+      actionReturnData,
+    );
+
+    return collectionId as BigNumber;
+  }
+
+  public async subscribe({
+    year,
+    month,
+    count,
+    withSig,
+  }: {
+    year: number;
+    month: number;
+    count: number;
+    withSig?: boolean;
+  }) {
+    if (!this.assetId) {
+      throw new Error(
+        "AssetId cannot be empty, please call createAssetHandler first",
+      );
     }
-
-    return {
-      dataUnionId: targetEvents[0].args[0],
-      collectTokenId: targetEvents[0].args[1],
-      subscribeModule: targetEvents[0].args[2],
-      startAt: targetEvents[0].args[3],
-      endAt: targetEvents[0].args[4],
-    } as SubscribeDataUnionOutput;
-  }
-
-  public async loadCreatedDataUnionFolders(creator: string) {
-    const dataUnions = await DataUnion.loadDataUnionsPublishedBy(creator);
-
-    const folderIds = dataUnions.map(dataUnion =>
-      dataUnion.data_token_info.source.replace("ceramic://", ""),
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor",
+      );
+    }
+    const monthlySubscribeModule = MonthlySubscribeModule__factory.connect(
+      DEPLOYED_ADDRESSES[this.chainId].MonthlySubscribeModule,
+      this.signer,
+    );
+    const { currency, amount } =
+      await monthlySubscribeModule.getAssetSubscribeDetail(this.assetId);
+    await this._checkERC20BalanceAndAllowance(
+      currency,
+      amount.mul(count),
+      DEPLOYED_ADDRESSES[this.chainId].CollectAction,
     );
 
-    const res = await this.dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadFoldersBy,
-      params: { folderIds },
-    });
-
-    return res;
-  }
-
-  public async loadCollectedDataUnionFolders(collector: string) {
-    const dataUnions = await DataUnion.loadDataUnionsCollectedBy(collector);
-
-    const folderIds = dataUnions.map(dataUnion =>
-      dataUnion.data_token_info.source.replace("ceramic://", ""),
+    const actionProcessData = abiCoder.encode(
+      ["uint256", "uint256", "uint256"],
+      [year, month, count],
     );
 
-    const res = await this.dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadFoldersBy,
-      params: { folderIds },
-    });
+    const actParams: ActParams = {
+      assetId: this.assetId,
+      actions: [DEPLOYED_ADDRESSES[this.chainId].CollectAction],
+      actionProcessDatas: [actionProcessData],
+    };
 
-    return res;
+    const [actionReturnData] = await this._act(actParams, withSig);
+    const [startAt, endAt] = abiCoder.decode(
+      ["uint256", "uint256"],
+      actionReturnData,
+    );
+
+    return [startAt, endAt];
   }
+
+  public async getSubscriptionData(collectionId: BigNumberish) {
+    if (!this.assetId) {
+      throw new Error(
+        "AssetId cannot be empty, please call createAssetHandler first",
+      );
+    }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor",
+      );
+    }
+    const subscribeAction = SubscribeAction__factory.connect(
+      DEPLOYED_ADDRESSES[this.chainId].SubscribeAction,
+      this.signer,
+    );
+    const subscribeData = await subscribeAction.getSubscribeData(
+      this.assetId,
+      collectionId,
+    );
+
+    return subscribeData;
+  }
+
+  // public async loadCreatedDataUnionFolders(creator: string) {
+  //   const dataUnions = await DataUnion.loadDataUnionsPublishedBy(creator);
+
+  //   const folderIds = dataUnions.map(dataUnion =>
+  //     dataUnion.data_token_info.source.replace("ceramic://", ""),
+  //   );
+
+  //   const res = await this.dataverseConnector.runOS({
+  //     method: SYSTEM_CALL.loadFoldersBy,
+  //     params: { folderIds },
+  //   });
+
+  //   return res;
+  // }
+
+  // public async loadCollectedDataUnionFolders(collector: string) {
+  //   const dataUnions = await DataUnion.loadDataUnionsCollectedBy(collector);
+
+  //   const folderIds = dataUnions.map(dataUnion =>
+  //     dataUnion.data_token_info.source.replace("ceramic://", ""),
+  //   );
+
+  //   const res = await this.dataverseConnector.runOS({
+  //     method: SYSTEM_CALL.loadFoldersBy,
+  //     params: { folderIds },
+  //   });
+
+  //   return res;
+  // }
 
   async applyConditionsToFolder(signal?: Signal) {
     const res = await this.applyFolderConditions(signal);
@@ -268,350 +442,61 @@ export class DataUnion extends DataAssetBase {
     return res;
   }
 
-  public getDataUnionById(
-    dataUnionId: BytesLike,
-  ): Promise<IDataUnionDefinitions.UnionStructOutput> {
-    return this.instance.getDataUnionById(dataUnionId);
-  }
-
-  public getSubscriptionData({
-    dataUnionId,
-    collectTokenId,
-  }: {
-    dataUnionId: BytesLike;
-    collectTokenId: BigNumberish;
-  }) {
-    return this.instance.getSubscriptionData(dataUnionId, collectTokenId);
-  }
-
-  public isCollected({
-    dataUnionId,
-    account,
-  }: {
-    dataUnionId: BytesLike;
-    account: string;
-  }): Promise<boolean> {
-    return this.instance.isCollected(dataUnionId, account);
-  }
-
-  public isAccessibleByTokenId({
-    dataUnionId,
-    collectTokenId,
-    blockNumber,
-  }: {
-    dataUnionId: BytesLike;
-    collectTokenId: BigNumberish;
-    blockNumber: BigNumberish;
-  }): Promise<boolean> {
-    return this.instance.isAccessible(dataUnionId, collectTokenId, blockNumber);
-  }
-
-  public isAccessibleBySubscriber({
-    dataUnionId,
-    subscriber,
-    blockNumber,
-  }: {
-    dataUnionId: BytesLike;
-    subscriber: string;
-    blockNumber: BigNumberish;
-  }) {
-    this.assertCheckChain();
-    const litACL = LitACL__factory.connect(
-      DeployedContracts[ChainId[this.chainId!]].DataUnion.LitACL,
-      this.signer!,
+  private async _buildCloseSignature() {
+    if (!this.assetContract) {
+      throw new Error(
+        "AssetContract cannot be empty, please pass in through constructor",
+      );
+    }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor",
+      );
+    }
+    const dataMonetizerBase = DataMonetizerBase__factory.connect(
+      this.assetContract,
+      this.signer,
     );
-    return litACL.isAccessible(dataUnionId, subscriber, blockNumber);
-  }
+    const nonce = await dataMonetizerBase.getSigNonce(
+      await this.signer.getAddress(),
+    );
+    const { name, version } = await dataMonetizerBase.eip712Domain();
 
-  public async close(dataUnionId: BytesLike) {
-    const tx = await this.instance.close(dataUnionId);
-    const result = await tx.wait();
-    const targetEvents = result.events?.filter(e => e.event === "Closed");
+    const deadline = oneDayLater();
 
-    if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
-      throw new Error("Filter Closed event failed");
-    }
-
-    return {
-      dataUnionId: targetEvents[0].args[0],
-      operator: targetEvents[0].args[1],
-      endBlockNumber: targetEvents[0].args[2],
-    } as CloseDataUnionOutput;
-  }
-
-  static async loadDataUnionsPublishedBy(
-    publisher: string,
-  ): Promise<Array<DataUnionGraphType>> {
-    return loadDataUnionsPublishedBy(publisher);
-  }
-
-  static async loadDataUnionsCollectedBy(
-    collector: string,
-  ): Promise<Array<DataUnionGraphType>> {
-    return loadDataUnionsCollectedBy(collector);
-  }
-
-  static async loadDataUnionCollectors(
-    dataUnionId: string,
-  ): Promise<Array<Data_Union_Subscriber>> {
-    return loadDataUnionCollectors(dataUnionId);
-  }
-
-  static async loadDataUnionSubscribers(
-    dataUnionId: string,
-  ): Promise<Array<Data_Union_Subscriber>> {
-    const result: Array<Data_Union_Subscriber> = [];
-    const subs = await loadDataUnionSubscribers(dataUnionId);
-    subs.forEach((sub: Data_Union_Subscriber) => {
-      if (sub.subscriptions.length > 0) {
-        result.push(sub);
-      }
-    });
-    return result;
-  }
-
-  static async loadDataUnion(dataUnionId: string): Promise<DataUnionGraphType> {
-    return loadDataUnion(dataUnionId);
-  }
-
-  static async loadDataUnions(
-    dataUnionIds: Array<string>,
-  ): Promise<Array<DataUnionGraphType>> {
-    return loadDataUnions(dataUnionIds);
-  }
-
-  static async loadDataUnionSubscriptionsBy({
-    dataUnionId,
-    collector,
-  }: {
-    dataUnionId: string;
-    collector: string;
-  }): Promise<Array<Data_Union_Subscriber>> {
-    return loadDataUnionSubscriptionsBy(dataUnionId, collector);
-  }
-
-  static async isDataUnionCollectedBy({
-    dataUnionId,
-    collector,
-  }: {
-    dataUnionId: string;
-    collector: string;
-  }): Promise<boolean> {
-    return isDataUnionCollectedBy(dataUnionId, collector);
-  }
-
-  static async isDataUnionSubscribedBy({
-    dataUnionId,
-    subscriber,
-    timestamp,
-    blockNumber,
-  }: {
-    dataUnionId: string;
-    subscriber: string;
-    timestamp?: BigNumber;
-    blockNumber?: BigNumber;
-  }): Promise<boolean> {
-    const subList = await loadDataUnionSubscriptionsBy(dataUnionId, subscriber);
-    let isSubscribed = false;
-    if (subList.length > 0) {
-      for (let i = 0; i < subList.length; i++) {
-        if (subList[i].subscriptions.length > 0) {
-          isSubscribed = this.isInSubscription(
-            subList[i].subscriptions,
-            !timestamp
-              ? blockNumber!
-              : BigNumber.from(
-                  await getBlockNumberByTimestamp({
-                    chainId: ChainId.PolygonMumbai,
-                    timestamp: timestamp.toNumber(),
-                  }),
-                ),
-          );
-          break;
-        }
-      }
-    }
-    return isSubscribed;
-  }
-
-  static isInSubscription(
-    subscriptions: Array<Data_Union_Subscription>,
-    blockNumber: BigNumber,
-  ) {
-    let isSubscribed = false;
-    for (let i = 0; i < subscriptions.length; i++) {
-      if (
-        BigNumber.from(subscriptions[i].start_at).lte(blockNumber) &&
-        BigNumber.from(subscriptions[i].end_at).gte(blockNumber)
-      ) {
-        isSubscribed = true;
-        break;
-      }
-    }
-    return isSubscribed;
-  }
-
-  public _generateSubscribeModuleInitData({
-    subscribeModule,
-    currency,
-    amount,
-    segment,
-  }: {
-    subscribeModule: SubscribeModule;
-    currency: Currency;
-    amount: BigNumberish;
-    segment?: TimeSegment;
-  }): BytesLike {
-    this.assertCheckChain();
-    if (
-      ChainId[this.chainId!] !== "PolygonMumbai" &&
-      ChainId[this.chainId!] !== "BSCTestnet"
-    ) {
-      throw new Error("Unsupported Chain");
-    }
-    let subscribeModuleInitData;
-    switch (subscribeModule) {
-      case "BlockSubscribeModule": {
-        subscribeModuleInitData = abiCoder.encode(
-          ["address", "uint256"],
-          [DeployedContracts[ChainId[this.chainId!]][currency], amount],
-        );
-        break;
-      }
-
-      case "TimeSegmentSubscribeModule": {
-        const segmentInBlockNumber =
-          BlockNumberConfig[
-            ChainId[this.chainId!] as keyof typeof BlockNumberConfig
-          ]?.segment[segment!];
-        subscribeModuleInitData = abiCoder.encode(
-          ["address", "uint256", "uint256"],
-          [
-            DeployedContracts[ChainId[this.chainId!]][currency],
-            amount,
-            segmentInBlockNumber,
-          ],
-        );
-        break;
-      }
-
-      default:
-        throw new Error("SubscribeModule Not Supported");
-    }
-    return subscribeModuleInitData;
-  }
-
-  public async _generateSubscribeData({
-    dataUnionId,
-    subscribeModule,
-    subscribeInput,
-  }: {
-    dataUnionId: BytesLike;
-    subscribeModule: string;
-    subscribeInput: {
-      startAt?: BigNumberish;
-      endAt?: BigNumberish;
-      segmentsCount?: BigNumberish;
+    const msgParams = {
+      types: {
+        AddActionsWithSig: [{ name: "assetId", type: "bytes32" }],
+      },
+      domain: {
+        name,
+        version,
+        chainId: this.chainId,
+        verifyingContract: this.assetContract,
+      },
+      value: {
+        assetId: this.assetId,
+        nonce,
+        deadline,
+      },
     };
-  }) {
-    this.assertCheckChain();
-    let subscribeData;
-    switch (subscribeModule) {
-      case (DeployedContracts[ChainId[this.chainId!]] as any).DataUnion
-        .BlockSubscribeModule: {
-        // 1. get union data
-        const blockSubscribeModule = BlockSubscribeModule__factory.connect(
-          subscribeModule,
-          this.signer!,
-        );
-        const { currency, amount } =
-          await blockSubscribeModule.getUnionData(dataUnionId);
 
-        // 2. check balance and allowance
-        const totalAmount = BigNumber.from(subscribeInput.endAt)
-          .sub(BigNumber.from(subscribeInput.startAt))
-          .add(1)
-          .mul(amount);
-        await this._checkERC20BalanceAndAllowance(
-          currency,
-          totalAmount,
-          subscribeModule,
-        );
+    const { v, r, s } = ethers.utils.splitSignature(
+      await (this.signer as Wallet)._signTypedData(
+        msgParams.domain,
+        msgParams.types,
+        msgParams.value,
+      ),
+    );
 
-        // 3. generate validate data
-        const validateData = abiCoder.encode(
-          ["address", "uint256"],
-          [currency, amount],
-        );
+    const sig: EIP712Signature = {
+      signer: await this.signer.getAddress(),
+      v,
+      r,
+      s,
+      deadline,
+    };
 
-        subscribeData = abiCoder.encode(
-          ["uint256", "uint256", "bytes"],
-          [subscribeInput.startAt!, subscribeInput.endAt!, validateData],
-        );
-        break;
-      }
-
-      case (DeployedContracts[ChainId[this.chainId!]] as any).DataUnion
-        .TimeSegmentSubscribeModule: {
-        // 1. get union data
-        const timePeriodSubscribeModule =
-          TimeSegmentSubscribeModule__factory.connect(
-            subscribeModule,
-            this.signer!,
-          );
-        const { currency, amount } =
-          await timePeriodSubscribeModule.getUnionData(dataUnionId);
-
-        // 2. check balance and allowance
-        const totalAmount = BigNumber.from(subscribeInput.segmentsCount).mul(
-          amount,
-        );
-        await this._checkERC20BalanceAndAllowance(
-          currency,
-          totalAmount,
-          subscribeModule,
-        );
-
-        // 3. generate validate data
-        const validateData = abiCoder.encode(
-          ["address", "uint256"],
-          [currency, amount],
-        );
-
-        subscribeData = abiCoder.encode(
-          ["uint256", "uint256", "bytes"],
-          [
-            subscribeInput.startAt!,
-            subscribeInput.segmentsCount!,
-            validateData,
-          ],
-        );
-        break;
-      }
-
-      default: {
-        throw new Error("Unsupported Subscribe Module");
-      }
-    }
-
-    return subscribeData;
-  }
-
-  private async _checkERC20BalanceAndAllowance(
-    currency: string,
-    amount: BigNumberish,
-    spender: string,
-  ) {
-    const erc20 = IERC20__factory.connect(currency, this.signer!);
-    const signerAddr = await this.signer!.getAddress();
-    const userBalance = await erc20.balanceOf(signerAddr);
-    if (userBalance.lt(amount)) {
-      throw new Error("Insufficient Balance");
-    }
-    const allowance = await erc20.allowance(signerAddr, spender);
-    if (allowance.lt(amount)) {
-      const tx = await erc20.approve(spender, amount);
-      await tx.wait();
-    }
+    return sig;
   }
 }

@@ -2,7 +2,9 @@ import {
   DataverseConnector,
   SYSTEM_CALL,
 } from "@dataverse/dataverse-connector";
-import { ChainId } from "../data-token";
+// import { ChainId } from "../data-token";
+// import { ChainId } from "../data-token/types";
+import { ChainId } from "../types";
 import { DataAssetBase } from "./DataAssetBase";
 import {
   GeneralAccessConditions,
@@ -59,7 +61,7 @@ export class DataAssetParser {
 
   validateFormat(dataAssetBase: DataAssetBase) {
     if (
-      !dataAssetBase.createAssetHandler ||
+      // !dataAssetBase.createAssetHandler ||
       !dataAssetBase.addGeneralCondition ||
       !dataAssetBase.addLinkCondition ||
       !dataAssetBase.addSourceCondition ||
