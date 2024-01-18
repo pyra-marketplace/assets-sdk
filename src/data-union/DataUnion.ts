@@ -338,7 +338,7 @@ export class DataUnion extends DataAssetBase {
   }: {
     year: number;
     month: number;
-    count: number;
+    count?: number;
     withSig?: boolean;
   }) {
     if (!this.assetId) {
@@ -350,6 +350,9 @@ export class DataUnion extends DataAssetBase {
       throw new Error(
         "ChainId cannot be empty, please pass in through constructor",
       );
+    }
+    if(!count) {
+      count = 1;
     }
     const monthlySubscribeModule = MonthlySubscribeModule__factory.connect(
       DEPLOYED_ADDRESSES[this.chainId].MonthlySubscribeModule,

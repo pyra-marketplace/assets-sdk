@@ -1,5 +1,5 @@
 import Moralis from "moralis";
-import { ChainId } from "../data-token/types";
+import { ChainId } from "../types";
 import { ApiConfig } from "../config";
 
 export const getBlockNumberByTimestamp = async ({

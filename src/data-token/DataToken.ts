@@ -15,39 +15,6 @@ import {
 } from "../graphql";
 import { abiCoder } from "../utils/abi-coder";
 import { DataAssetBase } from "../data-asset/DataAssetBase";
-// import { EMPTY_BYTES, ZERO_ADDRESS } from "./constants";
-// import {
-//   IDataToken,
-//   IDataToken__factory,
-//   IERC20__factory,
-//   LensHub__factory,
-//   SimpleFeeCollectModule__factory,
-//   LimitedFeeCollectModule__factory,
-//   LimitedTimedFeeCollectModule__factory,
-//   ProfileNFT__factory,
-//   CollectPublicationAction__factory,
-//   ProfilelessHub__factory,
-// } from "./contracts";
-// import { DataTypes } from "./contracts/IDataToken";
-// import {
-//   _buildLensCollectSig,
-//   _buildCyberCollectSig,
-//   getCollectPaidMwData,
-//   _buildProfilelessCollectSig,
-// } from "./helpers";
-// import {
-//   // CollectDataTokenOutput,
-//   // CyberCollectParams,
-//   // GraphType,
-//   // LensActParams,
-//   // EIP712Signature,
-//   ChainId,
-//   ProfilelessCollectParams,
-//   CreateDataTokenInput,
-//   Chain,
-//   TokenAsset,
-//   TradeType,
-// } from "./types";
 import {
   ActParams,
   AddActionsParams,
@@ -61,11 +28,8 @@ import {
 } from "./abi/typechain";
 import { DEPLOYED_ADDRESSES } from "./addresses";
 import { TokenAsset, TradeType } from "./types";
-// import { DataTokenFactory } from "./DataTokenFactory";
 
 export class DataToken extends DataAssetBase {
-  // instance?: IDataToken;
-
   constructor({
     chainId,
     dataTokenContract,
@@ -83,16 +47,6 @@ export class DataToken extends DataAssetBase {
       fileOrFolderId: fileId,
       dataverseConnector,
     });
-    // if (dataTokenContract) {
-    //   this.instance = IDataToken__factory.connect(
-    //     dataTokenContract,
-    //     this.signer,
-    //   );
-    // }
-  }
-
-  updateChain(chainId: ChainId) {
-    this.chainId = chainId;
   }
 
   async applyConditionsToFile({
@@ -100,7 +54,6 @@ export class DataToken extends DataAssetBase {
     linkedAsset,
     attached,
   }: {
-    assetId: string;
     unlockingTimeStamp?: number;
     linkedAsset?: DataAsset;
     attached?: Attached;
@@ -121,39 +74,39 @@ export class DataToken extends DataAssetBase {
         },
       ]);
 
-    this.assetContract &&
-      this.chainId &&
-      this.addSourceCondition({
-        acl: {
-          conditionType: "evmContract",
-          functionName: "isCollected",
-          functionAbi: {
-            inputs: [
-              {
-                internalType: "address",
-                name: "user",
-                type: "address",
-              },
-            ],
-            name: "isCollected",
-            outputs: [
-              {
-                internalType: "bool",
-                name: "",
-                type: "bool",
-              },
-            ],
-            stateMutability: "view",
-            type: "function",
-          },
-          returnValueTest: {
-            key: "",
-            comparator: "=",
-            value: "true",
-          },
-        },
-        unlockingTimeStamp,
-      });
+    // this.assetContract &&
+    //   this.chainId &&
+    //   this.addSourceCondition({
+    //     acl: {
+    //       conditionType: "evmContract",
+    //       functionName: "isCollected",
+    //       functionAbi: {
+    //         inputs: [
+    //           {
+    //             internalType: "address",
+    //             name: "user",
+    //             type: "address",
+    //           },
+    //         ],
+    //         name: "isCollected",
+    //         outputs: [
+    //           {
+    //             internalType: "bool",
+    //             name: "",
+    //             type: "bool",
+    //           },
+    //         ],
+    //         stateMutability: "view",
+    //         type: "function",
+    //       },
+    //       returnValueTest: {
+    //         key: "",
+    //         comparator: "=",
+    //         value: "true",
+    //       },
+    //     },
+    //     unlockingTimeStamp,
+    //   });
 
     this.addLinkCondition({
       acl: {
@@ -199,36 +152,6 @@ export class DataToken extends DataAssetBase {
     });
 
     const res = await this.applyFileConditions();
-
-    return res;
-  }
-
-  public async loadCreatedDataTokenFiles(creator: string) {
-    const dataTokens: any[] = await loadDataTokensCreatedBy(creator);
-
-    const fileIds = dataTokens.map(dataToken =>
-      dataToken.source.replace("ceramic://", ""),
-    );
-
-    const res = await this.dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadFilesBy,
-      params: { fileIds },
-    });
-
-    return res;
-  }
-
-  public async loadCollectedDataTokenFiles(collector: string) {
-    const dataTokens: any[] = await loadDataTokensCollectedBy(collector);
-
-    const fileIds = dataTokens.map(dataToken =>
-      dataToken.source.replace("ceramic://", ""),
-    );
-
-    const res = await this.dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadFilesBy,
-      params: { fileIds },
-    });
 
     return res;
   }
@@ -533,5 +456,35 @@ export class DataToken extends DataAssetBase {
     const [actionReturnData] = await this._act(actParams, withSig);
     const [price] = abiCoder.decode(["uint256"], actionReturnData);
     return price as BigNumber;
+  }
+
+  public async loadCreatedDataTokenFiles(creator: string) {
+    const dataTokens: any[] = await loadDataTokensCreatedBy(creator);
+
+    const fileIds = dataTokens.map(dataToken =>
+      dataToken.source.replace("ceramic://", ""),
+    );
+
+    const res = await this.dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadFilesBy,
+      params: { fileIds },
+    });
+
+    return res;
+  }
+
+  public async loadCollectedDataTokenFiles(collector: string) {
+    const dataTokens: any[] = await loadDataTokensCollectedBy(collector);
+
+    const fileIds = dataTokens.map(dataToken =>
+      dataToken.source.replace("ceramic://", ""),
+    );
+
+    const res = await this.dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadFilesBy,
+      params: { fileIds },
+    });
+
+    return res;
   }
 }

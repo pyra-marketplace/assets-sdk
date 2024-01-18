@@ -89,11 +89,11 @@ export class DataAssetBase {
   //   return assetId;
   // }
 
-  public addGeneralCondition(acl: GeneralAccessConditions) {
+  protected addGeneralCondition(acl: GeneralAccessConditions) {
     this.generalAccessConditions = acl;
   }
 
-  public addSourceCondition({
+  protected addSourceCondition({
     acl,
     unlockingTimeStamp,
   }: {
@@ -147,7 +147,7 @@ export class DataAssetBase {
     }
   }
 
-  public async addLinkCondition({
+  protected async addLinkCondition({
     acl,
     linkedAsset,
     attached,
@@ -224,7 +224,7 @@ export class DataAssetBase {
     }
   }
 
-  public async applyFileConditions() {
+  protected async applyFileConditions() {
     const dependencies = this.linkedAssetConditions?.map(item => {
       if ((item as OrCondition)?.operator) {
         return;
@@ -297,7 +297,7 @@ export class DataAssetBase {
     return res;
   }
 
-  public async applyFolderConditions(signal?: Signal) {
+  protected async applyFolderConditions(signal?: Signal) {
     const monetizationProvider = {
       dataAsset: {
         assetId: this.assetId,
@@ -365,7 +365,8 @@ export class DataAssetBase {
     if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
       throw new Error("Filter Published event failed");
     }
-    const assetId: BytesLike = targetEvents[0].args[0];
+    const assetId: string = targetEvents[0].args[0];
+    this.assetId = assetId;
     return assetId;
   }
 
@@ -419,6 +420,24 @@ export class DataAssetBase {
         addActionsParams,
         signature,
       );
+      await tx.wait();
+    }
+  }
+
+  protected async _checkERC20BalanceAndAllowance(
+    currency: string,
+    amount: BigNumberish,
+    spender: string,
+  ) {
+    const erc20 = IERC20__factory.connect(currency, this.signer!);
+    const signerAddr = await this.signer!.getAddress();
+    const userBalance = await erc20.balanceOf(signerAddr);
+    if (userBalance.lt(amount)) {
+      throw new Error("Insufficient Balance");
+    }
+    const allowance = await erc20.allowance(signerAddr, spender);
+    if (allowance.lt(amount)) {
+      const tx = await erc20.approve(spender, amount);
       await tx.wait();
     }
   }
@@ -623,23 +642,5 @@ export class DataAssetBase {
     };
 
     return sig;
-  }
-
-  protected async _checkERC20BalanceAndAllowance(
-    currency: string,
-    amount: BigNumberish,
-    spender: string,
-  ) {
-    const erc20 = IERC20__factory.connect(currency, this.signer!);
-    const signerAddr = await this.signer!.getAddress();
-    const userBalance = await erc20.balanceOf(signerAddr);
-    if (userBalance.lt(amount)) {
-      throw new Error("Insufficient Balance");
-    }
-    const allowance = await erc20.allowance(signerAddr, spender);
-    if (allowance.lt(amount)) {
-      const tx = await erc20.approve(spender, amount);
-      await tx.wait();
-    }
   }
 }

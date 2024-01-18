@@ -2,8 +2,6 @@ import {
   DataverseConnector,
   SYSTEM_CALL,
 } from "@dataverse/dataverse-connector";
-// import { ChainId } from "../data-token";
-// import { ChainId } from "../data-token/types";
 import { ChainId } from "../types";
 import { DataAssetBase } from "./DataAssetBase";
 import {
@@ -62,21 +60,22 @@ export class DataAssetParser {
   validateFormat(dataAssetBase: DataAssetBase) {
     if (
       // !dataAssetBase.createAssetHandler ||
-      !dataAssetBase.addGeneralCondition ||
-      !dataAssetBase.addLinkCondition ||
-      !dataAssetBase.addSourceCondition ||
-      !dataAssetBase.applyFileConditions ||
-      !dataAssetBase.applyFolderConditions ||
-      !dataAssetBase.fileOrFolderId ||
-      !dataAssetBase.dataverseConnector ||
-      !dataAssetBase.signer ||
-      !dataAssetBase.monetizationProvider ||
-      dataAssetBase.monetizationProvider.dataAsset?.assetContract !==
-        dataAssetBase.assetContract ||
-      dataAssetBase.monetizationProvider.dataAsset?.assetId !==
-        dataAssetBase?.assetId ||
-      dataAssetBase.monetizationProvider.dataAsset?.chainId !==
-        dataAssetBase?.chainId ||
+      // !dataAssetBase.addGeneralCondition ||
+      // !dataAssetBase.addLinkCondition ||
+      // !dataAssetBase.addSourceCondition ||
+      // !dataAssetBase.applyFileConditions ||
+      // !dataAssetBase.applyFolderConditions ||
+      // !dataAssetBase.fileOrFolderId ||
+      // !dataAssetBase.dataverseConnector ||
+      // !dataAssetBase.signer ||
+      // !dataAssetBase.monetizationProvider ||
+      // dataAssetBase.monetizationProvider.dataAsset?.assetContract !==
+      //   dataAssetBase.assetContract ||
+      // dataAssetBase.monetizationProvider.dataAsset?.assetId !==
+      //   dataAssetBase?.assetId ||
+      // dataAssetBase.monetizationProvider.dataAsset?.chainId !==
+      //   dataAssetBase?.chainId ||
+      !(dataAssetBase instanceof DataAssetBase) ||
       (dataAssetBase.sourceAssetCondition?.[0] as SourceAssetConditionInput)
         ?.contractAddress !== dataAssetBase?.assetContract ||
       (dataAssetBase.sourceAssetCondition?.[0] as SourceAssetConditionInput)
