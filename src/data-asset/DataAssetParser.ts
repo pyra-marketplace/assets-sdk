@@ -6,7 +6,7 @@ import { ChainId } from "../types";
 import { DataAssetBase } from "./DataAssetBase";
 import {
   GeneralAccessConditions,
-  SourceAssetCondition,
+  SourceAssetConditions,
   LinkedAssetConditions,
   SourceAssetConditionInput,
 } from "./types";
@@ -41,9 +41,9 @@ export class DataAssetParser {
     dataAssetBase.generalAccessConditions = decryptionConditions?.slice(
       -1,
     )?.[0] as GeneralAccessConditions;
-    dataAssetBase.sourceAssetCondition = decryptionConditions?.slice(
+    dataAssetBase.sourceAssetConditions = decryptionConditions?.slice(
       -1,
-    )?.[2] as SourceAssetCondition;
+    )?.[2] as SourceAssetConditions;
     dataAssetBase.linkedAssetConditions = decryptionConditions?.slice(
       -1,
     )?.[4] as LinkedAssetConditions;
@@ -58,33 +58,15 @@ export class DataAssetParser {
   }
 
   validateFormat(dataAssetBase: DataAssetBase) {
-    if (
-      // !dataAssetBase.createAssetHandler ||
-      // !dataAssetBase.addGeneralCondition ||
-      // !dataAssetBase.addLinkCondition ||
-      // !dataAssetBase.addSourceCondition ||
-      // !dataAssetBase.applyFileConditions ||
-      // !dataAssetBase.applyFolderConditions ||
-      // !dataAssetBase.fileOrFolderId ||
-      // !dataAssetBase.dataverseConnector ||
-      // !dataAssetBase.signer ||
-      // !dataAssetBase.monetizationProvider ||
-      // dataAssetBase.monetizationProvider.dataAsset?.assetContract !==
-      //   dataAssetBase.assetContract ||
-      // dataAssetBase.monetizationProvider.dataAsset?.assetId !==
-      //   dataAssetBase?.assetId ||
-      // dataAssetBase.monetizationProvider.dataAsset?.chainId !==
-      //   dataAssetBase?.chainId ||
-      !(dataAssetBase instanceof DataAssetBase) ||
-      (dataAssetBase.sourceAssetCondition?.[0] as SourceAssetConditionInput)
-        ?.contractAddress !== dataAssetBase?.assetContract ||
-      (dataAssetBase.sourceAssetCondition?.[0] as SourceAssetConditionInput)
-        ?.functionParams[0] !== dataAssetBase?.assetId ||
-      (dataAssetBase.sourceAssetCondition?.[0] as SourceAssetConditionInput)
-        ?.chain !== ChainId[dataAssetBase?.chainId!]
-    ) {
+    if (!(dataAssetBase instanceof DataAssetBase)) {
       return false;
     }
-    return true;
+    return !dataAssetBase.sourceAssetConditions?.find(
+      sourceAssetCondition =>
+        (sourceAssetCondition as SourceAssetConditionInput[])[0]
+          ?.functionParams[0] !== dataAssetBase?.assetId ||
+        (sourceAssetCondition as SourceAssetConditionInput[])[0]?.chain !==
+          ChainId[dataAssetBase?.chainId!],
+    );
   }
 }

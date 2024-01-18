@@ -82,10 +82,9 @@ export interface TimestampCondition {
   };
 }
 
-export type SourceAssetCondition = (
-  | SourceAssetConditionInput
-  | AndCondition
-  | TimestampCondition
+export type SourceAssetConditions = (
+  | (SourceAssetConditionInput | AndCondition | TimestampCondition)[]
+  | OrCondition
 )[];
 
 export interface LinkedAssetConditionInput {

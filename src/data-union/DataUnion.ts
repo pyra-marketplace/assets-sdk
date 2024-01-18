@@ -155,7 +155,7 @@ export class DataUnion extends DataAssetBase {
       images: [],
     };
 
-    const assetId = await this._publish(publishParams, withSig);
+    const assetId = await this.createAssetHandler(publishParams, withSig);
     this.assetId = assetId.toString();
   }
 
@@ -351,7 +351,7 @@ export class DataUnion extends DataAssetBase {
         "ChainId cannot be empty, please pass in through constructor",
       );
     }
-    if(!count) {
+    if (!count) {
       count = 1;
     }
     const monthlySubscribeModule = MonthlySubscribeModule__factory.connect(

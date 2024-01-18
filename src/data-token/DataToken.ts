@@ -21,6 +21,7 @@ import {
   PublishParams,
 } from "../data-asset/types";
 import { ChainId } from "../types";
+import { getChainNameFromChainId } from "../utils";
 import {
   DataToken__factory,
   FeeCollectModule__factory,
@@ -74,39 +75,75 @@ export class DataToken extends DataAssetBase {
         },
       ]);
 
-    // this.assetContract &&
-    //   this.chainId &&
-    //   this.addSourceCondition({
-    //     acl: {
-    //       conditionType: "evmContract",
-    //       functionName: "isCollected",
-    //       functionAbi: {
-    //         inputs: [
-    //           {
-    //             internalType: "address",
-    //             name: "user",
-    //             type: "address",
-    //           },
-    //         ],
-    //         name: "isCollected",
-    //         outputs: [
-    //           {
-    //             internalType: "bool",
-    //             name: "",
-    //             type: "bool",
-    //           },
-    //         ],
-    //         stateMutability: "view",
-    //         type: "function",
-    //       },
-    //       returnValueTest: {
-    //         key: "",
-    //         comparator: "=",
-    //         value: "true",
-    //       },
-    //     },
-    //     unlockingTimeStamp,
-    //   });
+    this.chainId &&
+      this.addSourceCondition({
+        acl: {
+          contractAddress: DEPLOYED_ADDRESSES[this.chainId].CollectAction,
+          conditionType: "evmContract",
+          chain: getChainNameFromChainId(this.chainId),
+          functionName: "isCollected",
+          functionAbi: {
+            inputs: [
+              {
+                internalType: "address",
+                name: "user",
+                type: "address",
+              },
+            ],
+            name: "isCollected",
+            outputs: [
+              {
+                internalType: "bool",
+                name: "",
+                type: "bool",
+              },
+            ],
+            stateMutability: "view",
+            type: "function",
+          },
+          returnValueTest: {
+            key: "",
+            comparator: "=",
+            value: "true",
+          },
+        },
+        unlockingTimeStamp,
+      });
+
+    this.chainId &&
+      this.addSourceCondition({
+        acl: {
+          contractAddress: DEPLOYED_ADDRESSES[this.chainId].ShareAction,
+          conditionType: "evmContract",
+          chain: getChainNameFromChainId(this.chainId),
+          functionName: "isAccessible",
+          functionAbi: {
+            inputs: [
+              {
+                internalType: "address",
+                name: "user",
+                type: "address",
+              },
+            ],
+            name: "isAccessible",
+            outputs: [
+              {
+                internalType: "bool",
+                name: "",
+                type: "bool",
+              },
+            ],
+            stateMutability: "view",
+            type: "function",
+          },
+          returnValueTest: {
+            key: "",
+            comparator: "=",
+            value: "true",
+          },
+        },
+        unlockingTimeStamp,
+      });
 
     this.addLinkCondition({
       acl: {
@@ -261,7 +298,7 @@ export class DataToken extends DataAssetBase {
       images: [],
     };
 
-    const assetId = await this._publish(publishParams, withSig);
+    const assetId = await this.createAssetHandler(publishParams, withSig);
     this.assetId = assetId.toString();
   }
 

@@ -22,7 +22,7 @@ import { ChainId } from "../types";
 import {
   GeneralAccessConditions,
   SourceAssetConditionInput,
-  SourceAssetCondition,
+  SourceAssetConditions,
   LinkedAssetConditions,
   LinkedAssetConditionInput,
   TimestampCondition,
@@ -41,7 +41,7 @@ export class DataAssetBase {
   chainId?: ChainId;
   assetId?: string;
   generalAccessConditions?: GeneralAccessConditions;
-  sourceAssetCondition?: SourceAssetCondition;
+  sourceAssetConditions?: SourceAssetConditions;
   linkedAssetConditions?: LinkedAssetConditions;
   monetizationProvider?: MonetizationProvider;
   encryptionProvider?: EncryptionProvider;
@@ -97,17 +97,9 @@ export class DataAssetBase {
     acl,
     unlockingTimeStamp,
   }: {
-    acl: Omit<
-      SourceAssetConditionInput,
-      "contractAddress" | "functionParams" | "chain"
-    >;
+    acl: Omit<SourceAssetConditionInput, "functionParams">;
     unlockingTimeStamp?: number;
   }) {
-    if (!this.assetContract) {
-      throw new Error(
-        "AssetContract cannot be empty, please pass in through constructor",
-      );
-    }
     if (!this.chainId) {
       throw new Error(
         "ChainId cannot be empty, please pass in through constructor",
@@ -118,32 +110,51 @@ export class DataAssetBase {
         "AssetId cannot be empty, please call createAssetHandler first",
       );
     }
-    (acl as SourceAssetConditionInput).contractAddress = this.assetContract!;
     (acl as SourceAssetConditionInput).functionParams = [
       this.assetId,
       ":userAddress",
     ];
-    (acl as SourceAssetConditionInput).chain = getChainNameFromChainId(
-      this.chainId!,
-    );
+
     if (unlockingTimeStamp) {
-      this.sourceAssetCondition = [
-        acl as SourceAssetConditionInput,
-        { operator: "and" as const },
-        {
-          contractAddress: "",
-          standardContractType: "timestamp",
-          chain: (acl as SourceAssetConditionInput).chain,
-          method: "eth_getBlockByNumber",
-          parameters: ["latest"],
-          returnValueTest: {
-            comparator: ">=",
-            value: String(unlockingTimeStamp),
-          },
+      const timestampACL = {
+        contractAddress: "",
+        standardContractType: "timestamp",
+        chain: (acl as SourceAssetConditionInput).chain,
+        method: "eth_getBlockByNumber",
+        parameters: ["latest"],
+        returnValueTest: {
+          comparator: ">=",
+          value: String(unlockingTimeStamp),
         },
-      ];
+      } as TimestampCondition;
+      if (!this.sourceAssetConditions) {
+        this.sourceAssetConditions = [
+          [
+            acl as SourceAssetConditionInput,
+            { operator: "and" as const },
+            timestampACL,
+          ],
+        ];
+      } else {
+        this.sourceAssetConditions.push(
+          ...[
+            { operator: "or" as const },
+            [
+              acl as SourceAssetConditionInput,
+              { operator: "and" as const },
+              timestampACL,
+            ],
+          ],
+        );
+      }
     } else {
-      this.sourceAssetCondition = [acl as SourceAssetConditionInput];
+      if (!this.sourceAssetConditions) {
+        this.sourceAssetConditions = [[acl as SourceAssetConditionInput]];
+      } else {
+        this.sourceAssetConditions.push(
+          ...[{ operator: "or" as const }, [acl as SourceAssetConditionInput]],
+        );
+      }
     }
   }
 
@@ -272,7 +283,7 @@ export class DataAssetBase {
     const decryptionConditions = [
       this.generalAccessConditions,
       { operator: "or" as const },
-      this.sourceAssetCondition,
+      this.sourceAssetConditions,
       { operator: "or" as const },
       this.linkedAssetConditions,
     ] as DecryptionConditions;
@@ -333,7 +344,7 @@ export class DataAssetBase {
     return await dataMonetizerBase.getAssetOwner(assetId);
   }
 
-  protected async _publish(
+  protected async createAssetHandler(
     publishParams: PublishParams,
     withSig: boolean = false,
   ) {
