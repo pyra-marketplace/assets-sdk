@@ -2,11 +2,11 @@ import { ChainId } from "../../types";
 
 export const DEPLOYED_ADDRESSES = {
   [ChainId.PolygonMumbai]: {
-    DataUnion: "",
-    CollectAction: "",
-    SubscribeAction: "",
-    FeeCollectModule: "",
-    MonthlySubscribeModule: "",
+    DataUnion: "0x1ab1dB3dccE627F5dACe819Ea62c9E9cc803Cc18",
+    CollectAction: "0xD86827b09f1eF88cd649cDAAa3deB16f1DC29FB7",
+    FeeCollectModule: "0x86e5475C7b32d6C82872401ee0b8e40FFCcD7142",
+    SubscribeAction: "0x086cb7c5Ba6Fc0a3949Cb16727Ff6AA807FF61d2",
+    MonthlySubscribeModule: "0x16126b38F26f016Dc6a3F31844dD2f45EADF382a",
 
     WMATIC: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
     WETH: "0x3c68ce8504087f89c640d02d133646d98e64ddd9",
@@ -16,8 +16,8 @@ export const DEPLOYED_ADDRESSES = {
   [ChainId.BSCTestnet]: {
     DataUnion: "",
     CollectAction: "",
-    SubscribeAction: "",
     FeeCollectModule: "",
+    SubscribeAction: "",
     MonthlySubscribeModule: "",
 
     USDT: "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd",
@@ -28,8 +28,8 @@ export const DEPLOYED_ADDRESSES = {
   [ChainId.ScrollSepolia]: {
     DataUnion: "",
     CollectAction: "",
-    SubscribeAction: "",
     FeeCollectModule: "",
+    SubscribeAction: "",
     MonthlySubscribeModule: "",
 
     WETH: "0x5300000000000000000000000000000000000004",

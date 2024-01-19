@@ -232,6 +232,7 @@ export class DataToken extends DataAssetBase {
         currency: string;
         ownerFeePoint: BigNumberish;
         initialSupply: BigNumberish;
+        accessibleShareAmount: BigNumberish;
       };
     };
     withSig?: boolean;
@@ -276,7 +277,7 @@ export class DataToken extends DataAssetBase {
       actions.push(DEPLOYED_ADDRESSES[this.chainId].ShareAction);
 
       const actionInitData = abiCoder.encode(
-        ["string", "string", "address", "uint256", "uint256", "address"],
+        ["string", "string", "address", "uint256", "uint256", "uint256", "address"],
         [
           await this.signer.getAddress(),
           actionsConfig.shareAction.shareName,
@@ -284,7 +285,8 @@ export class DataToken extends DataAssetBase {
           actionsConfig.shareAction.currency,
           actionsConfig.shareAction.ownerFeePoint,
           actionsConfig.shareAction.initialSupply ?? 100,
-          DEPLOYED_ADDRESSES[this.chainId].DefaultShareSetting,
+          actionsConfig.shareAction.accessibleShareAmount,
+          DEPLOYED_ADDRESSES[this.chainId].DefaultCurve,
         ],
       );
       actionInitDatas.push(actionInitData);
@@ -318,6 +320,7 @@ export class DataToken extends DataAssetBase {
       currency: string;
       ownerFeePoint: BigNumberish;
       initialSupply: BigNumberish;
+      accessibleShareAmount: BigNumberish;
     };
     withSig?: boolean;
   }) {
@@ -375,7 +378,7 @@ export class DataToken extends DataAssetBase {
       actions.push(DEPLOYED_ADDRESSES[this.chainId].ShareAction);
 
       const actionInitData = abiCoder.encode(
-        ["string", "string", "address", "uint256", "uint256", "address"],
+        ["string", "string", "address", "uint256", "uint256", "uint256", "address"],
         [
           await this.signer.getAddress(),
           shareAction.shareName,
@@ -383,7 +386,8 @@ export class DataToken extends DataAssetBase {
           shareAction.currency,
           shareAction.ownerFeePoint,
           shareAction.initialSupply ?? 100,
-          DEPLOYED_ADDRESSES[this.chainId].DefaultShareSetting,
+          shareAction.accessibleShareAmount,
+          DEPLOYED_ADDRESSES[this.chainId].DefaultCurve,
         ],
       );
       actionInitDatas.push(actionInitData);
@@ -486,7 +490,7 @@ export class DataToken extends DataAssetBase {
     );
     const actParams: ActParams = {
       assetId: this.assetId,
-      actions: [DEPLOYED_ADDRESSES[this.chainId].DefaultShareSetting],
+      actions: [DEPLOYED_ADDRESSES[this.chainId].ShareAction],
       actionProcessDatas: [actionProcessData],
     };
 

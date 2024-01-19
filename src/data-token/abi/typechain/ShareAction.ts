@@ -33,7 +33,8 @@ export declare namespace ShareAction {
     totalSupply: BigNumberish;
     currency: string;
     feePoint: BigNumberish;
-    setting: string;
+    accessibleShareAmount: BigNumberish;
+    curve: string;
   };
 
   export type ShareDataStructOutput = [
@@ -42,6 +43,7 @@ export declare namespace ShareAction {
     BigNumber,
     string,
     BigNumber,
+    BigNumber,
     string
   ] & {
     shareToken: string;
@@ -49,7 +51,8 @@ export declare namespace ShareAction {
     totalSupply: BigNumber;
     currency: string;
     feePoint: BigNumber;
-    setting: string;
+    accessibleShareAmount: BigNumber;
+    curve: string;
   };
 }
 
