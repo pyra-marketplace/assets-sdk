@@ -2,11 +2,11 @@ import { ChainId } from "../../types";
 
 export const DEPLOYED_ADDRESSES = {
   [ChainId.PolygonMumbai]: {
-    DataToken: "",
-    CollectAction: "",
-    ShareAction: "",
-    FeeCollectModule: "",
-    DefaultCurve: "",
+    DataToken: "0x4767ec46b9f3e4830feCe251eFE923D8aA992632",
+    CollectAction: "0x558F4fd941726518387eDF9B445D14820AfA5904",
+    FeeCollectModule: "0x01C0A09Ac3c11b7aa693F40dd35575f21a2db67d",
+    ShareAction: "0x23b0F4EDB4edDe0537Ec7A79599D0BDd7dC03Dd8",
+    DefaultCurve: "0xefB2Bda58822EeeCFC5713E6B67592daCbfd8059",
 
     WMATIC: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
     WETH: "0x3c68ce8504087f89c640d02d133646d98e64ddd9",
@@ -16,8 +16,8 @@ export const DEPLOYED_ADDRESSES = {
   [ChainId.BSCTestnet]: {
     DataToken: "",
     CollectAction: "",
-    ShareAction: "",
     FeeCollectModule: "",
+    ShareAction: "",
     DefaultCurve: "",
 
     USDT: "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd",
@@ -28,8 +28,8 @@ export const DEPLOYED_ADDRESSES = {
   [ChainId.ScrollSepolia]: {
     DataToken: "",
     CollectAction: "",
-    ShareAction: "",
     FeeCollectModule: "",
+    ShareAction: "",
     DefaultCurve: "",
 
     WETH: "0x5300000000000000000000000000000000000004",
