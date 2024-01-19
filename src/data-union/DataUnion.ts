@@ -72,12 +72,10 @@ export class DataUnion extends DataAssetBase {
 
   public async publish({
     resourceId,
-    fileId,
     actionsConfig,
     withSig,
   }: {
     resourceId: string;
-    fileId: string;
     actionsConfig?: {
       collectAction?: {
         currency: string;
@@ -100,7 +98,7 @@ export class DataUnion extends DataAssetBase {
       );
     }
 
-    const data: string = abiCoder.encode(["string"], [fileId]);
+    const data: string = abiCoder.encode(["string"], [this.fileOrFolderId]);
 
     const actions: string[] = [];
     const actionInitDatas: string[] = [];
