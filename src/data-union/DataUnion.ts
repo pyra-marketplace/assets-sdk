@@ -36,18 +36,21 @@ import { DEPLOYED_ADDRESSES } from "./addresses";
 export class DataUnion extends DataAssetBase {
   constructor({
     chainId,
-    folderId,
     dataverseConnector,
+    folderId,
+    assetId
   }: {
     chainId: ChainId;
-    folderId: string;
     dataverseConnector: DataverseConnector;
+    folderId: string;
+    assetId?: string
   }) {
     super({
       chainId,
+      dataverseConnector,
       assetContract: DEPLOYED_ADDRESSES[chainId].DataUnion,
       fileOrFolderId: folderId,
-      dataverseConnector,
+      assetId
     });
   }
 
@@ -153,8 +156,7 @@ export class DataUnion extends DataAssetBase {
       images: [],
     };
 
-    const assetId = await this.createAssetHandler(publishParams, withSig);
-    this.assetId = assetId.toString();
+    return await this.createAssetHandler(publishParams, withSig);
   }
 
   public async addActions({
@@ -305,7 +307,7 @@ export class DataUnion extends DataAssetBase {
     await this._checkERC20BalanceAndAllowance(
       currency,
       amount,
-      DEPLOYED_ADDRESSES[this.chainId].CollectAction,
+      DEPLOYED_ADDRESSES[this.chainId].FeeCollectModule,
     );
 
     const actionProcessData = abiCoder.encode(
@@ -329,11 +331,13 @@ export class DataUnion extends DataAssetBase {
   }
 
   public async subscribe({
+    collectionId,
     year,
     month,
     count,
     withSig,
   }: {
+    collectionId: BigNumberish;
     year: number;
     month: number;
     count?: number;
@@ -358,20 +362,26 @@ export class DataUnion extends DataAssetBase {
     );
     const { currency, amount } =
       await monthlySubscribeModule.getAssetSubscribeDetail(this.assetId);
+      
     await this._checkERC20BalanceAndAllowance(
       currency,
       amount.mul(count),
-      DEPLOYED_ADDRESSES[this.chainId].CollectAction,
+      DEPLOYED_ADDRESSES[this.chainId].MonthlySubscribeModule,
     );
 
-    const actionProcessData = abiCoder.encode(
+    const subscribeProcessData = abiCoder.encode(
       ["uint256", "uint256", "uint256"],
       [year, month, count],
     );
 
+    const actionProcessData = abiCoder.encode(
+      ["uint256", "address", "bytes"],
+      [collectionId, DEPLOYED_ADDRESSES[this.chainId].MonthlySubscribeModule, subscribeProcessData]
+    );
+
     const actParams: ActParams = {
       assetId: this.assetId,
-      actions: [DEPLOYED_ADDRESSES[this.chainId].CollectAction],
+      actions: [DEPLOYED_ADDRESSES[this.chainId].SubscribeAction],
       actionProcessDatas: [actionProcessData],
     };
 
@@ -381,7 +391,7 @@ export class DataUnion extends DataAssetBase {
       actionReturnData,
     );
 
-    return [startAt, endAt];
+    return {startAt, endAt};
   }
 
   public async getSubscriptionData(collectionId: BigNumberish) {

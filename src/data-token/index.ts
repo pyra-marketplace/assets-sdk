@@ -23,3 +23,6 @@
 //   getHandleByCyberProfileId,
 //   getCyberProfileIdByHandle,
 // };
+export * from "./addresses";
+export * from "./types";
+export * from "./DataToken";

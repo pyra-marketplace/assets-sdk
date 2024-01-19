@@ -33,20 +33,21 @@ import { TokenAsset, TradeType } from "./types";
 export class DataToken extends DataAssetBase {
   constructor({
     chainId,
-    dataTokenContract,
-    fileId,
     dataverseConnector,
+    fileId,
+    assetId
   }: {
     chainId: ChainId;
-    dataTokenContract: string;
-    fileId: string;
     dataverseConnector: DataverseConnector;
+    fileId: string;
+    assetId?: string;
   }) {
     super({
       chainId,
-      assetContract: dataTokenContract,
-      fileOrFolderId: fileId,
       dataverseConnector,
+      assetContract: DEPLOYED_ADDRESSES[chainId].DataToken,
+      fileOrFolderId: fileId,
+      assetId
     });
   }
 
@@ -229,7 +230,7 @@ export class DataToken extends DataAssetBase {
         shareSymbol: string;
         currency: string;
         ownerFeePoint: BigNumberish;
-        initialSupply: BigNumberish;
+        initialSupply?: BigNumberish;
         accessibleShareAmount: BigNumberish;
       };
     };
@@ -277,7 +278,6 @@ export class DataToken extends DataAssetBase {
       const actionInitData = abiCoder.encode(
         ["string", "string", "address", "uint256", "uint256", "uint256", "address"],
         [
-          await this.signer.getAddress(),
           actionsConfig.shareAction.shareName,
           actionsConfig.shareAction.shareSymbol,
           actionsConfig.shareAction.currency,
@@ -298,8 +298,7 @@ export class DataToken extends DataAssetBase {
       images: [],
     };
 
-    const assetId = await this.createAssetHandler(publishParams, withSig);
-    this.assetId = assetId.toString();
+    return await this.createAssetHandler(publishParams, withSig);
   }
 
   public async addActions({
@@ -317,7 +316,7 @@ export class DataToken extends DataAssetBase {
       shareSymbol: string;
       currency: string;
       ownerFeePoint: BigNumberish;
-      initialSupply: BigNumberish;
+      initialSupply?: BigNumberish;
       accessibleShareAmount: BigNumberish;
     };
     withSig?: boolean;
@@ -378,7 +377,6 @@ export class DataToken extends DataAssetBase {
       const actionInitData = abiCoder.encode(
         ["string", "string", "address", "uint256", "uint256", "uint256", "address"],
         [
-          await this.signer.getAddress(),
           shareAction.shareName,
           shareAction.shareSymbol,
           shareAction.currency,
@@ -400,7 +398,7 @@ export class DataToken extends DataAssetBase {
     return await this._addActions(addActionsParams, withSig);
   }
 
-  public async collect() {
+  public async collect(withSig: boolean = false) {
     if (!this.assetId) {
       throw new Error(
         "AssetId cannot be empty, please call createAssetHandler first",
@@ -422,7 +420,7 @@ export class DataToken extends DataAssetBase {
     await this._checkERC20BalanceAndAllowance(
       currency,
       amount,
-      DEPLOYED_ADDRESSES[this.chainId].CollectAction,
+      DEPLOYED_ADDRESSES[this.chainId].FeeCollectModule,
     );
 
     const actionProcessData = abiCoder.encode(
@@ -436,7 +434,7 @@ export class DataToken extends DataAssetBase {
       actionProcessDatas: [actionProcessData],
     };
 
-    const [actionReturnData] = await this._act(actParams);
+    const [actionReturnData] = await this._act(actParams, withSig);
     const [collectionId] = abiCoder.decode(
       ["uint256", "bytes"],
       actionReturnData,

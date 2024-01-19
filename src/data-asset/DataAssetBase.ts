@@ -50,15 +50,15 @@ export class DataAssetBase {
 
   constructor({
     chainId,
-    assetContract,
-    fileOrFolderId,
     dataverseConnector,
+    fileOrFolderId,
+    assetContract,
     assetId
   }: {
     chainId?: ChainId;
-    assetContract?: string;
-    fileOrFolderId: string;
     dataverseConnector: DataverseConnector;
+    fileOrFolderId: string;
+    assetContract?: string;
     assetId?: string;
   }) {
     if (!fileOrFolderId) {
@@ -69,18 +69,15 @@ export class DataAssetBase {
       const provider = dataverseConnector.getProvider();
       const ethersProvider = new ethers.providers.Web3Provider(provider);
       this.signer = ethersProvider.getSigner();
-      assert(this.signer);
     } catch (error) {
       throw new Error("No avaliable signer in dataverseConnector");
     }
 
-    this.fileOrFolderId = fileOrFolderId;
-    this.assetContract = assetContract;
-    this.dataverseConnector = dataverseConnector;
     this.chainId = chainId;
-    if (assetId) {
-      this.assetId = assetId;
-    }
+    this.dataverseConnector = dataverseConnector;
+    this.assetContract = assetContract;
+    this.fileOrFolderId = fileOrFolderId;
+    this.assetId = assetId;
   }
 
   // public async createAssetHandler(method: Function): Promise<string> {
@@ -376,8 +373,10 @@ export class DataAssetBase {
     if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
       throw new Error("Filter Published event failed");
     }
+
     const assetId: string = targetEvents[0].args[0];
     this.assetId = assetId;
+
     return assetId;
   }
 
