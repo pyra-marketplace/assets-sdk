@@ -277,7 +277,7 @@ export class DataToken extends DataAssetBase {
       actions.push(DEPLOYED_ADDRESSES[this.chainId].ShareAction);
 
       const actionInitData = abiCoder.encode(
-        ["string", "string", "address", "uint256", "uint256", "address"],
+        ["string", "string", "address", "uint256", "uint256", "uint256", "address"],
         [
           await this.signer.getAddress(),
           actionsConfig.shareAction.shareName,
@@ -378,7 +378,7 @@ export class DataToken extends DataAssetBase {
       actions.push(DEPLOYED_ADDRESSES[this.chainId].ShareAction);
 
       const actionInitData = abiCoder.encode(
-        ["string", "string", "address", "uint256", "uint256", "address"],
+        ["string", "string", "address", "uint256", "uint256", "uint256", "address"],
         [
           await this.signer.getAddress(),
           shareAction.shareName,
