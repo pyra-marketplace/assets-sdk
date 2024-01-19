@@ -22,6 +22,12 @@
       "rules": {
         "no-console": "off"
       }
+    },
+    {
+      "files": ["demo/src/App.tsx"],
+      "rules": {
+        "no-console": "off"
+      }
     }
   ]
 }

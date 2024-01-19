@@ -9,14 +9,14 @@ import {
   EncryptionProvider,
   MonetizationProvider,
   SYSTEM_CALL,
-  Signal,
+  Signal
 } from "@dataverse/dataverse-connector";
 import { BigNumberish, BytesLike, Signer, Wallet, ethers } from "ethers";
 import {
   getChainIdFromChainName,
   getChainNameFromChainId,
   getTimestampByBlockNumber,
-  oneDayLater,
+  oneDayLater
 } from "../utils";
 import { ChainId } from "../types";
 import {
@@ -31,7 +31,7 @@ import {
   ActParams,
   EIP712Signature,
   PublishParams,
-  AddActionsParams,
+  AddActionsParams
 } from "./types";
 import { DataMonetizerBase__factory, IERC20__factory } from "./abi/typechain";
 
@@ -53,7 +53,7 @@ export class DataAssetBase {
     assetContract,
     fileOrFolderId,
     dataverseConnector,
-    assetId,
+    assetId
   }: {
     chainId?: ChainId;
     assetContract?: string;
@@ -95,24 +95,24 @@ export class DataAssetBase {
 
   protected addSourceCondition({
     acl,
-    unlockingTimeStamp,
+    unlockingTimeStamp
   }: {
     acl: Omit<SourceAssetConditionInput, "functionParams">;
     unlockingTimeStamp?: number;
   }) {
     if (!this.chainId) {
       throw new Error(
-        "ChainId cannot be empty, please pass in through constructor",
+        "ChainId cannot be empty, please pass in through constructor"
       );
     }
     if (!this.assetId) {
       throw new Error(
-        "AssetId cannot be empty, please call createAssetHandler first",
+        "AssetId cannot be empty, please call createAssetHandler first"
       );
     }
     (acl as SourceAssetConditionInput).functionParams = [
       this.assetId,
-      ":userAddress",
+      ":userAddress"
     ];
 
     if (unlockingTimeStamp) {
@@ -124,16 +124,16 @@ export class DataAssetBase {
         parameters: ["latest"],
         returnValueTest: {
           comparator: ">=",
-          value: String(unlockingTimeStamp),
-        },
+          value: String(unlockingTimeStamp)
+        }
       } as TimestampCondition;
       if (!this.sourceAssetConditions) {
         this.sourceAssetConditions = [
           [
             acl as SourceAssetConditionInput,
             { operator: "and" as const },
-            timestampACL,
-          ],
+            timestampACL
+          ]
         ];
       } else {
         this.sourceAssetConditions.push(
@@ -142,9 +142,9 @@ export class DataAssetBase {
             [
               acl as SourceAssetConditionInput,
               { operator: "and" as const },
-              timestampACL,
-            ],
-          ],
+              timestampACL
+            ]
+          ]
         );
       }
     } else {
@@ -152,7 +152,7 @@ export class DataAssetBase {
         this.sourceAssetConditions = [[acl as SourceAssetConditionInput]];
       } else {
         this.sourceAssetConditions.push(
-          ...[{ operator: "or" as const }, [acl as SourceAssetConditionInput]],
+          ...[{ operator: "or" as const }, [acl as SourceAssetConditionInput]]
         );
       }
     }
@@ -161,7 +161,7 @@ export class DataAssetBase {
   protected async addLinkCondition({
     acl,
     linkedAsset,
-    attached,
+    attached
   }: {
     acl: Omit<
       LinkedAssetConditionInput,
@@ -182,10 +182,10 @@ export class DataAssetBase {
     (acl as LinkedAssetConditionInput).functionParams = [
       linkedAsset.assetId,
       ":userAddress",
-      ...(attached ? Object.values(attached).map(item => String(item)) : []),
+      ...(attached ? Object.values(attached).map((item) => String(item)) : [])
     ];
     (acl as LinkedAssetConditionInput).chain = getChainNameFromChainId(
-      linkedAsset.chainId,
+      linkedAsset.chainId
     );
     if (attached?.blockNumber) {
       const timestampACL = {
@@ -199,18 +199,18 @@ export class DataAssetBase {
           value: String(
             await getTimestampByBlockNumber({
               chainId: linkedAsset.chainId,
-              blockNumber: attached.blockNumber,
-            }),
-          ),
-        },
+              blockNumber: attached.blockNumber
+            })
+          )
+        }
       } as TimestampCondition;
       if (!this.linkedAssetConditions) {
         this.linkedAssetConditions = [
           [
             acl as LinkedAssetConditionInput,
             { operator: "and" as const },
-            timestampACL,
-          ],
+            timestampACL
+          ]
         ];
       } else {
         this.linkedAssetConditions.push(
@@ -219,9 +219,9 @@ export class DataAssetBase {
             [
               acl as LinkedAssetConditionInput,
               { operator: "and" as const },
-              timestampACL,
-            ],
-          ],
+              timestampACL
+            ]
+          ]
         );
       }
     } else {
@@ -229,14 +229,14 @@ export class DataAssetBase {
         this.linkedAssetConditions = [[acl as LinkedAssetConditionInput]];
       } else {
         this.linkedAssetConditions.push(
-          ...[{ operator: "or" as const }, [acl as LinkedAssetConditionInput]],
+          ...[{ operator: "or" as const }, [acl as LinkedAssetConditionInput]]
         );
       }
     }
   }
 
   protected async applyFileConditions() {
-    const dependencies = this.linkedAssetConditions?.map(item => {
+    const dependencies = this.linkedAssetConditions?.map((item) => {
       if ((item as OrCondition)?.operator) {
         return;
       }
@@ -250,7 +250,7 @@ export class DataAssetBase {
         linkedAsset: {
           assetId: item[0].functionParams[0],
           assetContract: item[0].contractAddress,
-          chainId: getChainIdFromChainName(item[0].chain),
+          chainId: getChainIdFromChainName(item[0].chain)
         },
         attached: Object.fromEntries(
           item[0].functionAbi.inputs
@@ -265,18 +265,18 @@ export class DataAssetBase {
                     | TimestampCondition
                   )[]
                 )[0] as LinkedAssetConditionInput
-              ).functionParams.slice(2)[index],
-            ]),
-        ),
+              ).functionParams.slice(2)[index]
+            ])
+        )
       };
     });
     const monetizationProvider = {
       dataAsset: {
         assetId: this.assetId,
         assetContract: this.assetContract,
-        chainId: this.chainId,
+        chainId: this.chainId
       },
-      dependencies,
+      dependencies
     } as MonetizationProvider;
     this.monetizationProvider = monetizationProvider;
 
@@ -285,14 +285,14 @@ export class DataAssetBase {
       { operator: "or" as const },
       this.sourceAssetConditions,
       { operator: "or" as const },
-      this.linkedAssetConditions,
+      this.linkedAssetConditions
     ] as DecryptionConditions;
 
     const encryptionProvider = {
       protocol: EncryptionProtocol.Lit,
       decryptionConditions,
       decryptionConditionsType:
-        DecryptionConditionsType.UnifiedAccessControlCondition,
+        DecryptionConditionsType.UnifiedAccessControlCondition
     };
     this.encryptionProvider = encryptionProvider;
 
@@ -301,8 +301,8 @@ export class DataAssetBase {
       params: {
         fileId: this.fileOrFolderId!,
         monetizationProvider,
-        encryptionProvider,
-      },
+        encryptionProvider
+      }
     });
 
     return res;
@@ -313,8 +313,8 @@ export class DataAssetBase {
       dataAsset: {
         assetId: this.assetId,
         assetContract: this.assetContract,
-        chainId: this.chainId,
-      },
+        chainId: this.chainId
+      }
     } as MonetizationProvider;
 
     this.monetizationProvider = monetizationProvider;
@@ -324,8 +324,8 @@ export class DataAssetBase {
       params: {
         folderId: this.fileOrFolderId!,
         monetizationProvider,
-        signal,
-      },
+        signal
+      }
     });
 
     return res;
@@ -334,28 +334,28 @@ export class DataAssetBase {
   public async getAssetOwner(assetId: BytesLike) {
     if (!this.assetContract) {
       throw new Error(
-        "AssetContract cannot be empty, please pass in through constructor",
+        "AssetContract cannot be empty, please pass in through constructor"
       );
     }
     const dataMonetizerBase = DataMonetizerBase__factory.connect(
       this.assetContract,
-      this.signer,
+      this.signer
     );
     return await dataMonetizerBase.getAssetOwner(assetId);
   }
 
   protected async createAssetHandler(
     publishParams: PublishParams,
-    withSig: boolean = false,
+    withSig: boolean = false
   ) {
     if (!this.assetContract) {
       throw new Error(
-        "AssetContract cannot be empty, please pass in through constructor",
+        "AssetContract cannot be empty, please pass in through constructor"
       );
     }
     const dataMonetizerBase = DataMonetizerBase__factory.connect(
       this.assetContract,
-      this.signer,
+      this.signer
     );
 
     let receipt;
@@ -366,12 +366,12 @@ export class DataAssetBase {
       const signature = await this._buildPublishSignature(publishParams);
       const tx = await dataMonetizerBase.publishWithSig(
         publishParams,
-        signature,
+        signature
       );
       receipt = await tx.wait();
     }
     const targetEvents = receipt.events?.filter(
-      e => e.event === "AssetPublished",
+      (e) => e.event === "AssetPublished"
     );
     if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
       throw new Error("Filter Published event failed");
@@ -384,12 +384,12 @@ export class DataAssetBase {
   protected async _act(actParams: ActParams, withSig: boolean = false) {
     if (!this.assetContract) {
       throw new Error(
-        "AssetContract cannot be empty, please pass in through constructor",
+        "AssetContract cannot be empty, please pass in through constructor"
       );
     }
     const dataMonetizerBase = DataMonetizerBase__factory.connect(
       this.assetContract,
-      this.signer,
+      this.signer
     );
     let receipt;
     if (!withSig) {
@@ -400,7 +400,9 @@ export class DataAssetBase {
       const tx = await dataMonetizerBase.actWithSig(actParams, signature);
       receipt = await tx.wait();
     }
-    const targetEvents = receipt.events?.filter(e => e.event === "AssetActed");
+    const targetEvents = receipt.events?.filter(
+      (e) => e.event === "AssetActed"
+    );
     if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
       throw new Error("Filter Published event failed");
     }
@@ -410,16 +412,16 @@ export class DataAssetBase {
 
   protected async _addActions(
     addActionsParams: AddActionsParams,
-    withSig: boolean = false,
+    withSig: boolean = false
   ) {
     if (!this.assetContract) {
       throw new Error(
-        "AssetContract cannot be empty, please pass in through constructor",
+        "AssetContract cannot be empty, please pass in through constructor"
       );
     }
     const dataMonetizerBase = DataMonetizerBase__factory.connect(
       this.assetContract,
-      this.signer,
+      this.signer
     );
 
     if (!withSig) {
@@ -429,7 +431,7 @@ export class DataAssetBase {
       const signature = await this._buildAddActionsSignature(addActionsParams);
       const tx = await dataMonetizerBase.addActionsWithSig(
         addActionsParams,
-        signature,
+        signature
       );
       await tx.wait();
     }
@@ -438,7 +440,7 @@ export class DataAssetBase {
   protected async _checkERC20BalanceAndAllowance(
     currency: string,
     amount: BigNumberish,
-    spender: string,
+    spender: string
   ) {
     const erc20 = IERC20__factory.connect(currency, this.signer!);
     const signerAddr = await this.signer!.getAddress();
@@ -456,20 +458,20 @@ export class DataAssetBase {
   private async _buildPublishSignature(publishParams: PublishParams) {
     if (!this.assetContract) {
       throw new Error(
-        "AssetContract cannot be empty, please pass in through constructor",
+        "AssetContract cannot be empty, please pass in through constructor"
       );
     }
     if (!this.chainId) {
       throw new Error(
-        "ChainId cannot be empty, please pass in through constructor",
+        "ChainId cannot be empty, please pass in through constructor"
       );
     }
     const dataMonetizerBase = DataMonetizerBase__factory.connect(
       this.assetContract,
-      this.signer,
+      this.signer
     );
     const nonce = await dataMonetizerBase.getSigNonce(
-      await this.signer.getAddress(),
+      await this.signer.getAddress()
     );
     const { name, version } = await dataMonetizerBase.eip712Domain();
 
@@ -484,14 +486,14 @@ export class DataAssetBase {
           { name: "actionInitDatas", type: "bytes[]" },
           { name: "images", type: "bytes32[]" },
           { name: "nonce", type: "uint256" },
-          { name: "deadline", type: "uint256" },
-        ],
+          { name: "deadline", type: "uint256" }
+        ]
       },
       domain: {
         name,
         version,
         chainId: this.chainId,
-        verifyingContract: this.assetContract,
+        verifyingContract: this.assetContract
       },
       value: {
         resourceId: publishParams.resourceId,
@@ -500,16 +502,16 @@ export class DataAssetBase {
         actionInitDatas: publishParams.actionInitDatas,
         images: publishParams.images,
         nonce,
-        deadline,
-      },
+        deadline
+      }
     };
 
     const { v, r, s } = ethers.utils.splitSignature(
       await (this.signer as Wallet)._signTypedData(
         msgParams.domain,
         msgParams.types,
-        msgParams.value,
-      ),
+        msgParams.value
+      )
     );
 
     const sig: EIP712Signature = {
@@ -517,7 +519,7 @@ export class DataAssetBase {
       v,
       r,
       s,
-      deadline,
+      deadline
     };
 
     return sig;
@@ -526,20 +528,20 @@ export class DataAssetBase {
   private async _buildActSignature(actParams: ActParams) {
     if (!this.assetContract) {
       throw new Error(
-        "AssetContract cannot be empty, please pass in through constructor",
+        "AssetContract cannot be empty, please pass in through constructor"
       );
     }
     if (!this.chainId) {
       throw new Error(
-        "ChainId cannot be empty, please pass in through constructor",
+        "ChainId cannot be empty, please pass in through constructor"
       );
     }
     const dataMonetizerBase = DataMonetizerBase__factory.connect(
       this.assetContract,
-      this.signer,
+      this.signer
     );
     const nonce = await dataMonetizerBase.getSigNonce(
-      await this.signer.getAddress(),
+      await this.signer.getAddress()
     );
     const { name, version } = await dataMonetizerBase.eip712Domain();
 
@@ -552,30 +554,30 @@ export class DataAssetBase {
           { name: "actions", type: "address[]" },
           { name: "actionProcessDatas", type: "bytes[]" },
           { name: "nonce", type: "uint256" },
-          { name: "deadline", type: "uint256" },
-        ],
+          { name: "deadline", type: "uint256" }
+        ]
       },
       domain: {
         name,
         version,
         chainId: this.chainId,
-        verifyingContract: this.assetContract,
+        verifyingContract: this.assetContract
       },
       value: {
         assetId: actParams.assetId,
         actions: actParams.actions,
         actionProcessDatas: actParams.actionProcessDatas,
         nonce,
-        deadline,
-      },
+        deadline
+      }
     };
 
     const { v, r, s } = ethers.utils.splitSignature(
       await (this.signer as Wallet)._signTypedData(
         msgParams.domain,
         msgParams.types,
-        msgParams.value,
-      ),
+        msgParams.value
+      )
     );
 
     const sig: EIP712Signature = {
@@ -583,7 +585,7 @@ export class DataAssetBase {
       v,
       r,
       s,
-      deadline,
+      deadline
     };
 
     return sig;
@@ -592,20 +594,20 @@ export class DataAssetBase {
   private async _buildAddActionsSignature(addActionsParams: AddActionsParams) {
     if (!this.assetContract) {
       throw new Error(
-        "AssetContract cannot be empty, please pass in through constructor",
+        "AssetContract cannot be empty, please pass in through constructor"
       );
     }
     if (!this.chainId) {
       throw new Error(
-        "ChainId cannot be empty, please pass in through constructor",
+        "ChainId cannot be empty, please pass in through constructor"
       );
     }
     const dataMonetizerBase = DataMonetizerBase__factory.connect(
       this.assetContract,
-      this.signer,
+      this.signer
     );
     const nonce = await dataMonetizerBase.getSigNonce(
-      await this.signer.getAddress(),
+      await this.signer.getAddress()
     );
     const { name, version } = await dataMonetizerBase.eip712Domain();
 
@@ -618,30 +620,30 @@ export class DataAssetBase {
           { name: "actions", type: "address[]" },
           { name: "actionInitDatas", type: "bytes[]" },
           { name: "nonce", type: "uint256" },
-          { name: "deadline", type: "uint256" },
-        ],
+          { name: "deadline", type: "uint256" }
+        ]
       },
       domain: {
         name,
         version,
         chainId: this.chainId,
-        verifyingContract: this.assetContract,
+        verifyingContract: this.assetContract
       },
       value: {
         assetId: addActionsParams.assetId,
         actions: addActionsParams.actions,
         actionInitDatas: addActionsParams.actionInitDatas,
         nonce,
-        deadline,
-      },
+        deadline
+      }
     };
 
     const { v, r, s } = ethers.utils.splitSignature(
       await (this.signer as Wallet)._signTypedData(
         msgParams.domain,
         msgParams.types,
-        msgParams.value,
-      ),
+        msgParams.value
+      )
     );
 
     const sig: EIP712Signature = {
@@ -649,7 +651,7 @@ export class DataAssetBase {
       v,
       r,
       s,
-      deadline,
+      deadline
     };
 
     return sig;
