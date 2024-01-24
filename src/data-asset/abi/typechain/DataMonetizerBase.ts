@@ -400,7 +400,7 @@ export interface DataMonetizerBaseInterface extends utils.Interface {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
     "AssetActed(bytes32,address,address[],bytes[],bytes[])": EventFragment;
-    "AssetPublished(bytes32,address,string,bytes,address[],bytes[],bytes32[])": EventFragment;
+    "AssetPublished(bytes32,address,uint256,string,bytes,address[],bytes[],bytes32[])": EventFragment;
     "EIP712DomainChanged()": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
@@ -454,6 +454,7 @@ export type AssetActedEventFilter = TypedEventFilter<AssetActedEvent>;
 export interface AssetPublishedEventObject {
   assetId: string;
   publisher: string;
+  publicationId: BigNumber;
   resourceId: string;
   data: string;
   actions: string[];
@@ -461,7 +462,7 @@ export interface AssetPublishedEventObject {
   images: string[];
 }
 export type AssetPublishedEvent = TypedEvent<
-  [string, string, string, string, string[], string[], string[]],
+  [string, string, BigNumber, string, string, string[], string[], string[]],
   AssetPublishedEventObject
 >;
 
@@ -1003,9 +1004,10 @@ export interface DataMonetizerBase extends BaseContract {
       actionReturnDatas?: null
     ): AssetActedEventFilter;
 
-    "AssetPublished(bytes32,address,string,bytes,address[],bytes[],bytes32[])"(
+    "AssetPublished(bytes32,address,uint256,string,bytes,address[],bytes[],bytes32[])"(
       assetId?: BytesLike | null,
       publisher?: string | null,
+      publicationId?: BigNumberish | null,
       resourceId?: null,
       data?: null,
       actions?: null,
@@ -1015,6 +1017,7 @@ export interface DataMonetizerBase extends BaseContract {
     AssetPublished(
       assetId?: BytesLike | null,
       publisher?: string | null,
+      publicationId?: BigNumberish | null,
       resourceId?: null,
       data?: null,
       actions?: null,

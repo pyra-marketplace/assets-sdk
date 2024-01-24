@@ -55,6 +55,28 @@ export declare namespace IDataMonetizer {
     BigNumber
   ] & { signer: string; v: number; r: string; s: string; deadline: BigNumber };
 
+  export type AddActionsParamsStruct = {
+    assetId: BytesLike;
+    actions: string[];
+    actionInitDatas: BytesLike[];
+  };
+
+  export type AddActionsParamsStructOutput = [string, string[], string[]] & {
+    assetId: string;
+    actions: string[];
+    actionInitDatas: string[];
+  };
+
+  export type AddImagesParamsStruct = {
+    assetId: BytesLike;
+    images: BytesLike[];
+  };
+
+  export type AddImagesParamsStructOutput = [string, string[]] & {
+    assetId: string;
+    images: string[];
+  };
+
   export type AssetStruct = {
     resourceId: string;
     data: BytesLike;
@@ -106,6 +128,7 @@ export declare namespace IDataMonetizer {
 export declare namespace IDataUnion {
   export type UnionAssetStruct = {
     resourceId: string;
+    folderId: string;
     publishAt: BigNumberish;
     closeAt: BigNumberish;
     publicationId: BigNumberish;
@@ -115,6 +138,7 @@ export declare namespace IDataUnion {
 
   export type UnionAssetStructOutput = [
     string,
+    string,
     BigNumber,
     BigNumber,
     BigNumber,
@@ -122,6 +146,7 @@ export declare namespace IDataUnion {
     string[]
   ] & {
     resourceId: string;
+    folderId: string;
     publishAt: BigNumber;
     closeAt: BigNumber;
     publicationId: BigNumber;
@@ -135,6 +160,10 @@ export interface DataUnionInterface extends utils.Interface {
     "DAPP_TABLE_REGISTRY()": FunctionFragment;
     "act((bytes32,address[],bytes[]))": FunctionFragment;
     "actWithSig((bytes32,address[],bytes[]),(address,uint8,bytes32,bytes32,uint256))": FunctionFragment;
+    "addActions((bytes32,address[],bytes[]))": FunctionFragment;
+    "addActionsWithSig((bytes32,address[],bytes[]),(address,uint8,bytes32,bytes32,uint256))": FunctionFragment;
+    "addImages((bytes32,bytes32[]))": FunctionFragment;
+    "addImagesWithSig((bytes32,bytes32[]),(address,uint8,bytes32,bytes32,uint256))": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "close(bytes32)": FunctionFragment;
@@ -168,6 +197,10 @@ export interface DataUnionInterface extends utils.Interface {
       | "DAPP_TABLE_REGISTRY"
       | "act"
       | "actWithSig"
+      | "addActions"
+      | "addActionsWithSig"
+      | "addImages"
+      | "addImagesWithSig"
       | "approve"
       | "balanceOf"
       | "close"
@@ -208,6 +241,28 @@ export interface DataUnionInterface extends utils.Interface {
     functionFragment: "actWithSig",
     values: [
       IDataMonetizer.ActParamsStruct,
+      IDataMonetizer.EIP712SignatureStruct
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addActions",
+    values: [IDataMonetizer.AddActionsParamsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addActionsWithSig",
+    values: [
+      IDataMonetizer.AddActionsParamsStruct,
+      IDataMonetizer.EIP712SignatureStruct
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addImages",
+    values: [IDataMonetizer.AddImagesParamsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addImagesWithSig",
+    values: [
+      IDataMonetizer.AddImagesParamsStruct,
       IDataMonetizer.EIP712SignatureStruct
     ]
   ): string;
@@ -307,6 +362,16 @@ export interface DataUnionInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "act", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "actWithSig", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "addActions", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "addActionsWithSig",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "addImages", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "addImagesWithSig",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "close", data: BytesLike): Result;
@@ -389,7 +454,7 @@ export interface DataUnionInterface extends utils.Interface {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
     "AssetActed(bytes32,address,address[],bytes[],bytes[])": EventFragment;
-    "AssetPublished(bytes32,address,string,bytes,address[],bytes[],bytes32[])": EventFragment;
+    "AssetPublished(bytes32,address,uint256,string,bytes,address[],bytes[],bytes32[])": EventFragment;
     "EIP712DomainChanged()": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
     "UnionClosed(bytes32,address,uint256)": EventFragment;
@@ -445,6 +510,7 @@ export type AssetActedEventFilter = TypedEventFilter<AssetActedEvent>;
 export interface AssetPublishedEventObject {
   assetId: string;
   publisher: string;
+  publicationId: BigNumber;
   resourceId: string;
   data: string;
   actions: string[];
@@ -452,7 +518,7 @@ export interface AssetPublishedEventObject {
   images: string[];
 }
 export type AssetPublishedEvent = TypedEvent<
-  [string, string, string, string, string[], string[], string[]],
+  [string, string, BigNumber, string, string, string[], string[], string[]],
   AssetPublishedEventObject
 >;
 
@@ -527,6 +593,28 @@ export interface DataUnion extends BaseContract {
 
     actWithSig(
       actParams: IDataMonetizer.ActParamsStruct,
+      signature: IDataMonetizer.EIP712SignatureStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    addActions(
+      addActionsParams: IDataMonetizer.AddActionsParamsStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    addActionsWithSig(
+      addActionsParams: IDataMonetizer.AddActionsParamsStruct,
+      signature: IDataMonetizer.EIP712SignatureStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    addImages(
+      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    addImagesWithSig(
+      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
       signature: IDataMonetizer.EIP712SignatureStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
@@ -682,6 +770,28 @@ export interface DataUnion extends BaseContract {
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
+  addActions(
+    addActionsParams: IDataMonetizer.AddActionsParamsStruct,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  addActionsWithSig(
+    addActionsParams: IDataMonetizer.AddActionsParamsStruct,
+    signature: IDataMonetizer.EIP712SignatureStruct,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  addImages(
+    addImagesParams: IDataMonetizer.AddImagesParamsStruct,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  addImagesWithSig(
+    addImagesParams: IDataMonetizer.AddImagesParamsStruct,
+    signature: IDataMonetizer.EIP712SignatureStruct,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
   approve(
     to: string,
     tokenId: BigNumberish,
@@ -820,6 +930,28 @@ export interface DataUnion extends BaseContract {
       signature: IDataMonetizer.EIP712SignatureStruct,
       overrides?: CallOverrides
     ): Promise<string[]>;
+
+    addActions(
+      addActionsParams: IDataMonetizer.AddActionsParamsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addActionsWithSig(
+      addActionsParams: IDataMonetizer.AddActionsParamsStruct,
+      signature: IDataMonetizer.EIP712SignatureStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addImages(
+      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addImagesWithSig(
+      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
+      signature: IDataMonetizer.EIP712SignatureStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     approve(
       to: string,
@@ -985,9 +1117,10 @@ export interface DataUnion extends BaseContract {
       actionReturnDatas?: null
     ): AssetActedEventFilter;
 
-    "AssetPublished(bytes32,address,string,bytes,address[],bytes[],bytes32[])"(
+    "AssetPublished(bytes32,address,uint256,string,bytes,address[],bytes[],bytes32[])"(
       assetId?: BytesLike | null,
       publisher?: string | null,
+      publicationId?: BigNumberish | null,
       resourceId?: null,
       data?: null,
       actions?: null,
@@ -997,6 +1130,7 @@ export interface DataUnion extends BaseContract {
     AssetPublished(
       assetId?: BytesLike | null,
       publisher?: string | null,
+      publicationId?: BigNumberish | null,
       resourceId?: null,
       data?: null,
       actions?: null,
@@ -1040,6 +1174,28 @@ export interface DataUnion extends BaseContract {
 
     actWithSig(
       actParams: IDataMonetizer.ActParamsStruct,
+      signature: IDataMonetizer.EIP712SignatureStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    addActions(
+      addActionsParams: IDataMonetizer.AddActionsParamsStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    addActionsWithSig(
+      addActionsParams: IDataMonetizer.AddActionsParamsStruct,
+      signature: IDataMonetizer.EIP712SignatureStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    addImages(
+      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    addImagesWithSig(
+      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
       signature: IDataMonetizer.EIP712SignatureStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
@@ -1176,6 +1332,28 @@ export interface DataUnion extends BaseContract {
 
     actWithSig(
       actParams: IDataMonetizer.ActParamsStruct,
+      signature: IDataMonetizer.EIP712SignatureStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    addActions(
+      addActionsParams: IDataMonetizer.AddActionsParamsStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    addActionsWithSig(
+      addActionsParams: IDataMonetizer.AddActionsParamsStruct,
+      signature: IDataMonetizer.EIP712SignatureStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    addImages(
+      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    addImagesWithSig(
+      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
       signature: IDataMonetizer.EIP712SignatureStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;

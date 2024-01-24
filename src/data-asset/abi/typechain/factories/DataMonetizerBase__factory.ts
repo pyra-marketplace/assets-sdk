@@ -169,6 +169,12 @@ const _abi = [
         type: "address",
       },
       {
+        indexed: true,
+        internalType: "uint256",
+        name: "publicationId",
+        type: "uint256",
+      },
+      {
         indexed: false,
         internalType: "string",
         name: "resourceId",
