@@ -1,6 +1,6 @@
 import {
   DataverseConnector,
-  SYSTEM_CALL,
+  SYSTEM_CALL
 } from "@dataverse/dataverse-connector";
 import { ChainId } from "../types";
 import { DataAssetBase } from "./DataAssetBase";
@@ -8,7 +8,7 @@ import {
   GeneralAccessConditions,
   SourceAssetConditions,
   LinkedAssetConditions,
-  SourceAssetConditionInput,
+  SourceAssetConditionInput
 } from "./types";
 
 export class DataAssetParser {
@@ -21,36 +21,35 @@ export class DataAssetParser {
   async parse(fileOrFolderId: string) {
     const res = await this.dataverseConnector.runOS({
       method: SYSTEM_CALL.loadFile,
-      params: fileOrFolderId,
+      params: fileOrFolderId
     });
-
-    const dataAsset =
-      res.fileContent.file?.accessControl?.monetizationProvider?.dataAsset;
-    const dependencies =
-      res.fileContent.file?.accessControl?.monetizationProvider?.dependencies;
-    const encryptionProvider =
-      res.fileContent.file?.accessControl?.encryptionProvider;
+    const dataAsset = (res.fileContent.file || res.fileContent.content)
+      ?.accessControl?.monetizationProvider?.dataAsset;
+    const dependencies = (res.fileContent.file || res.fileContent.content)
+      ?.accessControl?.monetizationProvider?.dependencies;
+    const encryptionProvider = (res.fileContent.file || res.fileContent.content)
+      ?.accessControl?.encryptionProvider;
     const decryptionConditions = encryptionProvider?.decryptionConditions;
 
     const dataAssetBase = new DataAssetBase({
       ...dataAsset,
       fileOrFolderId,
-      dataverseConnector: this.dataverseConnector,
+      dataverseConnector: this.dataverseConnector
     });
 
     dataAssetBase.generalAccessConditions = decryptionConditions?.slice(
-      -1,
+      -1
     )?.[0] as GeneralAccessConditions;
     dataAssetBase.sourceAssetConditions = decryptionConditions?.slice(
-      -1,
+      -1
     )?.[2] as SourceAssetConditions;
     dataAssetBase.linkedAssetConditions = decryptionConditions?.slice(
-      -1,
+      -1
     )?.[4] as LinkedAssetConditions;
 
     dataAssetBase.monetizationProvider = {
       dataAsset,
-      dependencies,
+      dependencies
     };
     dataAssetBase.encryptionProvider = encryptionProvider;
 
@@ -62,11 +61,11 @@ export class DataAssetParser {
       return false;
     }
     return !dataAssetBase.sourceAssetConditions?.find(
-      sourceAssetCondition =>
+      (sourceAssetCondition) =>
         (sourceAssetCondition as SourceAssetConditionInput[])[0]
           ?.functionParams[0] !== dataAssetBase?.assetId ||
         (sourceAssetCondition as SourceAssetConditionInput[])[0]?.chain !==
-          ChainId[dataAssetBase?.chainId!],
+          ChainId[dataAssetBase?.chainId!]
     );
   }
 }

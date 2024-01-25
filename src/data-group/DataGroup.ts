@@ -2,9 +2,13 @@
 
 import { BigNumber, BigNumberish, BytesLike, ethers } from "ethers";
 import {
+  Attached,
+  DataAsset,
   DataverseConnector,
+  FileContent,
+  FolderType,
   SYSTEM_CALL,
-  SignalType,
+  SignalType
 } from "@dataverse/dataverse-connector";
 import { ChainId, DataToken, DataTokenFactory, GraphType } from "../data-token";
 import { DeployedContracts } from "../config";
@@ -19,7 +23,7 @@ import {
   DataUnion as DataUnionGraphType,
   Data_Union_Subscription,
   isDataUnionCollectedBy,
-  loadDataUnions,
+  loadDataUnions
 } from "../graphql";
 import { getBlockNumberByTimestamp } from "../utils";
 import { abiCoder } from "../utils";
@@ -31,7 +35,7 @@ import {
   IDataUnion__factory,
   IERC20__factory,
   LitACL__factory,
-  TimeSegmentSubscribeModule__factory,
+  TimeSegmentSubscribeModule__factory
 } from "./contracts";
 import { IDataUnionDefinitions } from "./contracts/IDataUnion";
 
@@ -43,7 +47,7 @@ import {
   SubscribeDataUnionInput,
   SubscribeDataUnionOutput,
   SubscribeModule,
-  TimeSegment,
+  TimeSegment
 } from "./types";
 
 export class DataGroup extends DataAssetBase {
@@ -52,7 +56,7 @@ export class DataGroup extends DataAssetBase {
   constructor({
     chainId,
     folderId,
-    dataverseConnector,
+    dataverseConnector
   }: {
     chainId: ChainId;
     folderId: string;
@@ -65,13 +69,13 @@ export class DataGroup extends DataAssetBase {
       chainId,
       assetContract,
       fileOrFolderId: folderId,
-      dataverseConnector,
+      dataverseConnector
     });
 
     this.instance = IDataUnion__factory.connect(assetContract, this.signer);
   }
 
-  public async createDataGroup(params: PublishDataUnionInput) {
+  public async publish(params: PublishDataUnionInput) {
     this.assertCheckChain();
 
     const {
@@ -82,11 +86,11 @@ export class DataGroup extends DataAssetBase {
         amount,
         currency,
         recipient,
-        endTimestamp,
+        endTimestamp
       },
       resourceId,
       subscribeModule,
-      subscribeModuleInput,
+      subscribeModuleInput
     } = params;
 
     const creator = await this.signer.getAddress();
@@ -100,14 +104,14 @@ export class DataGroup extends DataAssetBase {
       currency,
       amount: ethers.utils.parseUnits(
         String(amount),
-        currency === "USDC" ? 6 : 18,
+        currency === "USDC" ? 6 : 18
       ),
-      endTimestamp,
+      endTimestamp
     };
 
     const dataTokenFactory = new DataTokenFactory({
       chainId: this.chainId!,
-      signer: this.signer,
+      signer: this.signer
     });
 
     const createData = await dataTokenFactory._generateDataTokenInitData(input);
@@ -117,7 +121,7 @@ export class DataGroup extends DataAssetBase {
     const subscribeModuleInitData = this._generateSubscribeModuleInitData({
       subscribeModule,
       ...subscribeModuleInput,
-      amount: ethers.utils.parseEther(String(subscribeModuleInput.amount)),
+      amount: ethers.utils.parseEther(String(subscribeModuleInput.amount))
     });
 
     const publish = async () => {
@@ -126,11 +130,13 @@ export class DataGroup extends DataAssetBase {
         createData,
         resourceId,
         DeployedContracts[ChainId[this.chainId!]].DataUnion[subscribeModule],
-        subscribeModuleInitData,
+        subscribeModuleInitData
       );
 
       const result = await tx.wait();
-      const targetEvents = result.events?.filter(e => e.event === "Published");
+      const targetEvents = result.events?.filter(
+        (e) => e.event === "Published"
+      );
       if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
         throw new Error("Filter Published event failed");
       }
@@ -150,6 +156,219 @@ export class DataGroup extends DataAssetBase {
     return assetId;
   }
 
+  async applyConditionsToFile({
+    fileId,
+    linkedAsset,
+    attached
+  }: {
+    fileId?: string;
+    linkedAsset?: DataAsset;
+    attached?: Attached;
+  }) {
+    this.signer &&
+      this.addGeneralCondition([
+        {
+          conditionType: "evmBasic",
+          contractAddress: "",
+          standardContractType: "",
+          chain: "ethereum",
+          method: "",
+          parameters: [":userAddress"],
+          returnValueTest: {
+            comparator: "=",
+            value: await this.signer.getAddress()
+          }
+        }
+      ]);
+
+    await this.addLinkCondition({
+      acl: {
+        conditionType: "evmContract",
+        functionName: "isAccessible",
+        functionAbi: {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "dataUnionId",
+              type: "bytes32"
+            },
+            {
+              internalType: "address",
+              name: "subscriber",
+              type: "address"
+            },
+            {
+              internalType: "uint256",
+              name: "blockNumber",
+              type: "uint256"
+            }
+          ],
+          name: "isAccessible",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool"
+            }
+          ],
+          stateMutability: "view",
+          type: "function"
+        },
+        returnValueTest: {
+          key: "",
+          comparator: "=",
+          value: "true"
+        }
+      },
+      linkedAsset,
+      attached
+    });
+
+    const res = await this.applyFileConditions(fileId);
+
+    return res;
+  }
+
+  public async createFileInDataGroup({
+    modelId,
+    fileName,
+    fileContent
+  }: {
+    modelId: string;
+    fileName?: string;
+    fileContent: FileContent;
+  }) {
+    if (!this.assetId) {
+      throw new Error(
+        "AssetId cannot be empty, please call createAssetHandler first"
+      );
+    }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor"
+      );
+    }
+    if (!this.assetContract) {
+      throw new Error(
+        "AssetContract cannot be empty, please pass in through constructor"
+      );
+    }
+
+    const folders = await this.dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadFolderTrees
+    });
+
+    const folder = Object.values(folders).find(
+      (folder) =>
+        folder.options?.signal?.type === SignalType.asset &&
+        folder.options?.signal?.id === this.assetId
+    );
+
+    let folderId = folder?.folderId;
+    if (!folder) {
+      const res = await this.dataverseConnector.runOS({
+        method: SYSTEM_CALL.createFolder,
+        params: {
+          folderName: `${SignalType[SignalType.asset]}:${this.assetId}`,
+          folderType: FolderType.PublicFolderType,
+          signals: [
+            {
+              type: SignalType.asset,
+              id: this.assetId
+            }
+          ]
+        }
+      });
+      folderId = res.newFolder.folderId;
+    }
+
+    const res = await this.dataverseConnector.runOS({
+      method: SYSTEM_CALL.createIndexFile,
+      params: {
+        modelId,
+        fileName,
+        fileContent,
+        folderId
+      }
+    });
+
+    const applyConditionsToFileRes = await this.applyConditionsToFile({
+      fileId: res.fileContent.file.fileId,
+      linkedAsset: {
+        assetId: this.assetId,
+        assetContract: this.assetContract,
+        chainId: this.chainId
+      }
+    });
+
+    return applyConditionsToFileRes;
+  }
+
+  public async addFileInToDataGroup(fileId: string) {
+    if (!this.assetId) {
+      throw new Error(
+        "AssetId cannot be empty, please call createAssetHandler first"
+      );
+    }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor"
+      );
+    }
+    if (!this.assetContract) {
+      throw new Error(
+        "AssetContract cannot be empty, please pass in through constructor"
+      );
+    }
+
+    const applyConditionsToFileRes = await this.applyConditionsToFile({
+      fileId,
+      linkedAsset: {
+        assetId: this.assetId,
+        assetContract: this.assetContract,
+        chainId: this.chainId
+      }
+    });
+
+    const folders = await this.dataverseConnector.runOS({
+      method: SYSTEM_CALL.loadFolderTrees
+    });
+
+    const folder = Object.values(folders).find(
+      (folder) =>
+        folder.options?.signal?.type === SignalType.asset &&
+        folder.options?.signal?.id === this.assetId
+    );
+
+    let folderId = folder?.folderId;
+    if (!folder) {
+      const res = await this.dataverseConnector.runOS({
+        method: SYSTEM_CALL.createFolder,
+        params: {
+          folderName: `${SignalType[SignalType.asset]}:${this.assetId}`,
+          folderType: FolderType.PublicFolderType,
+          signals: [
+            {
+              type: SignalType.asset,
+              id: this.assetId
+            }
+          ]
+        }
+      });
+      folderId = res.newFolder.folderId;
+    }
+
+    await this.dataverseConnector.runOS({
+      method: SYSTEM_CALL.moveFiles,
+      params: {
+        targetFolderId: folderId!,
+        fileIds: [fileId]
+      }
+    });
+
+    return applyConditionsToFileRes;
+  }
+
   private assertCheckChain() {
     if (!this.chainId || !ChainId[this.chainId]) {
       throw new Error("Chain is not set");
@@ -166,17 +385,17 @@ export class DataGroup extends DataAssetBase {
       chainId: this.chainId!,
       fileId: "",
       dataTokenAddress: union.dataToken,
-      dataverseConnector: this.dataverseConnector,
+      dataverseConnector: this.dataverseConnector
     });
 
     const unionFolderId = (await dataToken.getContentURI()).replace(
       "ceramic://",
-      "",
+      ""
     );
 
     const dataUnion = await this.dataverseConnector.runOS({
       method: SYSTEM_CALL.loadDataUnionById,
-      params: unionFolderId,
+      params: unionFolderId
     });
 
     const linkedAsset =
@@ -188,7 +407,7 @@ export class DataGroup extends DataAssetBase {
 
     const tx = await this.instance.collect(dataGroupId, collectData);
     const result = await tx.wait();
-    const targetEvents = result.events?.filter(e => e.event === "Collected");
+    const targetEvents = result.events?.filter((e) => e.event === "Collected");
     if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
       throw new Error("Filter Collected event failed");
     }
@@ -196,31 +415,31 @@ export class DataGroup extends DataAssetBase {
     return {
       dataUnionId: targetEvents[0].args[0],
       dataToken: targetEvents[0].args[1],
-      collectTokenId: targetEvents[0].args[2],
+      collectTokenId: targetEvents[0].args[2]
     } as CollectDataUnionOutput;
   }
 
   public async subscribeDataGroup({
     dataUnionId,
     collectTokenId,
-    subscribeInput,
+    subscribeInput
   }: SubscribeDataUnionInput) {
     const { subscribeModule } =
       await this.instance.getDataUnionById(dataUnionId);
     const subscribeData = await this._generateSubscribeData({
       dataUnionId,
       subscribeModule,
-      subscribeInput,
+      subscribeInput
     });
 
     const tx = await this.instance.subscribe(
       dataUnionId,
       subscribeData,
-      collectTokenId,
+      collectTokenId
     );
 
     const result = await tx.wait();
-    const targetEvents = result.events?.filter(e => e.event === "Subscribed");
+    const targetEvents = result.events?.filter((e) => e.event === "Subscribed");
     if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
       throw new Error("Filter Subscribed event failed");
     }
@@ -230,7 +449,7 @@ export class DataGroup extends DataAssetBase {
       collectTokenId: targetEvents[0].args[1],
       subscribeModule: targetEvents[0].args[2],
       startAt: targetEvents[0].args[3],
-      endAt: targetEvents[0].args[4],
+      endAt: targetEvents[0].args[4]
     } as SubscribeDataUnionOutput;
   }
 
@@ -241,24 +460,24 @@ export class DataGroup extends DataAssetBase {
 
     const res = await this.dataverseConnector.runOS({
       method: SYSTEM_CALL.loadFoldersBy,
-      params: { signal: { type: SignalType.asset, id: groupId } },
+      params: { signal: { type: SignalType.asset, id: groupId } }
     });
 
     return Object.assign(
       {},
-      ...Object.values(res).map(item => item.mirrorRecord),
+      ...Object.values(res).map((item) => item.mirrorRecord)
     );
   }
 
   public getDataGroupById(
-    dataUnionId: BytesLike,
+    dataUnionId: BytesLike
   ): Promise<IDataUnionDefinitions.UnionStructOutput> {
     return this.instance.getDataUnionById(dataUnionId);
   }
 
   public getSubscriptionData({
     dataUnionId,
-    collectTokenId,
+    collectTokenId
   }: {
     dataUnionId: BytesLike;
     collectTokenId: BigNumberish;
@@ -268,7 +487,7 @@ export class DataGroup extends DataAssetBase {
 
   public isCollected({
     dataUnionId,
-    account,
+    account
   }: {
     dataUnionId: BytesLike;
     account: string;
@@ -279,7 +498,7 @@ export class DataGroup extends DataAssetBase {
   public isAccessibleByTokenId({
     dataUnionId,
     collectTokenId,
-    blockNumber,
+    blockNumber
   }: {
     dataUnionId: BytesLike;
     collectTokenId: BigNumberish;
@@ -291,7 +510,7 @@ export class DataGroup extends DataAssetBase {
   public isAccessibleBySubscriber({
     dataUnionId,
     subscriber,
-    blockNumber,
+    blockNumber
   }: {
     dataUnionId: BytesLike;
     subscriber: string;
@@ -300,7 +519,7 @@ export class DataGroup extends DataAssetBase {
     this.assertCheckChain();
     const litACL = LitACL__factory.connect(
       DeployedContracts[ChainId[this.chainId!]].DataUnion.LitACL,
-      this.signer!,
+      this.signer!
     );
     return litACL.isAccessible(dataUnionId, subscriber, blockNumber);
   }
@@ -308,7 +527,7 @@ export class DataGroup extends DataAssetBase {
   public async close(dataUnionId: BytesLike) {
     const tx = await this.instance.close(dataUnionId);
     const result = await tx.wait();
-    const targetEvents = result.events?.filter(e => e.event === "Closed");
+    const targetEvents = result.events?.filter((e) => e.event === "Closed");
 
     if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
       throw new Error("Filter Closed event failed");
@@ -317,30 +536,30 @@ export class DataGroup extends DataAssetBase {
     return {
       dataUnionId: targetEvents[0].args[0],
       operator: targetEvents[0].args[1],
-      endBlockNumber: targetEvents[0].args[2],
+      endBlockNumber: targetEvents[0].args[2]
     } as CloseDataUnionOutput;
   }
 
   static async loadDataGroupsPublishedBy(
-    publisher: string,
+    publisher: string
   ): Promise<Array<DataUnionGraphType>> {
     return loadDataUnionsPublishedBy(publisher);
   }
 
   static async loadDataGroupsCollectedBy(
-    collector: string,
+    collector: string
   ): Promise<Array<DataUnionGraphType>> {
     return loadDataUnionsCollectedBy(collector);
   }
 
   static async loadDataGroupCollectors(
-    dataUnionId: string,
+    dataUnionId: string
   ): Promise<Array<Data_Union_Subscriber>> {
     return loadDataUnionCollectors(dataUnionId);
   }
 
   static async loadDataGroupSubscribers(
-    dataUnionId: string,
+    dataUnionId: string
   ): Promise<Array<Data_Union_Subscriber>> {
     const result: Array<Data_Union_Subscriber> = [];
     const subs = await loadDataUnionSubscribers(dataUnionId);
@@ -357,14 +576,14 @@ export class DataGroup extends DataAssetBase {
   }
 
   static async loadDataGroups(
-    dataUnionIds: Array<string>,
+    dataUnionIds: Array<string>
   ): Promise<Array<DataUnionGraphType>> {
     return loadDataUnions(dataUnionIds);
   }
 
   static async loadDataGroupSubscriptionsBy({
     dataUnionId,
-    collector,
+    collector
   }: {
     dataUnionId: string;
     collector: string;
@@ -374,7 +593,7 @@ export class DataGroup extends DataAssetBase {
 
   static async isDataGroupCollectedBy({
     dataUnionId,
-    collector,
+    collector
   }: {
     dataUnionId: string;
     collector: string;
@@ -386,7 +605,7 @@ export class DataGroup extends DataAssetBase {
     dataUnionId,
     subscriber,
     timestamp,
-    blockNumber,
+    blockNumber
   }: {
     dataUnionId: string;
     subscriber: string;
@@ -405,9 +624,9 @@ export class DataGroup extends DataAssetBase {
               : BigNumber.from(
                   await getBlockNumberByTimestamp({
                     chainId: ChainId.PolygonMumbai,
-                    timestamp: timestamp.toNumber(),
-                  }),
-                ),
+                    timestamp: timestamp.toNumber()
+                  })
+                )
           );
           break;
         }
@@ -418,7 +637,7 @@ export class DataGroup extends DataAssetBase {
 
   static isInSubscription(
     subscriptions: Array<Data_Union_Subscription>,
-    blockNumber: BigNumber,
+    blockNumber: BigNumber
   ) {
     let isSubscribed = false;
     for (let i = 0; i < subscriptions.length; i++) {
@@ -437,7 +656,7 @@ export class DataGroup extends DataAssetBase {
     subscribeModule,
     currency,
     amount,
-    segment,
+    segment
   }: {
     subscribeModule: SubscribeModule;
     currency: Currency;
@@ -456,7 +675,7 @@ export class DataGroup extends DataAssetBase {
       case "BlockSubscribeModule": {
         subscribeModuleInitData = abiCoder.encode(
           ["address", "uint256"],
-          [DeployedContracts[ChainId[this.chainId!]][currency], amount],
+          [DeployedContracts[ChainId[this.chainId!]][currency], amount]
         );
         break;
       }
@@ -471,8 +690,8 @@ export class DataGroup extends DataAssetBase {
           [
             DeployedContracts[ChainId[this.chainId!]][currency],
             amount,
-            segmentInBlockNumber,
-          ],
+            segmentInBlockNumber
+          ]
         );
         break;
       }
@@ -486,7 +705,7 @@ export class DataGroup extends DataAssetBase {
   public async _generateSubscribeData({
     dataUnionId,
     subscribeModule,
-    subscribeInput,
+    subscribeInput
   }: {
     dataUnionId: BytesLike;
     subscribeModule: string;
@@ -504,7 +723,7 @@ export class DataGroup extends DataAssetBase {
         // 1. get union data
         const blockSubscribeModule = BlockSubscribeModule__factory.connect(
           subscribeModule,
-          this.signer!,
+          this.signer!
         );
         const { currency, amount } =
           await blockSubscribeModule.getUnionData(dataUnionId);
@@ -517,18 +736,18 @@ export class DataGroup extends DataAssetBase {
         await this._checkERC20BalanceAndAllowance(
           currency,
           totalAmount,
-          subscribeModule,
+          subscribeModule
         );
 
         // 3. generate validate data
         const validateData = abiCoder.encode(
           ["address", "uint256"],
-          [currency, amount],
+          [currency, amount]
         );
 
         subscribeData = abiCoder.encode(
           ["uint256", "uint256", "bytes"],
-          [subscribeInput.startAt!, subscribeInput.endAt!, validateData],
+          [subscribeInput.startAt!, subscribeInput.endAt!, validateData]
         );
         break;
       }
@@ -539,34 +758,30 @@ export class DataGroup extends DataAssetBase {
         const timePeriodSubscribeModule =
           TimeSegmentSubscribeModule__factory.connect(
             subscribeModule,
-            this.signer!,
+            this.signer!
           );
         const { currency, amount } =
           await timePeriodSubscribeModule.getUnionData(dataUnionId);
 
         // 2. check balance and allowance
         const totalAmount = BigNumber.from(subscribeInput.segmentsCount).mul(
-          amount,
+          amount
         );
         await this._checkERC20BalanceAndAllowance(
           currency,
           totalAmount,
-          subscribeModule,
+          subscribeModule
         );
 
         // 3. generate validate data
         const validateData = abiCoder.encode(
           ["address", "uint256"],
-          [currency, amount],
+          [currency, amount]
         );
 
         subscribeData = abiCoder.encode(
           ["uint256", "uint256", "bytes"],
-          [
-            subscribeInput.startAt!,
-            subscribeInput.segmentsCount!,
-            validateData,
-          ],
+          [subscribeInput.startAt!, subscribeInput.segmentsCount!, validateData]
         );
         break;
       }
@@ -582,7 +797,7 @@ export class DataGroup extends DataAssetBase {
   private async _checkERC20BalanceAndAllowance(
     currency: string,
     amount: BigNumberish,
-    spender: string,
+    spender: string
   ) {
     const erc20 = IERC20__factory.connect(currency, this.signer!);
     const signerAddr = await this.signer!.getAddress();

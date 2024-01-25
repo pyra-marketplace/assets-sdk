@@ -4,20 +4,20 @@ import { ApiConfig } from "../config";
 
 export const getBlockNumberByTimestamp = async ({
   chainId,
-  timestamp,
+  timestamp
 }: {
   chainId: ChainId;
   timestamp: number;
 }) => {
   if (!Moralis.Core.isStarted) {
     await Moralis.start({
-      apiKey: ApiConfig.Moralis,
+      apiKey: ApiConfig.Moralis
     });
   }
 
   const response = await Moralis.EvmApi.block.getDateToBlock({
     chain: chainId,
-    date: new Date(timestamp * 1000).toISOString(),
+    date: new Date(timestamp * 1000).toISOString()
   });
 
   return response.raw.block;
@@ -25,20 +25,20 @@ export const getBlockNumberByTimestamp = async ({
 
 export const getTimestampByBlockNumber = async ({
   chainId,
-  blockNumber,
+  blockNumber
 }: {
   chainId: ChainId;
   blockNumber: number;
 }) => {
   if (!Moralis.Core.isStarted) {
     await Moralis.start({
-      apiKey: ApiConfig.Moralis,
+      apiKey: ApiConfig.Moralis
     });
   }
 
   const response = await Moralis.EvmApi.block.getBlock({
     chain: chainId,
-    blockNumberOrHash: blockNumber.toString(),
+    blockNumberOrHash: blockNumber.toString()
   });
 
   if (response) {

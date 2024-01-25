@@ -1,4 +1,3 @@
-import assert from "assert";
 import {
   Attached,
   DataAsset,
@@ -8,14 +7,12 @@ import {
   EncryptionProtocol,
   EncryptionProvider,
   MonetizationProvider,
-  SYSTEM_CALL,
-  Signal
+  SYSTEM_CALL
 } from "@dataverse/dataverse-connector";
 import { BigNumberish, BytesLike, Signer, Wallet, ethers } from "ethers";
 import {
   getChainIdFromChainName,
   getChainNameFromChainId,
-  getTimestampByBlockNumber,
   oneDayLater
 } from "../utils";
 import { ChainId } from "../types";
@@ -36,7 +33,7 @@ import {
 import { DataMonetizerBase__factory, IERC20__factory } from "./abi/typechain";
 
 export class DataAssetBase {
-  fileOrFolderId: string;
+  fileOrFolderId?: string;
   assetContract?: string;
   chainId?: ChainId;
   assetId?: string;
@@ -46,7 +43,7 @@ export class DataAssetBase {
   monetizationProvider?: MonetizationProvider;
   encryptionProvider?: EncryptionProvider;
   dataverseConnector: DataverseConnector;
-  signer: Signer;
+  signer?: Signer;
 
   constructor({
     chainId,
@@ -57,22 +54,13 @@ export class DataAssetBase {
   }: {
     chainId?: ChainId;
     dataverseConnector: DataverseConnector;
-    fileOrFolderId: string;
+    fileOrFolderId?: string;
     assetContract?: string;
     assetId?: string;
   }) {
-    if (!fileOrFolderId) {
-      throw new Error("File or folder Id cannot be empty");
-    }
-
-    try {
-      const provider = dataverseConnector.getProvider();
-      const ethersProvider = new ethers.providers.Web3Provider(provider);
-      this.signer = ethersProvider.getSigner();
-    } catch (error) {
-      throw new Error("No avaliable signer in dataverseConnector");
-    }
-
+    const provider = dataverseConnector.getProvider();
+    const ethersProvider = new ethers.providers.Web3Provider(provider, "any");
+    this.signer = ethersProvider.getSigner();
     this.chainId = chainId;
     this.dataverseConnector = dataverseConnector;
     this.assetContract = assetContract;
@@ -92,10 +80,10 @@ export class DataAssetBase {
 
   protected addSourceCondition({
     acl,
-    unlockingTimeStamp
+    timestamp
   }: {
     acl: Omit<SourceAssetConditionInput, "functionParams">;
-    unlockingTimeStamp?: number;
+    timestamp?: number;
   }) {
     if (!this.chainId) {
       throw new Error(
@@ -112,8 +100,9 @@ export class DataAssetBase {
       ":userAddress"
     ];
 
-    if (unlockingTimeStamp) {
+    if (timestamp) {
       const timestampACL = {
+        conditionType: "evmBasic",
         contractAddress: "",
         standardContractType: "timestamp",
         chain: (acl as SourceAssetConditionInput).chain,
@@ -121,7 +110,7 @@ export class DataAssetBase {
         parameters: ["latest"],
         returnValueTest: {
           comparator: ">=",
-          value: String(unlockingTimeStamp)
+          value: String(timestamp)
         }
       } as TimestampCondition;
       if (!this.sourceAssetConditions) {
@@ -184,8 +173,9 @@ export class DataAssetBase {
     (acl as LinkedAssetConditionInput).chain = getChainNameFromChainId(
       linkedAsset.chainId
     );
-    if (attached?.blockNumber) {
+    if (attached?.timestamp) {
       const timestampACL = {
+        conditionType: "evmBasic",
         contractAddress: "",
         standardContractType: "timestamp",
         chain: (acl as LinkedAssetConditionInput).chain,
@@ -193,12 +183,7 @@ export class DataAssetBase {
         parameters: ["latest"],
         returnValueTest: {
           comparator: ">=",
-          value: String(
-            await getTimestampByBlockNumber({
-              chainId: linkedAsset.chainId,
-              blockNumber: attached.blockNumber
-            })
-          )
+          value: String(attached.timestamp)
         }
       } as TimestampCondition;
       if (!this.linkedAssetConditions) {
@@ -232,7 +217,10 @@ export class DataAssetBase {
     }
   }
 
-  protected async applyFileConditions() {
+  protected async applyFileConditions(fileId?: string) {
+    if (!fileId && !this.fileOrFolderId) {
+      throw new Error("File or folder Id cannot be empty");
+    }
     const dependencies = this.linkedAssetConditions?.map((item) => {
       if ((item as OrCondition)?.operator) {
         return;
@@ -268,21 +256,26 @@ export class DataAssetBase {
       };
     });
     const monetizationProvider = {
-      dataAsset: {
-        assetId: this.assetId,
-        assetContract: this.assetContract,
-        chainId: this.chainId
-      },
+      ...(this.sourceAssetConditions &&
+        this.sourceAssetConditions.length > 0 && {
+          dataAsset: {
+            assetId: this.assetId,
+            assetContract: this.assetContract,
+            chainId: this.chainId
+          }
+        }),
       dependencies
     } as MonetizationProvider;
     this.monetizationProvider = monetizationProvider;
 
     const decryptionConditions = [
-      this.generalAccessConditions,
-      { operator: "or" as const },
-      this.sourceAssetConditions,
-      { operator: "or" as const },
-      this.linkedAssetConditions
+      ...(this.generalAccessConditions ? [this.generalAccessConditions] : []),
+      ...(this.sourceAssetConditions
+        ? [{ operator: "or" as const }, this.sourceAssetConditions]
+        : []),
+      ...(this.linkedAssetConditions
+        ? [{ operator: "or" as const }, this.linkedAssetConditions]
+        : [])
     ] as DecryptionConditions;
 
     const encryptionProvider = {
@@ -296,7 +289,7 @@ export class DataAssetBase {
     const res = await this.dataverseConnector.runOS({
       method: SYSTEM_CALL.monetizeFile,
       params: {
-        fileId: this.fileOrFolderId!,
+        fileId: fileId ?? this.fileOrFolderId!,
         monetizationProvider,
         encryptionProvider
       }
@@ -305,7 +298,10 @@ export class DataAssetBase {
     return res;
   }
 
-  protected async applyFolderConditions(signal?: Signal) {
+  protected async applyFolderConditions() {
+    if (!this.fileOrFolderId) {
+      throw new Error("File or folder Id cannot be empty");
+    }
     const monetizationProvider = {
       dataAsset: {
         assetId: this.assetId,
@@ -320,8 +316,7 @@ export class DataAssetBase {
       method: SYSTEM_CALL.monetizeFolder,
       params: {
         folderId: this.fileOrFolderId!,
-        monetizationProvider,
-        signal
+        monetizationProvider
       }
     });
 
@@ -334,6 +329,9 @@ export class DataAssetBase {
         "AssetContract cannot be empty, please pass in through constructor"
       );
     }
+    if (!this.signer) {
+      throw new Error("Signer not found, please collect wallet");
+    }
     const dataMonetizerBase = DataMonetizerBase__factory.connect(
       this.assetContract,
       this.signer
@@ -345,10 +343,16 @@ export class DataAssetBase {
     publishParams: PublishParams,
     withSig: boolean = false
   ) {
+    if (!this.fileOrFolderId) {
+      throw new Error("File or folder Id cannot be empty");
+    }
     if (!this.assetContract) {
       throw new Error(
         "AssetContract cannot be empty, please pass in through constructor"
       );
+    }
+    if (!this.signer) {
+      throw new Error("Signer not found, please collect wallet");
     }
     const dataMonetizerBase = DataMonetizerBase__factory.connect(
       this.assetContract,
@@ -373,7 +377,6 @@ export class DataAssetBase {
     if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
       throw new Error("Filter Published event failed");
     }
-
     const assetId: string = targetEvents[0].args[0];
     this.assetId = assetId;
 
@@ -385,6 +388,9 @@ export class DataAssetBase {
       throw new Error(
         "AssetContract cannot be empty, please pass in through constructor"
       );
+    }
+    if (!this.signer) {
+      throw new Error("Signer not found, please collect wallet");
     }
     const dataMonetizerBase = DataMonetizerBase__factory.connect(
       this.assetContract,
@@ -417,6 +423,9 @@ export class DataAssetBase {
       throw new Error(
         "AssetContract cannot be empty, please pass in through constructor"
       );
+    }
+    if (!this.signer) {
+      throw new Error("Signer not found, please collect wallet");
     }
     const dataMonetizerBase = DataMonetizerBase__factory.connect(
       this.assetContract,
@@ -464,6 +473,9 @@ export class DataAssetBase {
       throw new Error(
         "ChainId cannot be empty, please pass in through constructor"
       );
+    }
+    if (!this.signer) {
+      throw new Error("Signer not found, please collect wallet");
     }
     const dataMonetizerBase = DataMonetizerBase__factory.connect(
       this.assetContract,
@@ -535,6 +547,9 @@ export class DataAssetBase {
         "ChainId cannot be empty, please pass in through constructor"
       );
     }
+    if (!this.signer) {
+      throw new Error("Signer not found, please collect wallet");
+    }
     const dataMonetizerBase = DataMonetizerBase__factory.connect(
       this.assetContract,
       this.signer
@@ -600,6 +615,9 @@ export class DataAssetBase {
       throw new Error(
         "ChainId cannot be empty, please pass in through constructor"
       );
+    }
+    if (!this.signer) {
+      throw new Error("Signer not found, please collect wallet");
     }
     const dataMonetizerBase = DataMonetizerBase__factory.connect(
       this.assetContract,

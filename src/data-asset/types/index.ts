@@ -10,7 +10,7 @@ export type EIP712Signature = IDataMonetizer.EIP712SignatureStruct;
 
 export type GeneralAccessCondition =
   | {
-      conditionType?: "evmBasic";
+      conditionType: "evmBasic";
       contractAddress: string;
       standardContractType:
         | "SIWE"
@@ -54,7 +54,7 @@ export type GeneralAccessConditions = (
 )[];
 
 export type SourceAssetConditionInput = {
-  conditionType?: "evmContract";
+  conditionType: "evmContract";
   contractAddress: string;
   functionName: string;
   functionParams: (string | number)[];
@@ -71,6 +71,7 @@ export type SourceAssetConditionInput = {
 };
 
 export interface TimestampCondition {
+  conditionType: "evmBasic";
   contractAddress: "";
   standardContractType: "timestamp";
   chain: string;
@@ -88,7 +89,7 @@ export type SourceAssetConditions = (
 )[];
 
 export interface LinkedAssetConditionInput {
-  conditionType?: "evmContract";
+  conditionType: "evmContract";
   contractAddress: string;
   functionName: string;
   functionParams: string[];
