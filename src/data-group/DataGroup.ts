@@ -4,12 +4,12 @@ import { BigNumber, BigNumberish, BytesLike, ethers } from "ethers";
 import {
   Attached,
   DataAsset,
-  DataverseConnector,
+  Connector,
   FileContent,
   FolderType,
   SYSTEM_CALL,
   SignalType
-} from "@dataverse/dataverse-connector";
+} from "@meteor-web3/connector";
 import { ChainId, DataToken, DataTokenFactory, GraphType } from "../data-token";
 import { DeployedContracts } from "../config";
 import {
@@ -56,11 +56,11 @@ export class DataGroup extends DataAssetBase {
   constructor({
     chainId,
     folderId,
-    dataverseConnector
+    connector
   }: {
     chainId: ChainId;
     folderId: string;
-    dataverseConnector: DataverseConnector;
+    connector: Connector;
   }) {
     const assetContract =
       DeployedContracts[ChainId[chainId]].DataUnion.DataUnion;
@@ -69,7 +69,7 @@ export class DataGroup extends DataAssetBase {
       chainId,
       assetContract,
       fileOrFolderId: folderId,
-      dataverseConnector
+      connector
     });
 
     this.instance = IDataUnion__factory.connect(assetContract, this.signer);
@@ -254,7 +254,7 @@ export class DataGroup extends DataAssetBase {
       );
     }
 
-    const folders = await this.dataverseConnector.runOS({
+    const folders = await this.connector.runOS({
       method: SYSTEM_CALL.loadFolderTrees
     });
 
@@ -266,7 +266,7 @@ export class DataGroup extends DataAssetBase {
 
     let folderId = folder?.folderId;
     if (!folder) {
-      const res = await this.dataverseConnector.runOS({
+      const res = await this.connector.runOS({
         method: SYSTEM_CALL.createFolder,
         params: {
           folderName: `${SignalType[SignalType.asset]}:${this.assetId}`,
@@ -282,7 +282,7 @@ export class DataGroup extends DataAssetBase {
       folderId = res.newFolder.folderId;
     }
 
-    const res = await this.dataverseConnector.runOS({
+    const res = await this.connector.runOS({
       method: SYSTEM_CALL.createIndexFile,
       params: {
         modelId,
@@ -330,7 +330,7 @@ export class DataGroup extends DataAssetBase {
       }
     });
 
-    const folders = await this.dataverseConnector.runOS({
+    const folders = await this.connector.runOS({
       method: SYSTEM_CALL.loadFolderTrees
     });
 
@@ -342,7 +342,7 @@ export class DataGroup extends DataAssetBase {
 
     let folderId = folder?.folderId;
     if (!folder) {
-      const res = await this.dataverseConnector.runOS({
+      const res = await this.connector.runOS({
         method: SYSTEM_CALL.createFolder,
         params: {
           folderName: `${SignalType[SignalType.asset]}:${this.assetId}`,
@@ -358,7 +358,7 @@ export class DataGroup extends DataAssetBase {
       folderId = res.newFolder.folderId;
     }
 
-    await this.dataverseConnector.runOS({
+    await this.connector.runOS({
       method: SYSTEM_CALL.moveFiles,
       params: {
         targetFolderId: folderId!,
@@ -385,7 +385,7 @@ export class DataGroup extends DataAssetBase {
       chainId: this.chainId!,
       fileId: "",
       dataTokenAddress: union.dataToken,
-      dataverseConnector: this.dataverseConnector
+      connector: this.connector
     });
 
     const unionFolderId = (await dataToken.getContentURI()).replace(
@@ -393,7 +393,7 @@ export class DataGroup extends DataAssetBase {
       ""
     );
 
-    const dataUnion = await this.dataverseConnector.runOS({
+    const dataUnion = await this.connector.runOS({
       method: SYSTEM_CALL.loadDataUnionById,
       params: unionFolderId
     });
@@ -458,7 +458,7 @@ export class DataGroup extends DataAssetBase {
       throw new Error("groupId cannot be empty");
     }
 
-    const res = await this.dataverseConnector.runOS({
+    const res = await this.connector.runOS({
       method: SYSTEM_CALL.loadFoldersBy,
       params: { signal: { type: SignalType.asset, id: groupId } }
     });

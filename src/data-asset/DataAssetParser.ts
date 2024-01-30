@@ -1,7 +1,7 @@
 import {
-  DataverseConnector,
+  Connector,
   SYSTEM_CALL
-} from "@dataverse/dataverse-connector";
+} from "@meteor-web3/connector";
 import { ChainId } from "../types";
 import { DataAssetBase } from "./DataAssetBase";
 import {
@@ -12,14 +12,14 @@ import {
 } from "./types";
 
 export class DataAssetParser {
-  dataverseConnector: DataverseConnector;
+  connector: Connector;
 
-  constructor(dataverseConnector: DataverseConnector) {
-    this.dataverseConnector = dataverseConnector;
+  constructor(connector: Connector) {
+    this.connector = connector;
   }
 
   async parse(fileOrFolderId: string) {
-    const res = await this.dataverseConnector.runOS({
+    const res = await this.connector.runOS({
       method: SYSTEM_CALL.loadFile,
       params: fileOrFolderId
     });
@@ -34,7 +34,7 @@ export class DataAssetParser {
     const dataAssetBase = new DataAssetBase({
       ...dataAsset,
       fileOrFolderId,
-      dataverseConnector: this.dataverseConnector
+      connector: this.connector
     });
 
     dataAssetBase.generalAccessConditions = decryptionConditions?.slice(

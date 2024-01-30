@@ -1,9 +1,9 @@
 import { BigNumber, BigNumberish, ethers } from "ethers";
 import {
-  DataverseConnector,
+  Connector,
   SYSTEM_CALL,
   FileContent
-} from "@dataverse/dataverse-connector";
+} from "@meteor-web3/connector";
 import {
   //   isDataTokenCollectedBy,
   loadDataTokensCollectedBy,
@@ -33,18 +33,18 @@ import { TokenAsset, TradeType } from "./types";
 export class DataToken extends DataAssetBase {
   constructor({
     chainId,
-    dataverseConnector,
+    connector,
     fileId,
     assetId
   }: {
     chainId?: ChainId;
-    dataverseConnector: DataverseConnector;
+    connector: Connector;
     fileId?: string;
     assetId?: string;
   }) {
     super({
       chainId,
-      dataverseConnector,
+      connector,
       assetContract: DEPLOYED_ADDRESSES[chainId!]?.DataToken,
       fileOrFolderId: fileId,
       assetId
@@ -83,7 +83,7 @@ export class DataToken extends DataAssetBase {
       );
     }
 
-    await this.dataverseConnector.provider?.request({
+    await this.connector.provider?.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
@@ -283,7 +283,7 @@ export class DataToken extends DataAssetBase {
     timestamp?: number;
     withSig?: boolean;
   }) {
-    const createIndexFileRes = await this.dataverseConnector.runOS({
+    const createIndexFileRes = await this.connector.runOS({
       method: SYSTEM_CALL.createIndexFile,
       params: {
         modelId,
@@ -331,7 +331,7 @@ export class DataToken extends DataAssetBase {
       throw new Error("File Id cannot be empty");
     }
 
-    const res = await this.dataverseConnector.runOS({
+    const res = await this.connector.runOS({
       method: SYSTEM_CALL.loadFile,
       params: this.fileOrFolderId
     });
@@ -451,7 +451,7 @@ export class DataToken extends DataAssetBase {
       );
     }
 
-    await this.dataverseConnector.provider?.request({
+    await this.connector.provider?.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
@@ -546,7 +546,7 @@ export class DataToken extends DataAssetBase {
       throw new Error("Signer not found, please collect wallet");
     }
 
-    await this.dataverseConnector.provider?.request({
+    await this.connector.provider?.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
@@ -607,7 +607,7 @@ export class DataToken extends DataAssetBase {
       throw new Error("Signer not found, please collect wallet");
     }
 
-    await this.dataverseConnector.provider?.request({
+    await this.connector.provider?.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
@@ -651,7 +651,7 @@ export class DataToken extends DataAssetBase {
       dataToken.source.replace("ceramic://", "")
     );
 
-    const res = await this.dataverseConnector.runOS({
+    const res = await this.connector.runOS({
       method: SYSTEM_CALL.loadFilesBy,
       params: { fileIds }
     });
@@ -666,7 +666,7 @@ export class DataToken extends DataAssetBase {
       dataToken.source.replace("ceramic://", "")
     );
 
-    const res = await this.dataverseConnector.runOS({
+    const res = await this.connector.runOS({
       method: SYSTEM_CALL.loadFilesBy,
       params: { fileIds }
     });

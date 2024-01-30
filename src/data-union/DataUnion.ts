@@ -2,13 +2,13 @@ import { BigNumber, BigNumberish, Wallet, ethers } from "ethers";
 import {
   Attached,
   DataAsset,
-  DataverseConnector,
+  Connector,
   FileContent,
   SYSTEM_CALL,
   Signal,
   StructuredFolder,
   StructuredFolderRecord
-} from "@dataverse/dataverse-connector";
+} from "@meteor-web3/connector";
 // import {
 //   loadDataUnionsPublishedBy,
 //   loadDataUnionsCollectedBy,
@@ -49,18 +49,18 @@ import { DEPLOYED_ADDRESSES } from "./addresses";
 export class DataUnion extends DataAssetBase {
   constructor({
     chainId,
-    dataverseConnector,
+    connector,
     folderId,
     assetId
   }: {
     chainId?: ChainId;
-    dataverseConnector: DataverseConnector;
+    connector: Connector;
     folderId?: string;
     assetId?: string;
   }) {
     super({
       chainId,
-      dataverseConnector,
+      connector,
       assetContract: DEPLOYED_ADDRESSES[chainId!]?.DataUnion,
       fileOrFolderId: folderId,
       assetId
@@ -95,7 +95,7 @@ export class DataUnion extends DataAssetBase {
       );
     }
 
-    await this.dataverseConnector.provider?.request({
+    await this.connector.provider?.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
@@ -179,7 +179,7 @@ export class DataUnion extends DataAssetBase {
     };
     withSig?: boolean;
   }) {
-    const res = await this.dataverseConnector.runOS({
+    const res = await this.connector.runOS({
       method: SYSTEM_CALL.createFolder,
       params: {
         folderName,
@@ -229,7 +229,7 @@ export class DataUnion extends DataAssetBase {
       );
     }
 
-    const res = await this.dataverseConnector.runOS({
+    const res = await this.connector.runOS({
       method: SYSTEM_CALL.createIndexFile,
       params: {
         modelId,
@@ -292,7 +292,7 @@ export class DataUnion extends DataAssetBase {
       }
     });
 
-    await this.dataverseConnector.runOS({
+    await this.connector.runOS({
       method: SYSTEM_CALL.moveFiles,
       params: {
         targetFolderId: this.fileOrFolderId,
@@ -353,7 +353,7 @@ export class DataUnion extends DataAssetBase {
       );
     }
 
-    await this.dataverseConnector.provider?.request({
+    await this.connector.provider?.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
@@ -478,7 +478,7 @@ export class DataUnion extends DataAssetBase {
       throw new Error("Signer not found, please collect wallet");
     }
 
-    await this.dataverseConnector.provider?.request({
+    await this.connector.provider?.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
@@ -543,7 +543,7 @@ export class DataUnion extends DataAssetBase {
       throw new Error("Signer not found, please collect wallet");
     }
 
-    await this.dataverseConnector.provider?.request({
+    await this.connector.provider?.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
@@ -628,7 +628,7 @@ export class DataUnion extends DataAssetBase {
         dataUnion.data_token_info.source.replace("ceramic://", "")
     );
 
-    const res = await this.dataverseConnector.runOS({
+    const res = await this.connector.runOS({
       method: SYSTEM_CALL.loadFoldersBy,
       params: { folderIds }
     });
@@ -644,7 +644,7 @@ export class DataUnion extends DataAssetBase {
         dataUnion.data_token_info.source.replace("ceramic://", "")
     );
 
-    const res = await this.dataverseConnector.runOS({
+    const res = await this.connector.runOS({
       method: SYSTEM_CALL.loadFoldersBy,
       params: { folderIds }
     });

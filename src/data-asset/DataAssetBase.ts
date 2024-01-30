@@ -1,14 +1,14 @@
 import {
   Attached,
   DataAsset,
-  DataverseConnector,
+  Connector,
   DecryptionConditions,
   DecryptionConditionsType,
   EncryptionProtocol,
   EncryptionProvider,
   MonetizationProvider,
   SYSTEM_CALL
-} from "@dataverse/dataverse-connector";
+} from "@meteor-web3/connector";
 import { BigNumberish, BytesLike, Signer, Wallet, ethers } from "ethers";
 import {
   getChainIdFromChainName,
@@ -42,27 +42,27 @@ export class DataAssetBase {
   linkedAssetConditions?: LinkedAssetConditions;
   monetizationProvider?: MonetizationProvider;
   encryptionProvider?: EncryptionProvider;
-  dataverseConnector: DataverseConnector;
+  connector: Connector;
   signer?: Signer;
 
   constructor({
     chainId,
-    dataverseConnector,
+    connector,
     fileOrFolderId,
     assetContract,
     assetId
   }: {
     chainId?: ChainId;
-    dataverseConnector: DataverseConnector;
+    connector: Connector;
     fileOrFolderId?: string;
     assetContract?: string;
     assetId?: string;
   }) {
-    const provider = dataverseConnector.getProvider();
+    const provider = connector.getProvider();
     const ethersProvider = new ethers.providers.Web3Provider(provider, "any");
     this.signer = ethersProvider.getSigner();
     this.chainId = chainId;
-    this.dataverseConnector = dataverseConnector;
+    this.connector = connector;
     this.assetContract = assetContract;
     this.fileOrFolderId = fileOrFolderId;
     this.assetId = assetId;
@@ -286,7 +286,7 @@ export class DataAssetBase {
     };
     this.encryptionProvider = encryptionProvider;
 
-    const res = await this.dataverseConnector.runOS({
+    const res = await this.connector.runOS({
       method: SYSTEM_CALL.monetizeFile,
       params: {
         fileId: fileId ?? this.fileOrFolderId!,
@@ -312,7 +312,7 @@ export class DataAssetBase {
 
     this.monetizationProvider = monetizationProvider;
 
-    const res = await this.dataverseConnector.runOS({
+    const res = await this.connector.runOS({
       method: SYSTEM_CALL.monetizeFolder,
       params: {
         folderId: this.fileOrFolderId!,

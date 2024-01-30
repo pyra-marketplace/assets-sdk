@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import {
-  DataverseConnector,
+  Connector,
   SYSTEM_CALL,
-  DataWalletProvider
-} from "@dataverse/dataverse-connector";
+  MeteorWalletProvider
+} from "@meteor-web3/connector";
 import {
   DEPLOYED_ADDRESSES as TOKEN_DEPLOYED_ADDRESSES,
   DataToken,
@@ -17,7 +17,7 @@ import { DataAssetParser } from "../../src/data-asset/DataAssetParser";
 import "./App.scss";
 import { ChainId } from "../../src/types";
 
-const dataverseConnector = new DataverseConnector(new DataWalletProvider());
+const connector = new Connector(new MeteorWalletProvider());
 
 export const appId = "9aaae63f-3445-47d5-8785-c23dd16e4965";
 
@@ -38,12 +38,12 @@ function App() {
   const [pkh, setPkh] = useState("");
 
   const createCapability = async () => {
-    const connectWalletRes = await dataverseConnector.connectWallet({
+    const connectWalletRes = await connector.connectWallet({
       provider: (window as any).ethereum
     });
     address = connectWalletRes.address;
     console.log(connectWalletRes.address);
-    const createCapabilityRes = await dataverseConnector.runOS({
+    const createCapabilityRes = await connector.runOS({
       method: SYSTEM_CALL.createCapability,
       params: {
         appId
@@ -58,7 +58,7 @@ function App() {
   const createTokenFile = async (withSig: boolean = false) => {
     const dataToken = new DataToken({
       chainId,
-      dataverseConnector
+      connector
     });
 
     const date = new Date().toISOString();
@@ -102,12 +102,12 @@ function App() {
   };
 
   const collectFile = async (withSig: boolean = false) => {
-    const dataAssetParser = new DataAssetParser(dataverseConnector);
+    const dataAssetParser = new DataAssetParser(connector);
     const dataAsset = await dataAssetParser.parse(indexFileId);
 
     const dataToken = new DataToken({
       chainId,
-      dataverseConnector,
+      connector,
       fileId: dataAsset.fileOrFolderId,
       assetId: dataAsset.assetId
     });
@@ -117,12 +117,12 @@ function App() {
   };
 
   const isCollected = async () => {
-    const dataAssetParser = new DataAssetParser(dataverseConnector);
+    const dataAssetParser = new DataAssetParser(connector);
     const dataAsset = await dataAssetParser.parse(indexFileId);
 
     const dataToken = new DataToken({
       chainId,
-      dataverseConnector,
+      connector,
       fileId: dataAsset.fileOrFolderId,
       assetId: dataAsset.assetId
     });
@@ -132,12 +132,12 @@ function App() {
   };
 
   const shareFile = async (tradeType: TradeType, withSig = false) => {
-    const dataAssetParser = new DataAssetParser(dataverseConnector);
+    const dataAssetParser = new DataAssetParser(connector);
     const dataAsset = await dataAssetParser.parse(indexFileId);
 
     const dataToken = new DataToken({
       chainId,
-      dataverseConnector,
+      connector,
       fileId: dataAsset.fileOrFolderId,
       assetId: dataAsset.assetId
     });
@@ -156,12 +156,12 @@ function App() {
   };
 
   const isShared = async () => {
-    const dataAssetParser = new DataAssetParser(dataverseConnector);
+    const dataAssetParser = new DataAssetParser(connector);
     const dataAsset = await dataAssetParser.parse(indexFileId);
 
     const dataToken = new DataToken({
       chainId,
-      dataverseConnector,
+      connector,
       fileId: dataAsset.fileOrFolderId,
       assetId: dataAsset.assetId
     });
@@ -172,7 +172,7 @@ function App() {
 
   const unlockFile = async () => {
     try {
-      const res = await dataverseConnector.runOS({
+      const res = await connector.runOS({
         method: SYSTEM_CALL.unlockFile,
         params: indexFileId
       });
@@ -184,7 +184,7 @@ function App() {
 
   const isFileUnlocked = async () => {
     try {
-      const res = await dataverseConnector.runOS({
+      const res = await connector.runOS({
         method: SYSTEM_CALL.isFileUnlocked,
         params: indexFileId
       });
@@ -197,7 +197,7 @@ function App() {
   const createUnionFolder = async (withSig: boolean = false) => {
     const dataUnion = new DataUnion({
       chainId,
-      dataverseConnector
+      connector
     });
 
     const res = await dataUnion.createUnionFolder({
@@ -221,12 +221,12 @@ function App() {
   };
 
   const createFileInUnionFolder = async () => {
-    const dataAssetParser = new DataAssetParser(dataverseConnector);
+    const dataAssetParser = new DataAssetParser(connector);
     const dataAsset = await dataAssetParser.parse(unionFolderId);
 
     const dataUnion = new DataUnion({
       chainId,
-      dataverseConnector,
+      connector,
       folderId: dataAsset.fileOrFolderId,
       assetId: dataAsset.assetId
     });
@@ -261,12 +261,12 @@ function App() {
   };
 
   const collectDataUnion = async (withSig: boolean = false) => {
-    const dataAssetParser = new DataAssetParser(dataverseConnector);
+    const dataAssetParser = new DataAssetParser(connector);
     const dataAsset = await dataAssetParser.parse(unionFolderId);
 
     const dataUnion = new DataUnion({
       chainId,
-      dataverseConnector,
+      connector,
       folderId: dataAsset.fileOrFolderId,
       assetId: dataAsset.assetId
     });
@@ -276,14 +276,14 @@ function App() {
   };
 
   const subscribeDataUnion = async (withSig: boolean = false) => {
-    const dataAssetParser = new DataAssetParser(dataverseConnector);
+    const dataAssetParser = new DataAssetParser(connector);
     const dataAsset = await dataAssetParser.parse(unionFolderId);
 
     const collectionId = 0;
 
     const dataUnion = new DataUnion({
       chainId,
-      dataverseConnector,
+      connector,
       folderId: dataAsset.fileOrFolderId,
       assetId: dataAsset.assetId
     });
@@ -303,7 +303,7 @@ function App() {
   /*** read operation */
   const loadCreatedTokenFiles = async () => {
     const dataToken = new DataToken({
-      dataverseConnector
+      connector
     });
     const res = await dataToken.loadCreatedTokenFiles(address);
     console.log(res);
@@ -311,7 +311,7 @@ function App() {
 
   const loadCollectedTokenFiles = async () => {
     const dataToken = new DataToken({
-      dataverseConnector
+      connector
     });
     const res = await dataToken.loadCollectedTokenFiles(address);
     console.log(res);
@@ -320,7 +320,7 @@ function App() {
   // const loadSharedDatatokenFiles = async () => {
   //   const dataToken = new DataToken({
   //     chainId,
-  //     dataverseConnector
+  //     connector
   //   });
   //   const res = await dataToken.loadSharedDataTokenFiles(address);
   //   console.log(res);
@@ -328,7 +328,7 @@ function App() {
 
   const loadCreatedUnionFolders = async () => {
     const dataUnion = new DataUnion({
-      dataverseConnector
+      connector
     });
     const res = await dataUnion.loadCreatedUnionFolders(address);
     console.log(res);
@@ -336,7 +336,7 @@ function App() {
 
   const loadCollectedUnionFolders = async () => {
     const dataUnion = new DataUnion({
-      dataverseConnector
+      connector
     });
     const res = await dataUnion.loadCollectedUnionFolders(address);
     console.log(res);
@@ -356,7 +356,7 @@ function App() {
 
   // const isDatatokenCollectedBy = async () => {
   //   const dataTokenId = "0x50eD54ae8700f23E24cB6316ddE8869978AB4d5f";
-  //   const res = await dataverseConnector.runOS({
+  //   const res = await connector.runOS({
   //     method: SYSTEM_CALL.isDatatokenCollectedBy,
   //     params: { dataTokenId, collector: address }
   //   });
@@ -365,7 +365,7 @@ function App() {
   // };
 
   // const loadDataUnions = async () => {
-  //   const res = await dataverseConnector.runOS({
+  //   const res = await connector.runOS({
   //     method: SYSTEM_CALL.loadDataUnions,
   //     params: [
   //       "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b"
@@ -377,7 +377,7 @@ function App() {
   // const isDataUnionCollectedBy = async () => {
   //   const dataUnionId =
   //     "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b";
-  //   const res = await dataverseConnector.runOS({
+  //   const res = await connector.runOS({
   //     method: SYSTEM_CALL.isDataUnionCollectedBy,
   //     params: {
   //       dataUnionId,
@@ -390,7 +390,7 @@ function App() {
   // const isDataUnionSubscribedBy = async () => {
   //   const dataUnionId =
   //     "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b";
-  //   const res = await dataverseConnector.runOS({
+  //   const res = await connector.runOS({
   //     method: SYSTEM_CALL.isDataUnionSubscribedBy,
   //     params: {
   //       dataUnionId,
