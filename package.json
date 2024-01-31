@@ -1,6 +1,6 @@
 {
     "name": "@arcstone/arcstone-sdk",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "license": "MIT",
     "files": [
         "/dist",
@@ -16,6 +16,11 @@
             "types": "./dist/cjs/index.d.ts",
             "main": "./dist/cjs/index.js",
             "module": "./dist/esm/index.js"
+        },
+        "./data-asset": {
+            "types": "./dist/cjs/data-asset/index.d.ts",
+            "main": "./dist/cjs/data-asset/index.js",
+            "module": "./dist/esm/data-asset/index.js"
         },
         "./data-token": {
             "types": "./dist/cjs/data-token/index.d.ts",

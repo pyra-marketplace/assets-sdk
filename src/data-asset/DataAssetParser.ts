@@ -1,7 +1,4 @@
-import {
-  Connector,
-  SYSTEM_CALL
-} from "@meteor-web3/connector";
+import { Connector, SYSTEM_CALL } from "@meteor-web3/connector";
 import { ChainId } from "../types";
 import { DataAssetBase } from "./DataAssetBase";
 import {

@@ -1,9 +1,5 @@
 import { BigNumber, BigNumberish, ethers } from "ethers";
-import {
-  Connector,
-  SYSTEM_CALL,
-  FileContent
-} from "@meteor-web3/connector";
+import { Connector, SYSTEM_CALL, FileContent } from "@meteor-web3/connector";
 import {
   //   isDataTokenCollectedBy,
   loadDataTokensCollectedBy,

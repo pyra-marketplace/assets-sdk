@@ -106,10 +106,10 @@ function App() {
     const dataAsset = await dataAssetParser.parse(indexFileId);
 
     const dataToken = new DataToken({
-      chainId,
-      connector,
+      chainId: dataAsset.chainId,
       fileId: dataAsset.fileOrFolderId,
-      assetId: dataAsset.assetId
+      assetId: dataAsset.assetId,
+      connector
     });
 
     const collectionId = await dataToken!.collect(withSig);
@@ -121,10 +121,10 @@ function App() {
     const dataAsset = await dataAssetParser.parse(indexFileId);
 
     const dataToken = new DataToken({
-      chainId,
-      connector,
+      chainId: dataAsset.chainId,
       fileId: dataAsset.fileOrFolderId,
-      assetId: dataAsset.assetId
+      assetId: dataAsset.assetId,
+      connector
     });
 
     const res = await dataToken!.isCollected(address);
@@ -136,10 +136,10 @@ function App() {
     const dataAsset = await dataAssetParser.parse(indexFileId);
 
     const dataToken = new DataToken({
-      chainId,
-      connector,
       fileId: dataAsset.fileOrFolderId,
-      assetId: dataAsset.assetId
+      assetId: dataAsset.assetId,
+      chainId: dataAsset.chainId,
+      connector
     });
 
     const amount = 50;
@@ -160,10 +160,10 @@ function App() {
     const dataAsset = await dataAssetParser.parse(indexFileId);
 
     const dataToken = new DataToken({
-      chainId,
-      connector,
       fileId: dataAsset.fileOrFolderId,
-      assetId: dataAsset.assetId
+      assetId: dataAsset.assetId,
+      chainId: dataAsset.chainId,
+      connector
     });
 
     const res = await dataToken!.isShared(address);
@@ -225,10 +225,10 @@ function App() {
     const dataAsset = await dataAssetParser.parse(unionFolderId);
 
     const dataUnion = new DataUnion({
-      chainId,
-      connector,
       folderId: dataAsset.fileOrFolderId,
-      assetId: dataAsset.assetId
+      assetId: dataAsset.assetId,
+      chainId: dataAsset.chainId,
+      connector
     });
 
     const date = new Date().toISOString();
@@ -265,10 +265,10 @@ function App() {
     const dataAsset = await dataAssetParser.parse(unionFolderId);
 
     const dataUnion = new DataUnion({
-      chainId,
-      connector,
       folderId: dataAsset.fileOrFolderId,
-      assetId: dataAsset.assetId
+      assetId: dataAsset.assetId,
+      chainId: dataAsset.chainId,
+      connector
     });
 
     const collectionId = await dataUnion.collect(withSig);
@@ -282,10 +282,10 @@ function App() {
     const collectionId = 0;
 
     const dataUnion = new DataUnion({
-      chainId,
-      connector,
       folderId: dataAsset.fileOrFolderId,
-      assetId: dataAsset.assetId
+      assetId: dataAsset.assetId,
+      chainId: dataAsset.chainId,
+      connector
     });
 
     const { startAt, endAt } = await dataUnion.subscribe({

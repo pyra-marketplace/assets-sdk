@@ -4,7 +4,7 @@ export enum ChainId {
   // BSC = 56,
   BSCTestnet = 97,
   // Scroll = 534352
-  ScrollSepolia = 534351,
+  ScrollSepolia = 534351
   // Filecoin = 314
   // FilecoinCalibration = 314159
 }
