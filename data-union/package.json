@@ -1,5 +1,0 @@
-{
-  "types": "../dist/cjs/data-union/index.d.ts",
-  "main": "../dist/cjs/data-union/index.js",
-  "module": "../dist/esm/data-union/index.js"
-}

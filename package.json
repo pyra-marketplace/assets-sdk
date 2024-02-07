@@ -1,12 +1,11 @@
 {
-    "name": "@arcstone/arcstone-sdk",
-    "version": "1.0.3",
+    "name": "@pyra/assets-sdk",
+    "version": "1.0.0",
     "license": "MIT",
     "files": [
         "/dist",
         "/data-asset",
-        "/data-token",
-        "/data-union"
+        "/data-token"
     ],
     "types": "dist/cjs/index.d.ts",
     "main": "dist/cjs/index.js",
@@ -26,20 +25,12 @@
             "types": "./dist/cjs/data-token/index.d.ts",
             "main": "./dist/cjs/data-token/index.js",
             "module": "./dist/esm/data-token/index.js"
-        },
-        "./data-union": {
-            "types": "./dist/cjs/data-union/index.d.ts",
-            "main": "./dist/cjs/data-union/index.js",
-            "module": "./dist/esm/data-union/index.js"
         }
     },
     "scripts": {
         "typechain:data-asset": "rimraf src/data-asset/abi/typechain/* && typechain --target ethers-v5 --out-dir src/data-asset/abi/typechain './src/data-asset/abi/**/*.json'",
         "typechain:data-token": "rimraf src/data-token/abi/typechain/* && typechain --target ethers-v5 --out-dir src/data-token/abi/typechain './src/data-token/abi/**/*.json'",
         "typechain:data-union": "rimraf src/data-union/abi/typechain/* && typechain --target ethers-v5 --out-dir src/data-union/abi/typechain './src/data-union/abi/**/*.json'",
-        "fork:polygon_mumbai": "source .env && anvil --fork-url $POLYGON_MUMBAI_RPC_URL",
-        "fork:bsc_testnet": "source .env && anvil --fork-url $BSC_TESTNET_RPC_URL",
-        "fork:scroll_sepolia": "source .env && anvil --fork-url $SCROLL_SEPOLIA_RPC_URL",
         "build": "rimraf dist && npm run build:esm && npm run build:cjs",
         "build:esm": "tsc -p tsconfig.json",
         "build:cjs": "tsc -p tsconfig-cjs.json",

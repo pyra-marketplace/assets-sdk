@@ -8,10 +8,6 @@ import {
   DEPLOYED_ADDRESSES as TOKEN_DEPLOYED_ADDRESSES,
   DataToken
 } from "../../src/data-token";
-import {
-  DEPLOYED_ADDRESSES as UNION_DEPLOYED_ADDRESSES,
-  DataUnion
-} from "../../src/data-union";
 import { DataAssetParser } from "../../src/data-asset/DataAssetParser";
 import "./App.scss";
 import { ChainId } from "../../src/types";
@@ -146,111 +142,6 @@ function App() {
       console.error(error);
     }
   };
-
-  const createUnionFolder = async (withSig: boolean = false) => {
-    const dataUnion = new DataUnion({
-      chainId,
-      connector
-    });
-
-    const res = await dataUnion.createUnionFolder({
-      folderName: "Private",
-      actionsConfig: {
-        collectAction: {
-          currency: UNION_DEPLOYED_ADDRESSES[chainId].WMATIC,
-          amount: 1000
-        },
-        subscribeAction: {
-          currency: UNION_DEPLOYED_ADDRESSES[chainId].WMATIC,
-          amount: 50
-        }
-      },
-      withSig
-    });
-
-    unionFolderId = res.newDataUnion.folderId;
-
-    console.log(res);
-  };
-
-  const createFileInUnionFolder = async () => {
-    const dataAssetParser = new DataAssetParser(connector);
-    const dataAsset = await dataAssetParser.parse(unionFolderId);
-
-    const dataUnion = new DataUnion({
-      folderId: dataAsset.fileOrFolderId,
-      assetId: dataAsset.assetId,
-      chainId: dataAsset.chainId,
-      connector
-    });
-
-    const date = new Date().toISOString();
-
-    const res = await dataUnion.createFileInUnionFolder({
-      modelId: postModelId,
-      fileName: "create a file",
-      fileContent: {
-        modelVersion: postVersion,
-        text: "hello",
-        images: [
-          "https://bafkreib76wz6wewtkfmp5rhm3ep6tf4xjixvzzyh64nbyge5yhjno24yl4.ipfs.w3s.link"
-        ],
-        videos: [],
-        createdAt: date,
-        updatedAt: date,
-        encrypted: JSON.stringify({
-          text: true,
-          images: false,
-          videos: false
-        })
-      },
-      unionFolderId,
-      timestamp: Math.floor(Date.parse(date) / 1000) + 1 * 60 * 60 * 24
-    });
-
-    indexFileId = res.fileContent.file.fileId;
-
-    console.log(res);
-  };
-
-  const collectDataUnion = async (withSig: boolean = false) => {
-    const dataAssetParser = new DataAssetParser(connector);
-    const dataAsset = await dataAssetParser.parse(unionFolderId);
-
-    const dataUnion = new DataUnion({
-      folderId: dataAsset.fileOrFolderId,
-      assetId: dataAsset.assetId,
-      chainId: dataAsset.chainId,
-      connector
-    });
-
-    const collectionId = await dataUnion.collect(withSig);
-    console.log("DataUnion collected, collectionId:", collectionId.toNumber());
-  };
-
-  const subscribeDataUnion = async (withSig: boolean = false) => {
-    const dataAssetParser = new DataAssetParser(connector);
-    const dataAsset = await dataAssetParser.parse(unionFolderId);
-
-    const collectionId = 0;
-
-    const dataUnion = new DataUnion({
-      folderId: dataAsset.fileOrFolderId,
-      assetId: dataAsset.assetId,
-      chainId: dataAsset.chainId,
-      connector
-    });
-
-    const { startAt, endAt } = await dataUnion.subscribe({
-      collectionId,
-      year: 2024,
-      month: 2,
-      count: 2,
-      withSig
-    });
-
-    console.log(`DataUnion subscribed from ${startAt} to ${endAt}.`);
-  };
   /*** wirte operation */
 
   /*** read operation */
@@ -267,22 +158,6 @@ function App() {
       connector
     });
     const res = await dataToken.loadCollectedTokenFiles(address);
-    console.log(res);
-  };
-
-  const loadCreatedUnionFolders = async () => {
-    const dataUnion = new DataUnion({
-      connector
-    });
-    const res = await dataUnion.loadCreatedUnionFolders(address);
-    console.log(res);
-  };
-
-  const loadCollectedUnionFolders = async () => {
-    const dataUnion = new DataUnion({
-      connector
-    });
-    const res = await dataUnion.loadCollectedUnionFolders(address);
     console.log(res);
   };
 
@@ -357,12 +232,6 @@ function App() {
       <button onClick={() => isCollected()}>isCollected</button>
       <button onClick={() => isFileUnlocked()}>isFileUnlocked</button>
       <button onClick={() => unlockFile()}>unlockFile</button>
-      <button onClick={() => createUnionFolder()}>createUnionFolder</button>
-      <button onClick={() => createFileInUnionFolder()}>
-        createFileInUnionFolder
-      </button>
-      <button onClick={() => collectDataUnion()}>collectDataUnion</button>
-      <button onClick={() => subscribeDataUnion()}>subscribeDataUnion</button>
       <br />
       <br />
       <button onClick={() => loadCreatedTokenFiles()}>
@@ -370,12 +239,6 @@ function App() {
       </button>
       <button onClick={() => loadCollectedTokenFiles()}>
         loadCollectedTokenFiles
-      </button>
-      <button onClick={() => loadCreatedUnionFolders()}>
-        loadCreatedUnionFolders
-      </button>
-      <button onClick={() => loadCollectedUnionFolders()}>
-        loadCollectedUnionFolders
       </button>
       {/* <button onClick={loadDatatokens}>loadDatatokens</button>
       <button onClick={isDatatokenCollectedBy}>isDatatokenCollectedBy</button>
