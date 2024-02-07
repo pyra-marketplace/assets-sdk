@@ -1,4 +1,5 @@
-import { ONE_DAY, MAX_UINT72 } from "../data-token/constants";
+const ONE_DAY = 60 * 60 * 24;
+const MAX_UINT72 = "4722366482869645213695";
 
 /**
  * @dev current timestamp

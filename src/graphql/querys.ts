@@ -1,10 +1,10 @@
 import { gql, GraphQLClient } from "graphql-request";
-import { ApiConfig } from "../config";
+import APIJson from "../api.json";
 
-const client = new GraphQLClient(ApiConfig.DataverseScan);
+const client = new GraphQLClient(APIJson.DataverseScan);
 
 export async function loadDataTokensCreatedBy(
-  dataTokenCreator: string,
+  dataTokenCreator: string
 ): Promise<any> {
   const query = gql`
     query Query($owner: String) {
@@ -35,13 +35,13 @@ export async function loadDataTokensCreatedBy(
   `;
 
   const info: any = await client.request(query, {
-    owner: dataTokenCreator,
+    owner: dataTokenCreator
   });
   return info.dataTokenList;
 }
 
 export async function loadDataTokensCollectedBy(
-  collector: string,
+  collector: string
 ): Promise<any> {
   const query = gql`
     query Query($collector: String) {
@@ -74,7 +74,7 @@ export async function loadDataTokensCollectedBy(
   `;
 
   const info: any = await client.request(query, {
-    collector: collector,
+    collector: collector
   });
 
   const result: any = [];
@@ -85,7 +85,7 @@ export async function loadDataTokensCollectedBy(
 }
 
 export async function loadDataUnionsPublishedBy(
-  publisher: string,
+  publisher: string
 ): Promise<any> {
   const query = gql`
     query DataUnionList($publisher: String) {
@@ -141,13 +141,13 @@ export async function loadDataUnionsPublishedBy(
   `;
 
   const info: any = await client.request(query, {
-    publisher: publisher,
+    publisher: publisher
   });
   return info.dataUnionList;
 }
 
 export async function loadDataUnionsCollectedBy(
-  collector: string,
+  collector: string
 ): Promise<any> {
   const query = gql`
     query DataUnionSubscriberList($subscriber: String) {
@@ -205,7 +205,7 @@ export async function loadDataUnionsCollectedBy(
   `;
 
   const info: any = await client.request(query, {
-    subscriber: collector,
+    subscriber: collector
   });
   const result: any = [];
   info.dataUnionSubscriberList.forEach((item: any) => {
@@ -237,7 +237,7 @@ export async function loadDataUnionsCollectedBy(
 // }
 
 export async function loadDataTokenCollectors(
-  dataTokenId: string,
+  dataTokenId: string
 ): Promise<any> {
   const query = gql`
     query Query($dataTokenId: String) {
@@ -271,14 +271,14 @@ export async function loadDataTokenCollectors(
   `;
 
   const info: any = await client.request(query, {
-    dataTokenId: dataTokenId,
+    dataTokenId: dataTokenId
   });
   return info.dataTokenCollectorList;
 }
 
 export async function loadDataUnionSubscriptionsBy(
   dataUnionId: string,
-  subscriber: string,
+  subscriber: string
 ): Promise<any> {
   const query = gql`
     query DataTokenCollector($subscriber: String, $dataUnionId: String) {
@@ -300,13 +300,13 @@ export async function loadDataUnionSubscriptionsBy(
 
   const info: any = await client.request(query, {
     dataUnionId: dataUnionId,
-    subscriber: subscriber,
+    subscriber: subscriber
   });
   return info.dataUnionSubscriberList;
 }
 
 export async function loadDataUnionCollectors(
-  dataUnionId: string,
+  dataUnionId: string
 ): Promise<any> {
   const query = gql`
     query DataUnionSubscriberList($dataUnionId: String) {
@@ -364,13 +364,13 @@ export async function loadDataUnionCollectors(
   `;
 
   const info: any = await client.request(query, {
-    dataUnionId: dataUnionId,
+    dataUnionId: dataUnionId
   });
   return info.dataUnionSubscriberList;
 }
 
 export async function loadDataUnionSubscribers(
-  dataUnionId: string,
+  dataUnionId: string
 ): Promise<any> {
   const query = gql`
     query DataUnionSubscriberList($dataUnionId: String) {
@@ -433,7 +433,7 @@ export async function loadDataUnionSubscribers(
   `;
 
   const info: any = await client.request(query, {
-    dataUnionId: dataUnionId,
+    dataUnionId: dataUnionId
   });
   return info.dataUnionSubscriberList;
 }
@@ -468,7 +468,7 @@ export async function loadDataToken(dataTokenId: string): Promise<any> {
   `;
 
   const info: any = await client.request(query, {
-    address: dataTokenId,
+    address: dataTokenId
   });
   return info.dataToken;
 }
@@ -526,14 +526,14 @@ export async function loadDataUnion(dataUnionId: string): Promise<any> {
   `;
 
   const info: any = await client.request(query, {
-    dataUnionId: dataUnionId,
+    dataUnionId: dataUnionId
   });
   return info.dataUnion;
 }
 
 export async function isDataTokenCollectedBy(
   dataTokenId: string,
-  collector: string,
+  collector: string
 ): Promise<any> {
   const query = gql`
     query Query($collector: String, $dataTokenId: String) {
@@ -545,14 +545,14 @@ export async function isDataTokenCollectedBy(
 
   const info: any = await client.request(query, {
     dataTokenId: dataTokenId,
-    collector: collector,
+    collector: collector
   });
   return info.isDataTokenCollectedBy.is_collected;
 }
 
 export async function isDataUnionCollectedBy(
   dataUnionId: string,
-  collector: string,
+  collector: string
 ): Promise<any> {
   const query = gql`
     query Query($collector: String, $dataUnionId: String) {
@@ -564,13 +564,13 @@ export async function isDataUnionCollectedBy(
 
   const info: any = await client.request(query, {
     dataUnionId: dataUnionId,
-    collector: collector,
+    collector: collector
   });
   return info.isDataUnionCollectedBy.is_collected;
 }
 
 export async function loadDataTokens(
-  dataTokenIds: Array<string>,
+  dataTokenIds: Array<string>
 ): Promise<any> {
   const query = gql`
     query Query($dataTokenIds: [String!]) {
@@ -601,13 +601,13 @@ export async function loadDataTokens(
   `;
 
   const info: any = await client.request(query, {
-    dataTokenIds: dataTokenIds,
+    dataTokenIds: dataTokenIds
   });
   return info.dataTokenList;
 }
 
 export async function loadDataUnions(
-  dataUnionIds: Array<string>,
+  dataUnionIds: Array<string>
 ): Promise<any> {
   const query = gql`
     query Query($dataUnionIds: [String!]) {
@@ -663,7 +663,7 @@ export async function loadDataUnions(
   `;
 
   const info: any = await client.request(query, {
-    dataUnionIds: dataUnionIds,
+    dataUnionIds: dataUnionIds
   });
   return info.dataUnionList;
 }

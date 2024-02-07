@@ -1,0 +1,5 @@
+{
+  "types": "../dist/cjs/data-asset/index.d.ts",
+  "main": "../dist/cjs/data-asset/index.js",
+  "module": "../dist/esm/data-asset/index.js"
+}

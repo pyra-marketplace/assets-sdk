@@ -1,146 +1,116 @@
-import { BigNumberish, Wallet, ethers } from "ethers";
+import { BigNumber, BigNumberish, ethers } from "ethers";
+import { Connector, SYSTEM_CALL, FileContent } from "@meteor-web3/connector";
 import {
-  DataverseConnector,
-  DataAsset,
-  Attached,
-  SYSTEM_CALL,
-} from "@dataverse/dataverse-connector";
-import { DeployedContracts } from "../config";
-import {
-  isDataTokenCollectedBy,
+  //   isDataTokenCollectedBy,
   loadDataTokensCollectedBy,
-  loadDataTokensCreatedBy,
-  loadDataTokenCollectors,
-  loadDataToken,
-  loadDataTokens,
+  loadDataTokensCreatedBy
+  //   loadDataTokenCollectors,
+  //   loadDataToken,
+  //   loadDataTokens,
 } from "../graphql";
-import {
-  DataToken_Collector,
-  DataToken as DataTokenGraphType,
-} from "../graphql/types";
 import { abiCoder } from "../utils/abi-coder";
-import { currentTimestamp } from "../utils";
 import { DataAssetBase } from "../data-asset/DataAssetBase";
-import { EMPTY_BYTES, ZERO_ADDRESS } from "./constants";
 import {
-  IDataToken,
-  IDataToken__factory,
-  IERC20__factory,
-  LensHub__factory,
-  SimpleFeeCollectModule__factory,
-  LimitedFeeCollectModule__factory,
-  LimitedTimedFeeCollectModule__factory,
-  ProfileNFT__factory,
-  CollectPublicationAction__factory,
-  ProfilelessHub__factory,
-} from "./contracts";
-import { DataTypes } from "./contracts/IDataToken";
+  ActParams,
+  AddActionsParams,
+  PublishParams
+} from "../data-asset/types";
+import { ChainId } from "../types";
+import { getChainNameFromChainId } from "../utils";
 import {
-  _buildLensCollectSig,
-  _buildCyberCollectSig,
-  getCollectPaidMwData,
-  _buildProfilelessCollectSig,
-} from "./helpers";
-import {
-  CollectDataTokenOutput,
-  CyberCollectParams,
-  GraphType,
-  LensActParams,
-  EIP712Signature,
-  ChainId,
-  ProfilelessCollectParams,
-  CreateDataTokenInput,
-  Chain,
-} from "./types";
-import { DataTokenFactory } from "./DataTokenFactory";
+  DataToken__factory,
+  CollectAction__factory,
+  FeeCollectModule__factory
+} from "./abi/typechain";
+import { DEPLOYED_ADDRESSES } from "./addresses";
+import { TokenAsset } from "./types";
 
 export class DataToken extends DataAssetBase {
-  instance?: IDataToken;
-
   constructor({
     chainId,
-    dataTokenAddress,
+    connector,
     fileId,
-    dataverseConnector,
+    assetId
   }: {
-    chainId: ChainId;
-    dataTokenAddress: string;
-    fileId: string;
-    dataverseConnector: DataverseConnector;
+    chainId?: ChainId;
+    connector: Connector;
+    fileId?: string;
+    assetId?: string;
   }) {
     super({
       chainId,
-      assetContract: dataTokenAddress,
+      connector,
+      assetContract: DEPLOYED_ADDRESSES[chainId!]?.DataToken,
       fileOrFolderId: fileId,
-      dataverseConnector,
+      assetId
     });
-    if (dataTokenAddress) {
-      this.instance = IDataToken__factory.connect(
-        dataTokenAddress,
-        this.signer,
+  }
+
+  public async publish({
+    resourceId,
+    actionsConfig,
+    withSig
+  }: {
+    resourceId: string;
+    actionsConfig?: {
+      collectAction?: {
+        currency: string;
+        amount: BigNumberish;
+        totalSupply?: BigNumberish;
+      };
+    };
+    withSig?: boolean;
+  }) {
+    if (this.assetId) {
+      return this.assetId;
+    }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor"
       );
     }
-  }
 
-  async createDataToken(
-    params: CreateDataTokenInput<GraphType.Profileless>,
-  ): Promise<string> {
-    this.assertCheckChain();
-
-    let input = {} as CreateDataTokenInput;
-    let dataTokenFactory = {} as DataTokenFactory;
-
-    const {
-      type,
-      collectModule,
-      collectLimit,
-      amount,
-      currency,
-      recipient,
-      endTimestamp,
-    } = params;
-
-    dataTokenFactory = new DataTokenFactory({
-      chainId: this.chainId ?? ChainId.PolygonMumbai,
-      signer: this.signer,
+    await this.connector.provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
 
-    input = {
-      type: type ?? GraphType.Profileless,
-      contentURI: this.fileOrFolderId,
-      collectModule: collectModule ?? "LimitedFeeCollectModule",
-      collectLimit: collectLimit ?? 2 ** 52,
-      ...(collectModule !== "FreeCollectModule" && {
-        recipient: recipient ?? (await this.signer.getAddress()),
-        currency,
-        amount: ethers.utils.parseUnits(
-          String(amount),
-          currency === "USDC" ? 6 : 18,
-        ),
-      }),
-      ...(collectModule === "LimitedTimedFeeCollectModule" && {
-        endTimestamp,
-      }),
+    const data: string = abiCoder.encode(["string", "string"], [resourceId, this.fileOrFolderId]);
+    const actions: string[] = [];
+    const actionInitDatas: string[] = [];
+
+    if (actionsConfig?.collectAction) {
+      actions.push(DEPLOYED_ADDRESSES[this.chainId].CollectAction);
+
+      const collectModuleInitData = abiCoder.encode(
+        ["uint256", "address", "uint256"],
+        [
+          actionsConfig.collectAction.totalSupply ??
+            ethers.constants.MaxUint256,
+          actionsConfig.collectAction.currency,
+          actionsConfig.collectAction.amount
+        ]
+      );
+      const actionInitData = abiCoder.encode(
+        ["address", "bytes"],
+        [
+          DEPLOYED_ADDRESSES[this.chainId].FeeCollectModule,
+          collectModuleInitData
+        ]
+      );
+      actionInitDatas.push(actionInitData);
+    }
+
+    const publishParams: PublishParams = {
+      data,
+      actions,
+      actionInitDatas
     };
 
-    const assetId = await this.createAssetHandler(() =>
-      dataTokenFactory.createDataToken(input),
-    );
-
-    this.instance = IDataToken__factory.connect(assetId, this.signer);
-
-    return assetId;
+    return await this.createAssetHandler(publishParams, withSig);
   }
 
-  async applyConditionsToFile({
-    unlockingTimeStamp,
-    linkedAsset,
-    attached,
-  }: {
-    unlockingTimeStamp?: number;
-    linkedAsset?: DataAsset;
-    attached?: Attached;
-  }) {
+  async applyConditionsToFile(timestamp?: number) {
     this.signer &&
       this.addGeneralCondition([
         {
@@ -152,559 +122,330 @@ export class DataToken extends DataAssetBase {
           parameters: [":userAddress"],
           returnValueTest: {
             comparator: "=",
-            value: await this.signer.getAddress(),
-          },
-        },
+            value: await this.signer.getAddress()
+          }
+        }
       ]);
 
-    this.assetContract &&
-      this.chainId &&
-      this.assetId &&
+    this.chainId &&
       this.addSourceCondition({
         acl: {
+          contractAddress: DEPLOYED_ADDRESSES[this.chainId].CollectAction,
           conditionType: "evmContract",
+          chain: getChainNameFromChainId(this.chainId),
           functionName: "isCollected",
           functionAbi: {
             inputs: [
               {
-                internalType: "address",
-                name: "user",
-                type: "address",
+                internalType: "bytes32",
+                name: "assetId",
+                type: "bytes32"
               },
+              {
+                internalType: "address",
+                name: "account",
+                type: "address"
+              }
             ],
             name: "isCollected",
             outputs: [
               {
                 internalType: "bool",
                 name: "",
-                type: "bool",
-              },
+                type: "bool"
+              }
             ],
             stateMutability: "view",
-            type: "function",
+            type: "function"
           },
           returnValueTest: {
             key: "",
             comparator: "=",
-            value: "true",
-          },
+            value: "true"
+          }
         },
-        unlockingTimeStamp,
+        timestamp
       });
-
-    this.addLinkCondition({
-      acl: {
-        conditionType: "evmContract",
-        functionName: "isAccessible",
-        functionAbi: {
-          inputs: [
-            {
-              internalType: "bytes32",
-              name: "dataUnionId",
-              type: "bytes32",
-            },
-            {
-              internalType: "address",
-              name: "subscriber",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "blockNumber",
-              type: "uint256",
-            },
-          ],
-          name: "isAccessible",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        returnValueTest: {
-          key: "",
-          comparator: "=",
-          value: "true",
-        },
-      },
-      linkedAsset,
-      attached,
-    });
 
     const res = await this.applyFileConditions();
 
     return res;
   }
 
-  private assertCheckInstance() {
-    if (!this.instance) {
-      throw new Error("DataToken instance is not initialized");
-    }
-  }
-
-  private assertCheckChain() {
-    if (!this.chainId || !ChainId[this.chainId]) {
-      throw new Error("Chain is not set");
-    }
-  }
-
-  public async collectDataToken(): Promise<CollectDataTokenOutput> {
-    this.assertCheckInstance();
-    const collector = await this.signer!.getAddress();
-    const collectData = await this._generateCollectData(collector);
-
-    const output = {} as CollectDataTokenOutput;
-    await this.instance!.collect(collectData).then(async (tx: any) => {
-      const r = await tx.wait();
-      r.events.forEach((e: any) => {
-        if (e.event === "Collected") {
-          output.dataToken = e.args.dataToken;
-          output.collector = e.args.collector;
-          output.collectNFT = e.args.collectNFT;
-          output.tokenId = e.args.tokenId.toString();
-        }
-      });
-    });
-    return output;
-  }
-
-  public async loadCreatedDataTokenFiles(creator: string) {
-    const dataTokens = await DataToken.loadDataTokensCreatedBy(creator);
-
-    const fileIds = dataTokens.map(dataToken =>
-      dataToken.source.replace("ceramic://", ""),
-    );
-
-    const res = await this.dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadFilesBy,
-      params: { fileIds },
-    });
-
-    return res;
-  }
-
-  public async loadCollectedDataTokenFiles(collector: string) {
-    const dataTokens = await DataToken.loadDataTokensCollectedBy(collector);
-
-    const fileIds = dataTokens.map(dataToken =>
-      dataToken.source.replace("ceramic://", ""),
-    );
-
-    const res = await this.dataverseConnector.runOS({
-      method: SYSTEM_CALL.loadFilesBy,
-      params: { fileIds },
-    });
-
-    return res;
-  }
-
-  updateChain(chainId: ChainId) {
-    this.chainId = chainId;
-  }
-
-  public async getType(): Promise<GraphType> {
-    this.assertCheckInstance();
-    const type = await this.instance!.graphType();
-    return type as GraphType;
-  }
-
-  public getContentURI() {
-    this.assertCheckInstance();
-    return this.instance!.getContentURI();
-  }
-
-  public getCollectNFT() {
-    this.assertCheckInstance();
-    return this.instance!.getCollectNFT();
-  }
-
-  public isCollected(account: string): Promise<boolean> {
-    this.assertCheckInstance();
-    return this.instance!.isCollected(account);
-  }
-
-  public getMetadata(): Promise<DataTypes.MetadataStructOutput> {
-    this.assertCheckInstance();
-    return this.instance!.getMetadata();
-  }
-
-  public getDataTokenOwner(): Promise<string> {
-    this.assertCheckInstance();
-    return this.instance!.getDataTokenOwner();
-  }
-
-  static async loadDataTokensCreatedBy(
-    dataTokenCreator: string,
-  ): Promise<Array<DataTokenGraphType>> {
-    return await loadDataTokensCreatedBy(dataTokenCreator);
-  }
-
-  static async loadDataTokensCollectedBy(
-    collector: string,
-  ): Promise<Array<DataTokenGraphType>> {
-    return await loadDataTokensCollectedBy(collector);
-  }
-  static async isDataTokenCollectedBy({
-    dataTokenId,
-    collector,
+  async createTokenFile({
+    modelId,
+    fileName,
+    fileContent,
+    actionsConfig,
+    timestamp,
+    withSig
   }: {
-    dataTokenId: string;
-    collector: string;
-  }): Promise<boolean> {
-    return isDataTokenCollectedBy(dataTokenId, collector);
-  }
-
-  static async loadDataTokenCollectors(
-    dataTokenId: string,
-  ): Promise<Array<DataToken_Collector>> {
-    return await loadDataTokenCollectors(dataTokenId);
-  }
-
-  static async loadDataToken(dataTokenId: string): Promise<DataTokenGraphType> {
-    return loadDataToken(dataTokenId);
-  }
-
-  static async loadDataTokens(
-    dataTokenIds: Array<string>,
-  ): Promise<Array<DataTokenGraphType>> {
-    return loadDataTokens(dataTokenIds);
-  }
-
-  public async _generateCollectData(
-    collector: string,
-    actorProfileId?: BigNumberish,
-  ) {
-    const meta = await this.getMetadata();
-    const type = await this.getType();
-    let collectData: string;
-    switch (type) {
-      case GraphType.Profileless:
-        collectData = await this._generateProfilelessCollectData(meta);
-        break;
-
-      case GraphType.Lens:
-        collectData = await this._generateLensCollectData(
-          meta,
-          collector,
-          actorProfileId!,
-        );
-        break;
-
-      case GraphType.Cyber:
-        collectData = await this._generateCyberCollectData(meta, collector);
-        break;
-    }
-    return collectData;
-  }
-
-  private async _generateLensCollectData(
-    meta: DataTypes.MetadataStructOutput,
-    collector: string,
-    actorProfileId: BigNumberish,
-  ) {
-    this.assertCheckChain();
-    let actionModuleProcessData;
-    let collectData = EMPTY_BYTES;
-    this._checkGraphNetwork(GraphType.Lens);
-    const { collectModule } = await CollectPublicationAction__factory.connect(
-      meta.collectMiddleware,
-      this.signer!,
-    ).getCollectData(meta.profileId, meta.pubId);
-    switch (collectModule) {
-      case DeployedContracts[ChainId[this.chainId!]].Lens
-        .SimpleFeeCollectModule: {
-        const moduleInfo = await SimpleFeeCollectModule__factory.connect(
-          collectModule,
-          this.signer!,
-        ).getPublicationData(meta.profileId, meta.pubId);
-        if (moduleInfo.endTimestamp.lt(currentTimestamp())) {
-          throw new Error(
-            `Collect Expired at ${moduleInfo.endTimestamp.toString()}`,
-          );
-        }
-        actionModuleProcessData = await this._generateLensValidateData(
-          collectModule,
-          moduleInfo,
-          collector,
-        );
-        break;
+    modelId: string;
+    fileName?: string;
+    fileContent: FileContent;
+    actionsConfig: {
+      collectAction?: {
+        currency: string;
+        amount: BigNumberish;
+        totalSupply?: BigNumberish;
+      };
+    };
+    timestamp?: number;
+    withSig?: boolean;
+  }) {
+    const createIndexFileRes = await this.connector.runOS({
+      method: SYSTEM_CALL.createIndexFile,
+      params: {
+        modelId,
+        fileName,
+        fileContent
       }
-
-      default: {
-        throw new Error("CollectModule not supported");
-      }
-    }
-
-    const network = await this.signer!.provider?.getNetwork();
-    if (!network) {
-      throw new Error("Can not get network from provider");
-    }
-
-    const lensHub = LensHub__factory.connect(
-      DeployedContracts[ChainId[this.chainId!]].Lens.LensHubProxy,
-      this.signer!,
-    );
-
-    const nonce = (
-      await lensHub.nonces(await this.signer!.getAddress())
-    ).toNumber();
-
-    const signature: EIP712Signature = await _buildLensCollectSig({
-      chain: ChainId[this.chainId!] as Chain,
-      wallet: this.signer! as Wallet,
-      publicationActedProfileId: meta.profileId,
-      publicationActedId: meta.pubId,
-      actorProfileId,
-      referrerProfileIds: [],
-      referrerPubIds: [],
-      actionModuleAddress: meta.collectMiddleware,
-      actionModuleData: actionModuleProcessData,
-      nonce,
     });
 
-    const actParams: LensActParams = {
-      publicationActedProfileId: meta.profileId,
-      publicationActedId: meta.pubId,
-      actorProfileId,
-      referrerProfileIds: [],
-      referrerPubIds: [],
-      actionModuleAddress: meta.collectMiddleware,
-      actionModuleData: actionModuleProcessData,
-    };
+    this.fileOrFolderId = createIndexFileRes.fileContent.file.fileId;
 
-    collectData = abiCoder.encode(
-      [
-        "tuple(uint256 publicationActedProfileId, uint256 publicationActedId, uint256 actorProfileId, uint256[] referrerProfileIds, uint256[] referrerPubIds, address actionModuleAddress, bytes actionModuleData)",
-        "tuple(address signer, uint8 v,bytes32 r,bytes32 s,uint256 deadline)",
-      ],
-      [actParams, signature],
-    );
-
-    return collectData;
-  }
-
-  private async _generateProfilelessCollectData(
-    meta: DataTypes.MetadataStructOutput,
-  ) {
-    this.assertCheckChain();
-    let collectModuleValidateData;
-    switch (meta.collectMiddleware) {
-      case DeployedContracts[ChainId[this.chainId!]].Profileless
-        .LimitedFeeCollectModule: {
-        const collectModuleInst = LimitedFeeCollectModule__factory.connect(
-          meta.collectMiddleware,
-          this.signer!,
-        );
-        const moduleInfo = await collectModuleInst.getPublicationData(
-          meta.pubId,
-        );
-
-        collectModuleValidateData = await this._generateProfilelessValidateData(
-          meta.collectMiddleware,
-          moduleInfo,
-        );
-
-        break;
-      }
-
-      case DeployedContracts[ChainId[this.chainId!]].Profileless
-        .LimitedTimedFeeCollectModule: {
-        const collectModuleInst = LimitedTimedFeeCollectModule__factory.connect(
-          meta.collectMiddleware,
-          this.signer!,
-        );
-        const moduleInfo = await collectModuleInst.getPublicationData(
-          meta.pubId,
-        );
-        if (moduleInfo.endTimestamp < currentTimestamp()) {
-          throw new Error(`Collect Expired at ${moduleInfo.endTimestamp}`);
-        }
-        collectModuleValidateData = await this._generateProfilelessValidateData(
-          meta.collectMiddleware,
-          moduleInfo,
-        );
-        break;
-      }
-
-      case DeployedContracts[ChainId[this.chainId!]].Profileless
-        .FreeCollectModule: {
-        collectModuleValidateData = EMPTY_BYTES;
-        break;
-      }
-      default:
-        throw new Error("Invalid Collect Module");
-    }
-
-    const profilelessHub = ProfilelessHub__factory.connect(
-      DeployedContracts[ChainId[this.chainId!]].Profileless.ProfilelessHub,
-      this.signer!,
-    );
-
-    const nonce = (
-      await profilelessHub.getSigNonces(await this.signer!.getAddress())
-    ).toNumber();
-
-    const signature = await _buildProfilelessCollectSig({
-      chain: ChainId[this.chainId!] as Chain,
-      wallet: this.signer! as Wallet,
-      pubId: meta.pubId,
-      collectModuleValidateData,
-      nonce,
+    await this.publish({
+      resourceId: "test-resource-id" ?? modelId,
+      actionsConfig,
+      withSig
     });
 
-    const collectParams: ProfilelessCollectParams = {
-      pubId: meta.pubId,
-      collectModuleValidateData,
-    };
+    const applyConditionsToFileRes =
+      await this.applyConditionsToFile(timestamp);
 
-    const collectData = abiCoder.encode(
-      [
-        "tuple(uint256 pubId,bytes collectModuleValidateData)",
-        "tuple(address signer, uint8 v,bytes32 r,bytes32 s,uint256 deadline)",
-      ],
-      [collectParams, signature],
-    );
-    return collectData;
+    return applyConditionsToFileRes;
   }
 
-  private async _generateCyberCollectData(
-    meta: DataTypes.MetadataStructOutput,
-    collector: string,
-  ) {
-    this.assertCheckChain();
-    const collectParams = {
-      collector: collector,
-      profileId: meta.profileId,
-      essenceId: meta.pubId,
-    } as CyberCollectParams;
-
-    const cyberProfile = ProfileNFT__factory.connect(
-      DeployedContracts[ChainId[this.chainId!]].Cyber.CyberProfileProxy,
-      this.signer!,
-    );
-
-    switch (meta.collectMiddleware.toLowerCase()) {
-      case DeployedContracts[
-        ChainId[this.chainId!]
-      ].Cyber.CollectPaidMw.toLowerCase(): {
-        const { currency, amount } = await getCollectPaidMwData({
-          chainId: this.chainId!,
-          profileId: meta.profileId,
-          essenceId: meta.pubId,
-        });
-
-        await this._checkERC20BalanceAndAllowance(
-          currency,
-          amount,
-          meta.collectMiddleware,
-        );
-        break;
-      }
-      default:
-        throw new Error("CollectModule not supported");
+  async monetizeFile({
+    actionsConfig,
+    withSig
+  }: {
+    actionsConfig: {
+      collectAction?: {
+        currency: string;
+        amount: BigNumberish;
+        totalSupply?: BigNumberish;
+      };
+    };
+    withSig?: boolean;
+  }) {
+    if (!this.fileOrFolderId) {
+      throw new Error("File Id cannot be empty");
     }
 
-    const collectPreData = EMPTY_BYTES;
-    const collectPostData = EMPTY_BYTES;
-    const nonce = await cyberProfile.nonces(collector);
+    const res = await this.connector.runOS({
+      method: SYSTEM_CALL.loadFile,
+      params: this.fileOrFolderId
+    });
 
-    const signature: Omit<EIP712Signature, "signer"> =
-      await _buildCyberCollectSig({
-        chain: ChainId[this.chainId!] as Chain,
-        wallet: this.signer! as Wallet,
-        profileId: collectParams.profileId,
-        collector: collectParams.collector,
-        essenceId: collectParams.essenceId,
-        preData: collectPreData,
-        postData: collectPostData,
-        nonce,
-      });
+    await this.publish({
+      resourceId:
+        "test-resource-id" ?? res.fileContent.file?.contentType?.resourceId,
+      actionsConfig,
+      withSig
+    });
 
-    return abiCoder.encode(
-      [
-        "tuple(address collector,uint256 profileId,uint256 essenceId) params",
-        "bytes preData",
-        "bytes postData",
-        "address sender",
-        "tuple(uint8 v,bytes32 r,bytes32 s,uint256 deadline) sig",
-      ],
-      [collectParams, collectPreData, collectPostData, collector, signature],
-    );
+    const applyConditionsToFileRes = await this.applyConditionsToFile();
+
+    return applyConditionsToFileRes;
   }
 
-  private async _generateLensValidateData(
-    collectModule: string,
-    moduleInfo: any,
-    collector: string,
-  ) {
-    if (moduleInfo.currency !== ZERO_ADDRESS) {
-      await this._checkERC20BalanceAndAllowance(
-        moduleInfo.currency,
-        moduleInfo.amount,
-        collectModule,
+  public async getTokenAsset() {
+    if (!this.assetContract) {
+      throw new Error(
+        "AssetContract cannot be empty, please pass in through constructor"
+      );
+    }
+    if (!this.assetId) {
+      throw new Error(
+        "AssetId cannot be empty, please call createAssetHandler first"
+      );
+    }
+    if (!this.signer) {
+      throw new Error("Signer not found, please collect wallet");
+    }
+    const dataToken = DataToken__factory.connect(
+      this.assetContract,
+      this.signer
+    );
+    const tokenAsset: TokenAsset = await dataToken.getTokenAsset(this.assetId);
+    return tokenAsset;
+  }
+
+  public async isCollected(account: string) {
+    if (!this.assetId) {
+      throw new Error(
+        "AssetId cannot be empty, please call createAssetHandler first"
+      );
+    }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor"
+      );
+    }
+    if (!this.signer) {
+      throw new Error("Signer not found, please collect wallet");
+    }
+
+    const collectAction = CollectAction__factory.connect(
+      DEPLOYED_ADDRESSES[this.chainId].CollectAction,
+      this.signer
+    );
+
+    const res = await collectAction.isCollected(this.assetId, account);
+
+    return res;
+  }
+
+  public async addActions({
+    collectAction,
+    withSig
+  }: {
+    collectAction?: {
+      currency: string;
+      amount: BigNumberish;
+      totalSupply?: BigNumberish;
+    };
+    withSig?: boolean;
+  }) {
+    if (!this.assetId) {
+      throw new Error(
+        "AssetId cannot be empty, please call createAssetHandler first"
+      );
+    }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor"
       );
     }
 
-    const collectModuleValidateData = abiCoder.encode(
-      ["address", "uint256"],
-      [moduleInfo.currency, moduleInfo.amount],
-    );
+    await this.connector.provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: `0x${this.chainId.toString(16)}` }]
+    });
 
-    return abiCoder.encode(
-      ["address", "bytes"],
-      [collector, collectModuleValidateData],
-    );
+    const tokenAsset = await this.getTokenAsset();
+
+    const actions: string[] = [];
+    const actionInitDatas: string[] = [];
+
+    if (collectAction) {
+      if (
+        tokenAsset.actions.includes(
+          DEPLOYED_ADDRESSES[this.chainId].CollectAction
+        )
+      ) {
+        throw new Error("CollectAction already enabled.");
+      }
+      actions.push(DEPLOYED_ADDRESSES[this.chainId].CollectAction);
+
+      const collectModuleInitData = abiCoder.encode(
+        ["uint256", "address", "uint256"],
+        [
+          collectAction.totalSupply ?? ethers.constants.MaxUint256,
+          collectAction.currency,
+          collectAction.amount
+        ]
+      );
+      const actionInitData = abiCoder.encode(
+        ["address", "bytes"],
+        [
+          DEPLOYED_ADDRESSES[this.chainId].FeeCollectModule,
+          collectModuleInitData
+        ]
+      );
+      actionInitDatas.push(actionInitData);
+    }
+
+    const addActionsParams: AddActionsParams = {
+      assetId: this.assetId,
+      actions,
+      actionInitDatas
+    };
+
+    return await this._addActions(addActionsParams, withSig);
   }
 
-  private async _generateProfilelessValidateData(
-    collectModule: string,
-    moduleInfo: any,
-  ) {
+  public async collect(withSig: boolean = false) {
+    if (!this.assetId) {
+      throw new Error(
+        "AssetId cannot be empty, please call createAssetHandler first"
+      );
+    }
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor"
+      );
+    }
+    if (!this.signer) {
+      throw new Error("Signer not found, please collect wallet");
+    }
+
+    await this.connector.provider?.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: `0x${this.chainId.toString(16)}` }]
+    });
+
+    const feeCollectModuleContract = FeeCollectModule__factory.connect(
+      DEPLOYED_ADDRESSES[this.chainId].FeeCollectModule,
+      this.signer
+    );
+    const { currency, amount } =
+      await feeCollectModuleContract.getAssetCollectDetail(this.assetId);
+
     await this._checkERC20BalanceAndAllowance(
-      moduleInfo.currency,
-      moduleInfo.amount,
-      collectModule,
+      currency,
+      amount,
+      DEPLOYED_ADDRESSES[this.chainId].FeeCollectModule
     );
 
-    return abiCoder.encode(
+    const actionProcessData = abiCoder.encode(
       ["address", "uint256"],
-      [moduleInfo.currency, moduleInfo.amount],
+      [currency, amount]
     );
+
+    const actParams: ActParams = {
+      assetId: this.assetId,
+      actions: [DEPLOYED_ADDRESSES[this.chainId].CollectAction],
+      actionProcessDatas: [actionProcessData]
+    };
+
+    const [actionReturnData] = await this._act(actParams, withSig);
+    const [collectionId] = abiCoder.decode(
+      ["uint256", "bytes"],
+      actionReturnData
+    );
+
+    return collectionId as BigNumber;
   }
 
-  private async _checkERC20BalanceAndAllowance(
-    currency: string,
-    amount: BigNumberish,
-    spender: string,
-  ) {
-    const erc20 = IERC20__factory.connect(currency, this.signer!);
-    const signerAddr = await this.signer!.getAddress();
-    const userBalance = await erc20.balanceOf(signerAddr);
-    if (userBalance.lt(amount)) {
-      throw new Error("Insufficient Balance");
-    }
-    const allowance = await erc20.allowance(signerAddr, spender);
-    if (allowance.lt(amount)) {
-      const tx = await erc20.approve(spender, amount);
-      await tx.wait();
-    }
+  public async loadCreatedTokenFiles(creator: string) {
+    const dataTokens: any[] = await loadDataTokensCreatedBy(creator);
+
+    const fileIds = dataTokens.map((dataToken) =>
+      dataToken.source.replace("ceramic://", "")
+    );
+
+    const res = await this.connector.runOS({
+      method: SYSTEM_CALL.loadFilesBy,
+      params: { fileIds }
+    });
+
+    return res;
   }
 
-  private _checkGraphNetwork(graphType: GraphType) {
-    if (graphType === GraphType.Lens) {
-      if (ChainId[this.chainId!] !== "PolygonMumbai") {
-        throw new Error(`Lens graph not support ${ChainId[this.chainId!]}`);
-      }
-    } else if (graphType == GraphType.Cyber) {
-      if (ChainId[this.chainId!] !== "BSCTestnet") {
-        throw new Error(`Cyber graph not support ${ChainId[this.chainId!]}`);
-      }
-    } else {
-      return;
-    }
+  public async loadCollectedTokenFiles(collector: string) {
+    const dataTokens: any[] = await loadDataTokensCollectedBy(collector);
+
+    const fileIds = dataTokens.map((dataToken) =>
+      dataToken.source.replace("ceramic://", "")
+    );
+
+    const res = await this.connector.runOS({
+      method: SYSTEM_CALL.loadFilesBy,
+      params: { fileIds }
+    });
+
+    return res;
   }
 }

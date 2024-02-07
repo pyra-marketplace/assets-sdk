@@ -1,11 +1,11 @@
 {
-    "name": "@dataverse/monetizer",
+    "name": "@pyra/assets-sdk",
     "version": "1.0.0",
     "license": "MIT",
     "files": [
         "/dist",
-        "/data-token",
-        "/data-union"
+        "/data-asset",
+        "/data-token"
     ],
     "types": "dist/cjs/index.d.ts",
     "main": "dist/cjs/index.js",
@@ -16,26 +16,21 @@
             "main": "./dist/cjs/index.js",
             "module": "./dist/esm/index.js"
         },
+        "./data-asset": {
+            "types": "./dist/cjs/data-asset/index.d.ts",
+            "main": "./dist/cjs/data-asset/index.js",
+            "module": "./dist/esm/data-asset/index.js"
+        },
         "./data-token": {
             "types": "./dist/cjs/data-token/index.d.ts",
             "main": "./dist/cjs/data-token/index.js",
             "module": "./dist/esm/data-token/index.js"
-        },
-        "./data-union": {
-            "types": "./dist/cjs/data-union/index.d.ts",
-            "main": "./dist/cjs/data-union/index.js",
-            "module": "./dist/esm/data-union/index.js"
         }
     },
     "scripts": {
-        "typechain:data-token": "rimraf src/data-token/contracts/* && typechain --target ethers-v5 --out-dir src/data-token/contracts './src/data-token/abi/**/*.json'",
-        "typechain:data-union": "rimraf src/data-union/contracts/* && typechain --target ethers-v5 --out-dir src/data-union/contracts './src/data-union/abi/**/*.json'",
-        "fork:polygon_mumbai": "source .env && anvil --fork-url $POLYGON_MUMBAI_RPC_URL",
-        "fork:bsc_testnet": "source .env && anvil --fork-url $BSC_TESTNET_RPC_URL",
-        "fork:scroll_sepolia": "source .env && anvil --fork-url $SCROLL_SEPOLIA_RPC_URL",
-        "test:polygon_mumbai": "source .env && PRIVATE_KEY=$PRIVATE_KEY CHAIN_ENV=PolygonMumbai NODE_OPTIONS='--loader ts-node/esm' mocha --timeout 600000 ./test/**/*.test.ts",
-        "test:bsc_testnet": "source .env && PRIVATE_KEY=$PRIVATE_KEY CHAIN_ENV=BSCTestnet NODE_OPTIONS='--loader ts-node/esm' mocha --timeout 600000 ./test/**/*.test.ts",
-        "test:scroll_sepolia": "source .env && PRIVATE_KEY=$PRIVATE_KEY CHAIN_ENV=ScrollSepolia NODE_OPTIONS='--loader ts-node/esm' mocha --timeout 600000 ./test/**/*.test.ts",
+        "typechain:data-asset": "rimraf src/data-asset/abi/typechain/* && typechain --target ethers-v5 --out-dir src/data-asset/abi/typechain './src/data-asset/abi/**/*.json'",
+        "typechain:data-token": "rimraf src/data-token/abi/typechain/* && typechain --target ethers-v5 --out-dir src/data-token/abi/typechain './src/data-token/abi/**/*.json'",
+        "typechain:data-union": "rimraf src/data-union/abi/typechain/* && typechain --target ethers-v5 --out-dir src/data-union/abi/typechain './src/data-union/abi/**/*.json'",
         "build": "rimraf dist && npm run build:esm && npm run build:cjs",
         "build:esm": "tsc -p tsconfig.json",
         "build:cjs": "tsc -p tsconfig-cjs.json",
@@ -45,8 +40,7 @@
         "prepare": "husky install"
     },
     "dependencies": {
-        "@dataverse/dataverse-connector": "^1.0.33",
-        "@dataverse/utils": "^1.0.10",
+        "@meteor-web3/connector": "^1.0.19",
         "@lit-protocol/constants": "^2.2.61",
         "axios": "^1.5.1",
         "ethers": "^5.7.2",

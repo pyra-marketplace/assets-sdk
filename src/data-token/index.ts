@@ -8,11 +8,11 @@
 //   getHandleByCyberProfileId,
 //   getCyberProfileIdByHandle,
 // } from "./helpers";
-export * from "./helpers";
-export * from "./DataTokenHub";
-export * from "./DataTokenFactory";
-export * from "./DataToken";
-export * from "./types";
+// export * from "./helpers";
+// export * from "./DataTokenHub";
+// export * from "./DataTokenFactory";
+// export * from "./DataToken";
+// export * from "./types";
 // export {
 //   // createLensProfile,
 //   getLensProfiles,
@@ -23,3 +23,6 @@ export * from "./types";
 //   getHandleByCyberProfileId,
 //   getCyberProfileIdByHandle,
 // };
+export * from "./addresses";
+export * from "./types";
+export * from "./DataToken";

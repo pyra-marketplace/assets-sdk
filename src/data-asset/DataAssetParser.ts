@@ -1,56 +1,52 @@
-import {
-  DataverseConnector,
-  SYSTEM_CALL,
-} from "@dataverse/dataverse-connector";
-import { ChainId } from "../data-token";
+import { Connector, SYSTEM_CALL } from "@meteor-web3/connector";
+import { ChainId } from "../types";
 import { DataAssetBase } from "./DataAssetBase";
 import {
   GeneralAccessConditions,
-  SourceAssetCondition,
+  SourceAssetConditions,
   LinkedAssetConditions,
-  SourceAssetConditionInput,
+  SourceAssetConditionInput
 } from "./types";
 
 export class DataAssetParser {
-  dataverseConnector: DataverseConnector;
+  connector: Connector;
 
-  constructor(dataverseConnector: DataverseConnector) {
-    this.dataverseConnector = dataverseConnector;
+  constructor(connector: Connector) {
+    this.connector = connector;
   }
 
   async parse(fileOrFolderId: string) {
-    const res = await this.dataverseConnector.runOS({
+    const res = await this.connector.runOS({
       method: SYSTEM_CALL.loadFile,
-      params: fileOrFolderId,
+      params: fileOrFolderId
     });
-
-    const dataAsset =
-      res.fileContent.file?.accessControl?.monetizationProvider?.dataAsset;
-    const dependencies =
-      res.fileContent.file?.accessControl?.monetizationProvider?.dependencies;
-    const encryptionProvider =
-      res.fileContent.file?.accessControl?.encryptionProvider;
+    const dataAsset = (res.fileContent.file || res.fileContent.content)
+      ?.accessControl?.monetizationProvider?.dataAsset;
+    const dependencies = (res.fileContent.file || res.fileContent.content)
+      ?.accessControl?.monetizationProvider?.dependencies;
+    const encryptionProvider = (res.fileContent.file || res.fileContent.content)
+      ?.accessControl?.encryptionProvider;
     const decryptionConditions = encryptionProvider?.decryptionConditions;
 
     const dataAssetBase = new DataAssetBase({
       ...dataAsset,
       fileOrFolderId,
-      dataverseConnector: this.dataverseConnector,
+      connector: this.connector
     });
 
     dataAssetBase.generalAccessConditions = decryptionConditions?.slice(
-      -1,
+      -1
     )?.[0] as GeneralAccessConditions;
-    dataAssetBase.sourceAssetCondition = decryptionConditions?.slice(
-      -1,
-    )?.[2] as SourceAssetCondition;
+    dataAssetBase.sourceAssetConditions = decryptionConditions?.slice(
+      -1
+    )?.[2] as SourceAssetConditions;
     dataAssetBase.linkedAssetConditions = decryptionConditions?.slice(
-      -1,
+      -1
     )?.[4] as LinkedAssetConditions;
 
     dataAssetBase.monetizationProvider = {
       dataAsset,
-      dependencies,
+      dependencies
     };
     dataAssetBase.encryptionProvider = encryptionProvider;
 
@@ -58,32 +54,15 @@ export class DataAssetParser {
   }
 
   validateFormat(dataAssetBase: DataAssetBase) {
-    if (
-      !dataAssetBase.createAssetHandler ||
-      !dataAssetBase.addGeneralCondition ||
-      !dataAssetBase.addLinkCondition ||
-      !dataAssetBase.addSourceCondition ||
-      !dataAssetBase.applyFileConditions ||
-      !dataAssetBase.applyFolderConditions ||
-      !dataAssetBase.fileOrFolderId ||
-      !dataAssetBase.dataverseConnector ||
-      !dataAssetBase.signer ||
-      !dataAssetBase.monetizationProvider ||
-      dataAssetBase.monetizationProvider.dataAsset?.assetContract !==
-        dataAssetBase.assetContract ||
-      dataAssetBase.monetizationProvider.dataAsset?.assetId !==
-        dataAssetBase?.assetId ||
-      dataAssetBase.monetizationProvider.dataAsset?.chainId !==
-        dataAssetBase?.chainId ||
-      (dataAssetBase.sourceAssetCondition?.[0] as SourceAssetConditionInput)
-        ?.contractAddress !== dataAssetBase?.assetContract ||
-      (dataAssetBase.sourceAssetCondition?.[0] as SourceAssetConditionInput)
-        ?.functionParams[0] !== dataAssetBase?.assetId ||
-      (dataAssetBase.sourceAssetCondition?.[0] as SourceAssetConditionInput)
-        ?.chain !== ChainId[dataAssetBase?.chainId!]
-    ) {
+    if (!(dataAssetBase instanceof DataAssetBase)) {
       return false;
     }
-    return true;
+    return !dataAssetBase.sourceAssetConditions?.find(
+      (sourceAssetCondition) =>
+        (sourceAssetCondition as SourceAssetConditionInput[])[0]
+          ?.functionParams[0] !== dataAssetBase?.assetId ||
+        (sourceAssetCondition as SourceAssetConditionInput[])[0]?.chain !==
+          ChainId[dataAssetBase?.chainId!]
+    );
   }
 }
