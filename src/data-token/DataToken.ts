@@ -20,11 +20,10 @@ import { getChainNameFromChainId } from "../utils";
 import {
   DataToken__factory,
   CollectAction__factory,
-  FeeCollectModule__factory,
-  ShareAction__factory
+  FeeCollectModule__factory
 } from "./abi/typechain";
 import { DEPLOYED_ADDRESSES } from "./addresses";
-import { TokenAsset, TradeType } from "./types";
+import { TokenAsset } from "./types";
 
 export class DataToken extends DataAssetBase {
   constructor({
@@ -59,14 +58,6 @@ export class DataToken extends DataAssetBase {
         amount: BigNumberish;
         totalSupply?: BigNumberish;
       };
-      shareAction?: {
-        shareName: string;
-        shareSymbol: string;
-        currency: string;
-        ownerFeePoint: BigNumberish;
-        initialSupply?: BigNumberish;
-        accessibleShareAmount: BigNumberish;
-      };
     };
     withSig?: boolean;
   }) {
@@ -84,8 +75,7 @@ export class DataToken extends DataAssetBase {
       params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
 
-    const data: string = abiCoder.encode(["string"], [this.fileOrFolderId]);
-
+    const data: string = abiCoder.encode(["string", "string"], [resourceId, this.fileOrFolderId]);
     const actions: string[] = [];
     const actionInitDatas: string[] = [];
 
@@ -111,38 +101,10 @@ export class DataToken extends DataAssetBase {
       actionInitDatas.push(actionInitData);
     }
 
-    if (actionsConfig?.shareAction) {
-      actions.push(DEPLOYED_ADDRESSES[this.chainId].ShareAction);
-
-      const actionInitData = abiCoder.encode(
-        [
-          "string",
-          "string",
-          "address",
-          "uint256",
-          "uint256",
-          "uint256",
-          "address"
-        ],
-        [
-          actionsConfig.shareAction.shareName,
-          actionsConfig.shareAction.shareSymbol,
-          actionsConfig.shareAction.currency,
-          actionsConfig.shareAction.ownerFeePoint,
-          actionsConfig.shareAction.initialSupply ?? 100,
-          actionsConfig.shareAction.accessibleShareAmount,
-          DEPLOYED_ADDRESSES[this.chainId].DefaultCurve
-        ]
-      );
-      actionInitDatas.push(actionInitData);
-    }
-
     const publishParams: PublishParams = {
-      resourceId,
       data,
       actions,
-      actionInitDatas,
-      images: []
+      actionInitDatas
     };
 
     return await this.createAssetHandler(publishParams, withSig);
@@ -205,46 +167,6 @@ export class DataToken extends DataAssetBase {
         timestamp
       });
 
-    this.chainId &&
-      this.addSourceCondition({
-        acl: {
-          contractAddress: DEPLOYED_ADDRESSES[this.chainId].ShareAction,
-          conditionType: "evmContract",
-          chain: getChainNameFromChainId(this.chainId),
-          functionName: "isAccessible",
-          functionAbi: {
-            inputs: [
-              {
-                internalType: "bytes32",
-                name: "assetId",
-                type: "bytes32"
-              },
-              {
-                internalType: "address",
-                name: "account",
-                type: "address"
-              }
-            ],
-            name: "isAccessible",
-            outputs: [
-              {
-                internalType: "bool",
-                name: "",
-                type: "bool"
-              }
-            ],
-            stateMutability: "view",
-            type: "function"
-          },
-          returnValueTest: {
-            key: "",
-            comparator: "=",
-            value: "true"
-          }
-        },
-        timestamp
-      });
-
     const res = await this.applyFileConditions();
 
     return res;
@@ -266,14 +188,6 @@ export class DataToken extends DataAssetBase {
         currency: string;
         amount: BigNumberish;
         totalSupply?: BigNumberish;
-      };
-      shareAction?: {
-        shareName: string;
-        shareSymbol: string;
-        currency: string;
-        ownerFeePoint: BigNumberish;
-        initialSupply?: BigNumberish;
-        accessibleShareAmount: BigNumberish;
       };
     };
     timestamp?: number;
@@ -311,14 +225,6 @@ export class DataToken extends DataAssetBase {
         currency: string;
         amount: BigNumberish;
         totalSupply?: BigNumberish;
-      };
-      shareAction?: {
-        shareName: string;
-        shareSymbol: string;
-        currency: string;
-        ownerFeePoint: BigNumberish;
-        initialSupply?: BigNumberish;
-        accessibleShareAmount: BigNumberish;
       };
     };
     withSig?: boolean;
@@ -391,48 +297,14 @@ export class DataToken extends DataAssetBase {
     return res;
   }
 
-  public async isShared(account: string) {
-    if (!this.assetId) {
-      throw new Error(
-        "AssetId cannot be empty, please call createAssetHandler first"
-      );
-    }
-    if (!this.chainId) {
-      throw new Error(
-        "ChainId cannot be empty, please pass in through constructor"
-      );
-    }
-    if (!this.signer) {
-      throw new Error("Signer not found, please collect wallet");
-    }
-
-    const shareAction = ShareAction__factory.connect(
-      DEPLOYED_ADDRESSES[this.chainId].ShareAction,
-      this.signer
-    );
-
-    const res = await shareAction.isAccessible(this.assetId, account);
-
-    return res;
-  }
-
   public async addActions({
     collectAction,
-    shareAction,
     withSig
   }: {
     collectAction?: {
       currency: string;
       amount: BigNumberish;
       totalSupply?: BigNumberish;
-    };
-    shareAction?: {
-      shareName: string;
-      shareSymbol: string;
-      currency: string;
-      ownerFeePoint: BigNumberish;
-      initialSupply?: BigNumberish;
-      accessibleShareAmount: BigNumberish;
     };
     withSig?: boolean;
   }) {
@@ -480,39 +352,6 @@ export class DataToken extends DataAssetBase {
         [
           DEPLOYED_ADDRESSES[this.chainId].FeeCollectModule,
           collectModuleInitData
-        ]
-      );
-      actionInitDatas.push(actionInitData);
-    }
-
-    if (shareAction) {
-      if (
-        tokenAsset.actions.includes(
-          DEPLOYED_ADDRESSES[this.chainId].ShareAction
-        )
-      ) {
-        throw new Error("ShareAction already enabled.");
-      }
-      actions.push(DEPLOYED_ADDRESSES[this.chainId].ShareAction);
-
-      const actionInitData = abiCoder.encode(
-        [
-          "string",
-          "string",
-          "address",
-          "uint256",
-          "uint256",
-          "uint256",
-          "address"
-        ],
-        [
-          shareAction.shareName,
-          shareAction.shareSymbol,
-          shareAction.currency,
-          shareAction.ownerFeePoint,
-          shareAction.initialSupply ?? 100,
-          shareAction.accessibleShareAmount,
-          DEPLOYED_ADDRESSES[this.chainId].DefaultCurve
         ]
       );
       actionInitDatas.push(actionInitData);
@@ -578,66 +417,6 @@ export class DataToken extends DataAssetBase {
     );
 
     return collectionId as BigNumber;
-  }
-
-  public async share({
-    tradeType,
-    amount,
-    withSig
-  }: {
-    tradeType: TradeType;
-    amount: BigNumberish;
-    withSig?: boolean;
-  }) {
-    if (!this.assetId) {
-      throw new Error(
-        "AssetId cannot be empty, please call createAssetHandler first"
-      );
-    }
-    if (!this.chainId) {
-      throw new Error(
-        "ChainId cannot be empty, please pass in through constructor"
-      );
-    }
-    if (!this.signer) {
-      throw new Error("Signer not found, please collect wallet");
-    }
-
-    await this.connector.provider?.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: `0x${this.chainId.toString(16)}` }]
-    });
-
-    let totalPrice: BigNumber;
-    const shareAction = ShareAction__factory.connect(
-      DEPLOYED_ADDRESSES[this.chainId].ShareAction,
-      this.signer
-    );
-    if (tradeType === TradeType.Buy) {
-      totalPrice = await shareAction.getBuyPrice(this.assetId, amount);
-    } else {
-      totalPrice = await shareAction.getSellPrice(this.assetId, amount);
-    }
-    const { currency } = await shareAction.getAssetShareData(this.assetId);
-    await this._checkERC20BalanceAndAllowance(
-      currency,
-      totalPrice,
-      DEPLOYED_ADDRESSES[this.chainId].ShareAction
-    );
-
-    const actionProcessData = abiCoder.encode(
-      ["uint256", "uint256"],
-      [tradeType, amount]
-    );
-    const actParams: ActParams = {
-      assetId: this.assetId,
-      actions: [DEPLOYED_ADDRESSES[this.chainId].ShareAction],
-      actionProcessDatas: [actionProcessData]
-    };
-
-    const [actionReturnData] = await this._act(actParams, withSig);
-    const [price] = abiCoder.decode(["uint256"], actionReturnData);
-    return price as BigNumber;
   }
 
   public async loadCreatedTokenFiles(creator: string) {

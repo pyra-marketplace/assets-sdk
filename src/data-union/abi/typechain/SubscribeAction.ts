@@ -9,15 +9,12 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -31,19 +28,16 @@ export interface SubscribeActionInterface extends utils.Interface {
     "ACTION_CONFIG()": FunctionFragment;
     "COLLECT_ACTION()": FunctionFragment;
     "getDappTreasuryData(bytes32)": FunctionFragment;
-    "getDataverseTreasuryData()": FunctionFragment;
+    "getProtocolTreasuryData()": FunctionFragment;
     "getSubscribeData(bytes32,uint256)": FunctionFragment;
     "initializeAction(bytes32,bytes)": FunctionFragment;
     "isAccessible(bytes32,uint256,uint256)": FunctionFragment;
     "isAccessible(bytes32,address,uint256)": FunctionFragment;
     "isSubscribeModuleRegistered(address)": FunctionFragment;
     "monetizer()": FunctionFragment;
-    "owner()": FunctionFragment;
     "processAction(bytes32,address,bytes)": FunctionFragment;
     "registerSubscribeModule(address)": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
   };
 
   getFunction(
@@ -51,19 +45,16 @@ export interface SubscribeActionInterface extends utils.Interface {
       | "ACTION_CONFIG"
       | "COLLECT_ACTION"
       | "getDappTreasuryData"
-      | "getDataverseTreasuryData"
+      | "getProtocolTreasuryData"
       | "getSubscribeData"
       | "initializeAction"
       | "isAccessible(bytes32,uint256,uint256)"
       | "isAccessible(bytes32,address,uint256)"
       | "isSubscribeModuleRegistered"
       | "monetizer"
-      | "owner"
       | "processAction"
       | "registerSubscribeModule"
-      | "renounceOwnership"
       | "supportsInterface"
-      | "transferOwnership"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -79,7 +70,7 @@ export interface SubscribeActionInterface extends utils.Interface {
     values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getDataverseTreasuryData",
+    functionFragment: "getProtocolTreasuryData",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -103,7 +94,6 @@ export interface SubscribeActionInterface extends utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(functionFragment: "monetizer", values?: undefined): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processAction",
     values: [BytesLike, string, BytesLike]
@@ -113,16 +103,8 @@ export interface SubscribeActionInterface extends utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
   ): string;
 
   decodeFunctionResult(
@@ -138,7 +120,7 @@ export interface SubscribeActionInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getDataverseTreasuryData",
+    functionFragment: "getProtocolTreasuryData",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -162,7 +144,6 @@ export interface SubscribeActionInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "monetizer", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processAction",
     data: BytesLike
@@ -172,36 +153,12 @@ export interface SubscribeActionInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
 
-  events: {
-    "OwnershipTransferred(address,address)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  events: {};
 }
-
-export interface OwnershipTransferredEventObject {
-  previousOwner: string;
-  newOwner: string;
-}
-export type OwnershipTransferredEvent = TypedEvent<
-  [string, string],
-  OwnershipTransferredEventObject
->;
-
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface SubscribeAction extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -239,7 +196,7 @@ export interface SubscribeAction extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, BigNumber]>;
 
-    getDataverseTreasuryData(
+    getProtocolTreasuryData(
       overrides?: CallOverrides
     ): Promise<[string, BigNumber]>;
 
@@ -252,7 +209,7 @@ export interface SubscribeAction extends BaseContract {
     initializeAction(
       assetId: BytesLike,
       data: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     "isAccessible(bytes32,uint256,uint256)"(
@@ -276,13 +233,11 @@ export interface SubscribeAction extends BaseContract {
 
     monetizer(overrides?: CallOverrides): Promise<[string]>;
 
-    owner(overrides?: CallOverrides): Promise<[string]>;
-
     processAction(
       assetId: BytesLike,
       subscriber: string,
       data: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     registerSubscribeModule(
@@ -290,19 +245,10 @@ export interface SubscribeAction extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
   };
 
   ACTION_CONFIG(overrides?: CallOverrides): Promise<string>;
@@ -314,7 +260,7 @@ export interface SubscribeAction extends BaseContract {
     overrides?: CallOverrides
   ): Promise<[string, BigNumber]>;
 
-  getDataverseTreasuryData(
+  getProtocolTreasuryData(
     overrides?: CallOverrides
   ): Promise<[string, BigNumber]>;
 
@@ -327,7 +273,7 @@ export interface SubscribeAction extends BaseContract {
   initializeAction(
     assetId: BytesLike,
     data: BytesLike,
-    overrides?: Overrides & { from?: string }
+    overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   "isAccessible(bytes32,uint256,uint256)"(
@@ -351,13 +297,11 @@ export interface SubscribeAction extends BaseContract {
 
   monetizer(overrides?: CallOverrides): Promise<string>;
 
-  owner(overrides?: CallOverrides): Promise<string>;
-
   processAction(
     assetId: BytesLike,
     subscriber: string,
     data: BytesLike,
-    overrides?: Overrides & { from?: string }
+    overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   registerSubscribeModule(
@@ -365,19 +309,10 @@ export interface SubscribeAction extends BaseContract {
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
-  renounceOwnership(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
   supportsInterface(
     interfaceId: BytesLike,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
 
   callStatic: {
     ACTION_CONFIG(overrides?: CallOverrides): Promise<string>;
@@ -389,7 +324,7 @@ export interface SubscribeAction extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, BigNumber]>;
 
-    getDataverseTreasuryData(
+    getProtocolTreasuryData(
       overrides?: CallOverrides
     ): Promise<[string, BigNumber]>;
 
@@ -426,8 +361,6 @@ export interface SubscribeAction extends BaseContract {
 
     monetizer(overrides?: CallOverrides): Promise<string>;
 
-    owner(overrides?: CallOverrides): Promise<string>;
-
     processAction(
       assetId: BytesLike,
       subscriber: string,
@@ -440,29 +373,13 @@ export interface SubscribeAction extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
-  filters: {
-    "OwnershipTransferred(address,address)"(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): OwnershipTransferredEventFilter;
-    OwnershipTransferred(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): OwnershipTransferredEventFilter;
-  };
+  filters: {};
 
   estimateGas: {
     ACTION_CONFIG(overrides?: CallOverrides): Promise<BigNumber>;
@@ -474,7 +391,7 @@ export interface SubscribeAction extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getDataverseTreasuryData(overrides?: CallOverrides): Promise<BigNumber>;
+    getProtocolTreasuryData(overrides?: CallOverrides): Promise<BigNumber>;
 
     getSubscribeData(
       assetId: BytesLike,
@@ -485,7 +402,7 @@ export interface SubscribeAction extends BaseContract {
     initializeAction(
       assetId: BytesLike,
       data: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
 
     "isAccessible(bytes32,uint256,uint256)"(
@@ -509,13 +426,11 @@ export interface SubscribeAction extends BaseContract {
 
     monetizer(overrides?: CallOverrides): Promise<BigNumber>;
 
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
-
     processAction(
       assetId: BytesLike,
       subscriber: string,
       data: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
 
     registerSubscribeModule(
@@ -523,18 +438,9 @@ export interface SubscribeAction extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
   };
 
@@ -548,7 +454,7 @@ export interface SubscribeAction extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getDataverseTreasuryData(
+    getProtocolTreasuryData(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -561,7 +467,7 @@ export interface SubscribeAction extends BaseContract {
     initializeAction(
       assetId: BytesLike,
       data: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     "isAccessible(bytes32,uint256,uint256)"(
@@ -585,13 +491,11 @@ export interface SubscribeAction extends BaseContract {
 
     monetizer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     processAction(
       assetId: BytesLike,
       subscriber: string,
       data: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     registerSubscribeModule(
@@ -599,18 +503,9 @@ export interface SubscribeAction extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
   };
 }

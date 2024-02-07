@@ -32,12 +32,151 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "ERC721EnumerableForbiddenBatchMint",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+    ],
+    name: "ERC721IncorrectOwner",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "operator",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "ERC721InsufficientApproval",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "approver",
+        type: "address",
+      },
+    ],
+    name: "ERC721InvalidApprover",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "operator",
+        type: "address",
+      },
+    ],
+    name: "ERC721InvalidOperator",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+    ],
+    name: "ERC721InvalidOwner",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "receiver",
+        type: "address",
+      },
+    ],
+    name: "ERC721InvalidReceiver",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+    ],
+    name: "ERC721InvalidSender",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "ERC721NonexistentToken",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "index",
+        type: "uint256",
+      },
+    ],
+    name: "ERC721OutOfBoundsIndex",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InitializeActionFailed",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "InvalidShortString",
     type: "error",
   },
   {
     inputs: [],
     name: "NotAssetOwner",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ProcessActionFailed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ReentrancyGuardReentrantCall",
     type: "error",
   },
   {
@@ -163,6 +302,31 @@ const _abi = [
         type: "bytes32",
       },
       {
+        indexed: false,
+        internalType: "address[]",
+        name: "actions",
+        type: "address[]",
+      },
+      {
+        indexed: false,
+        internalType: "bytes[]",
+        name: "actionInitDatas",
+        type: "bytes[]",
+      },
+    ],
+    name: "AssetActionsAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "assetId",
+        type: "bytes32",
+      },
+      {
         indexed: true,
         internalType: "address",
         name: "publisher",
@@ -173,12 +337,6 @@ const _abi = [
         internalType: "uint256",
         name: "publicationId",
         type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "string",
-        name: "resourceId",
-        type: "string",
       },
       {
         indexed: false,
@@ -197,12 +355,6 @@ const _abi = [
         internalType: "bytes[]",
         name: "actionInitDatas",
         type: "bytes[]",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32[]",
-        name: "images",
-        type: "bytes32[]",
       },
     ],
     name: "AssetPublished",
@@ -240,19 +392,6 @@ const _abi = [
     type: "event",
   },
   {
-    inputs: [],
-    name: "DAPP_TABLE_REGISTRY",
-    outputs: [
-      {
-        internalType: "contract IDappTableRegistry",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         components: [
@@ -285,7 +424,7 @@ const _abi = [
         type: "bytes[]",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -353,7 +492,7 @@ const _abi = [
         type: "bytes[]",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -444,88 +583,6 @@ const _abi = [
       },
     ],
     name: "addActionsWithSig",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "bytes32",
-            name: "assetId",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32[]",
-            name: "images",
-            type: "bytes32[]",
-          },
-        ],
-        internalType: "struct IDataMonetizer.AddImagesParams",
-        name: "addImagesParams",
-        type: "tuple",
-      },
-    ],
-    name: "addImages",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "bytes32",
-            name: "assetId",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32[]",
-            name: "images",
-            type: "bytes32[]",
-          },
-        ],
-        internalType: "struct IDataMonetizer.AddImagesParams",
-        name: "addImagesParams",
-        type: "tuple",
-      },
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "signer",
-            type: "address",
-          },
-          {
-            internalType: "uint8",
-            name: "v",
-            type: "uint8",
-          },
-          {
-            internalType: "bytes32",
-            name: "r",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32",
-            name: "s",
-            type: "bytes32",
-          },
-          {
-            internalType: "uint256",
-            name: "deadline",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct IDataMonetizer.EIP712Signature",
-        name: "signature",
-        type: "tuple",
-      },
-    ],
-    name: "addImagesWithSig",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -642,11 +699,6 @@ const _abi = [
       {
         components: [
           {
-            internalType: "string",
-            name: "resourceId",
-            type: "string",
-          },
-          {
             internalType: "bytes",
             name: "data",
             type: "bytes",
@@ -665,11 +717,6 @@ const _abi = [
             internalType: "address[]",
             name: "actions",
             type: "address[]",
-          },
-          {
-            internalType: "bytes32[]",
-            name: "images",
-            type: "bytes32[]",
           },
         ],
         internalType: "struct IDataMonetizer.Asset",
@@ -792,11 +839,6 @@ const _abi = [
       {
         components: [
           {
-            internalType: "string",
-            name: "resourceId",
-            type: "string",
-          },
-          {
             internalType: "bytes",
             name: "data",
             type: "bytes",
@@ -810,11 +852,6 @@ const _abi = [
             internalType: "bytes[]",
             name: "actionInitDatas",
             type: "bytes[]",
-          },
-          {
-            internalType: "bytes32[]",
-            name: "images",
-            type: "bytes32[]",
           },
         ],
         internalType: "struct IDataMonetizer.PublishParams",
@@ -830,18 +867,13 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
     inputs: [
       {
         components: [
-          {
-            internalType: "string",
-            name: "resourceId",
-            type: "string",
-          },
           {
             internalType: "bytes",
             name: "data",
@@ -856,11 +888,6 @@ const _abi = [
             internalType: "bytes[]",
             name: "actionInitDatas",
             type: "bytes[]",
-          },
-          {
-            internalType: "bytes32[]",
-            name: "images",
-            type: "bytes32[]",
           },
         ],
         internalType: "struct IDataMonetizer.PublishParams",
@@ -908,7 +935,7 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {

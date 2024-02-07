@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -67,61 +68,30 @@ export declare namespace IDataMonetizer {
     actionInitDatas: string[];
   };
 
-  export type AddImagesParamsStruct = {
-    assetId: BytesLike;
-    images: BytesLike[];
-  };
-
-  export type AddImagesParamsStructOutput = [string, string[]] & {
-    assetId: string;
-    images: string[];
-  };
-
   export type AssetStruct = {
-    resourceId: string;
     data: BytesLike;
     publishAt: BigNumberish;
     publicationId: BigNumberish;
     actions: string[];
-    images: BytesLike[];
   };
 
-  export type AssetStructOutput = [
-    string,
-    string,
-    BigNumber,
-    BigNumber,
-    string[],
-    string[]
-  ] & {
-    resourceId: string;
+  export type AssetStructOutput = [string, BigNumber, BigNumber, string[]] & {
     data: string;
     publishAt: BigNumber;
     publicationId: BigNumber;
     actions: string[];
-    images: string[];
   };
 
   export type PublishParamsStruct = {
-    resourceId: string;
     data: BytesLike;
     actions: string[];
     actionInitDatas: BytesLike[];
-    images: BytesLike[];
   };
 
-  export type PublishParamsStructOutput = [
-    string,
-    string,
-    string[],
-    string[],
-    string[]
-  ] & {
-    resourceId: string;
+  export type PublishParamsStructOutput = [string, string[], string[]] & {
     data: string;
     actions: string[];
     actionInitDatas: string[];
-    images: string[];
   };
 }
 
@@ -132,7 +102,6 @@ export declare namespace IDataToken {
     publishAt: BigNumberish;
     publicationId: BigNumberish;
     actions: string[];
-    images: BytesLike[];
   };
 
   export type TokenAssetStructOutput = [
@@ -140,7 +109,6 @@ export declare namespace IDataToken {
     string,
     BigNumber,
     BigNumber,
-    string[],
     string[]
   ] & {
     resourceId: string;
@@ -148,19 +116,15 @@ export declare namespace IDataToken {
     publishAt: BigNumber;
     publicationId: BigNumber;
     actions: string[];
-    images: string[];
   };
 }
 
 export interface DataTokenInterface extends utils.Interface {
   functions: {
-    "DAPP_TABLE_REGISTRY()": FunctionFragment;
     "act((bytes32,address[],bytes[]))": FunctionFragment;
     "actWithSig((bytes32,address[],bytes[]),(address,uint8,bytes32,bytes32,uint256))": FunctionFragment;
     "addActions((bytes32,address[],bytes[]))": FunctionFragment;
     "addActionsWithSig((bytes32,address[],bytes[]),(address,uint8,bytes32,bytes32,uint256))": FunctionFragment;
-    "addImages((bytes32,bytes32[]))": FunctionFragment;
-    "addImagesWithSig((bytes32,bytes32[]),(address,uint8,bytes32,bytes32,uint256))": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "eip712Domain()": FunctionFragment;
@@ -173,8 +137,8 @@ export interface DataTokenInterface extends utils.Interface {
     "isApprovedForAll(address,address)": FunctionFragment;
     "name()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
-    "publish((string,bytes,address[],bytes[],bytes32[]))": FunctionFragment;
-    "publishWithSig((string,bytes,address[],bytes[],bytes32[]),(address,uint8,bytes32,bytes32,uint256))": FunctionFragment;
+    "publish((bytes,address[],bytes[]))": FunctionFragment;
+    "publishWithSig((bytes,address[],bytes[]),(address,uint8,bytes32,bytes32,uint256))": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "safeTransferFrom(address,address,uint256,bytes)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
@@ -189,13 +153,10 @@ export interface DataTokenInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "DAPP_TABLE_REGISTRY"
       | "act"
       | "actWithSig"
       | "addActions"
       | "addActionsWithSig"
-      | "addImages"
-      | "addImagesWithSig"
       | "approve"
       | "balanceOf"
       | "eip712Domain"
@@ -223,10 +184,6 @@ export interface DataTokenInterface extends utils.Interface {
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "DAPP_TABLE_REGISTRY",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "act",
     values: [IDataMonetizer.ActParamsStruct]
   ): string;
@@ -245,17 +202,6 @@ export interface DataTokenInterface extends utils.Interface {
     functionFragment: "addActionsWithSig",
     values: [
       IDataMonetizer.AddActionsParamsStruct,
-      IDataMonetizer.EIP712SignatureStruct
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addImages",
-    values: [IDataMonetizer.AddImagesParamsStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addImagesWithSig",
-    values: [
-      IDataMonetizer.AddImagesParamsStruct,
       IDataMonetizer.EIP712SignatureStruct
     ]
   ): string;
@@ -344,20 +290,11 @@ export interface DataTokenInterface extends utils.Interface {
     values: [string, string, BigNumberish]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "DAPP_TABLE_REGISTRY",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "act", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "actWithSig", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "addActions", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "addActionsWithSig",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "addImages", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "addImagesWithSig",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
@@ -437,7 +374,8 @@ export interface DataTokenInterface extends utils.Interface {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
     "AssetActed(bytes32,address,address[],bytes[],bytes[])": EventFragment;
-    "AssetPublished(bytes32,address,uint256,string,bytes,address[],bytes[],bytes32[])": EventFragment;
+    "AssetActionsAdded(bytes32,address[],bytes[])": EventFragment;
+    "AssetPublished(bytes32,address,uint256,bytes,address[],bytes[])": EventFragment;
     "EIP712DomainChanged()": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
@@ -445,6 +383,7 @@ export interface DataTokenInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetActed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssetActionsAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetPublished"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "EIP712DomainChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
@@ -488,18 +427,29 @@ export type AssetActedEvent = TypedEvent<
 
 export type AssetActedEventFilter = TypedEventFilter<AssetActedEvent>;
 
+export interface AssetActionsAddedEventObject {
+  assetId: string;
+  actions: string[];
+  actionInitDatas: string[];
+}
+export type AssetActionsAddedEvent = TypedEvent<
+  [string, string[], string[]],
+  AssetActionsAddedEventObject
+>;
+
+export type AssetActionsAddedEventFilter =
+  TypedEventFilter<AssetActionsAddedEvent>;
+
 export interface AssetPublishedEventObject {
   assetId: string;
   publisher: string;
   publicationId: BigNumber;
-  resourceId: string;
   data: string;
   actions: string[];
   actionInitDatas: string[];
-  images: string[];
 }
 export type AssetPublishedEvent = TypedEvent<
-  [string, string, BigNumber, string, string, string[], string[], string[]],
+  [string, string, BigNumber, string, string[], string[]],
   AssetPublishedEventObject
 >;
 
@@ -553,17 +503,15 @@ export interface DataToken extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    DAPP_TABLE_REGISTRY(overrides?: CallOverrides): Promise<[string]>;
-
     act(
       actParams: IDataMonetizer.ActParamsStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     actWithSig(
       actParams: IDataMonetizer.ActParamsStruct,
       signature: IDataMonetizer.EIP712SignatureStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     addActions(
@@ -573,17 +521,6 @@ export interface DataToken extends BaseContract {
 
     addActionsWithSig(
       addActionsParams: IDataMonetizer.AddActionsParamsStruct,
-      signature: IDataMonetizer.EIP712SignatureStruct,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    addImages(
-      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    addImagesWithSig(
-      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
       signature: IDataMonetizer.EIP712SignatureStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
@@ -652,13 +589,13 @@ export interface DataToken extends BaseContract {
 
     publish(
       publishParams: IDataMonetizer.PublishParamsStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     publishWithSig(
       publishParams: IDataMonetizer.PublishParamsStruct,
       signature: IDataMonetizer.EIP712SignatureStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(
@@ -715,17 +652,15 @@ export interface DataToken extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  DAPP_TABLE_REGISTRY(overrides?: CallOverrides): Promise<string>;
-
   act(
     actParams: IDataMonetizer.ActParamsStruct,
-    overrides?: Overrides & { from?: string }
+    overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   actWithSig(
     actParams: IDataMonetizer.ActParamsStruct,
     signature: IDataMonetizer.EIP712SignatureStruct,
-    overrides?: Overrides & { from?: string }
+    overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   addActions(
@@ -735,17 +670,6 @@ export interface DataToken extends BaseContract {
 
   addActionsWithSig(
     addActionsParams: IDataMonetizer.AddActionsParamsStruct,
-    signature: IDataMonetizer.EIP712SignatureStruct,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  addImages(
-    addImagesParams: IDataMonetizer.AddImagesParamsStruct,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  addImagesWithSig(
-    addImagesParams: IDataMonetizer.AddImagesParamsStruct,
     signature: IDataMonetizer.EIP712SignatureStruct,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
@@ -805,13 +729,13 @@ export interface DataToken extends BaseContract {
 
   publish(
     publishParams: IDataMonetizer.PublishParamsStruct,
-    overrides?: Overrides & { from?: string }
+    overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   publishWithSig(
     publishParams: IDataMonetizer.PublishParamsStruct,
     signature: IDataMonetizer.EIP712SignatureStruct,
-    overrides?: Overrides & { from?: string }
+    overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   "safeTransferFrom(address,address,uint256)"(
@@ -865,8 +789,6 @@ export interface DataToken extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    DAPP_TABLE_REGISTRY(overrides?: CallOverrides): Promise<string>;
-
     act(
       actParams: IDataMonetizer.ActParamsStruct,
       overrides?: CallOverrides
@@ -885,17 +807,6 @@ export interface DataToken extends BaseContract {
 
     addActionsWithSig(
       addActionsParams: IDataMonetizer.AddActionsParamsStruct,
-      signature: IDataMonetizer.EIP712SignatureStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    addImages(
-      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    addImagesWithSig(
-      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
       signature: IDataMonetizer.EIP712SignatureStruct,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1056,25 +967,32 @@ export interface DataToken extends BaseContract {
       actionReturnDatas?: null
     ): AssetActedEventFilter;
 
-    "AssetPublished(bytes32,address,uint256,string,bytes,address[],bytes[],bytes32[])"(
+    "AssetActionsAdded(bytes32,address[],bytes[])"(
+      assetId?: BytesLike | null,
+      actions?: null,
+      actionInitDatas?: null
+    ): AssetActionsAddedEventFilter;
+    AssetActionsAdded(
+      assetId?: BytesLike | null,
+      actions?: null,
+      actionInitDatas?: null
+    ): AssetActionsAddedEventFilter;
+
+    "AssetPublished(bytes32,address,uint256,bytes,address[],bytes[])"(
       assetId?: BytesLike | null,
       publisher?: string | null,
       publicationId?: BigNumberish | null,
-      resourceId?: null,
       data?: null,
       actions?: null,
-      actionInitDatas?: null,
-      images?: null
+      actionInitDatas?: null
     ): AssetPublishedEventFilter;
     AssetPublished(
       assetId?: BytesLike | null,
       publisher?: string | null,
       publicationId?: BigNumberish | null,
-      resourceId?: null,
       data?: null,
       actions?: null,
-      actionInitDatas?: null,
-      images?: null
+      actionInitDatas?: null
     ): AssetPublishedEventFilter;
 
     "EIP712DomainChanged()"(): EIP712DomainChangedEventFilter;
@@ -1093,17 +1011,15 @@ export interface DataToken extends BaseContract {
   };
 
   estimateGas: {
-    DAPP_TABLE_REGISTRY(overrides?: CallOverrides): Promise<BigNumber>;
-
     act(
       actParams: IDataMonetizer.ActParamsStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
 
     actWithSig(
       actParams: IDataMonetizer.ActParamsStruct,
       signature: IDataMonetizer.EIP712SignatureStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
 
     addActions(
@@ -1113,17 +1029,6 @@ export interface DataToken extends BaseContract {
 
     addActionsWithSig(
       addActionsParams: IDataMonetizer.AddActionsParamsStruct,
-      signature: IDataMonetizer.EIP712SignatureStruct,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    addImages(
-      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    addImagesWithSig(
-      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
       signature: IDataMonetizer.EIP712SignatureStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
@@ -1174,13 +1079,13 @@ export interface DataToken extends BaseContract {
 
     publish(
       publishParams: IDataMonetizer.PublishParamsStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
 
     publishWithSig(
       publishParams: IDataMonetizer.PublishParamsStruct,
       signature: IDataMonetizer.EIP712SignatureStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
 
     "safeTransferFrom(address,address,uint256)"(
@@ -1238,19 +1143,15 @@ export interface DataToken extends BaseContract {
   };
 
   populateTransaction: {
-    DAPP_TABLE_REGISTRY(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     act(
       actParams: IDataMonetizer.ActParamsStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     actWithSig(
       actParams: IDataMonetizer.ActParamsStruct,
       signature: IDataMonetizer.EIP712SignatureStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     addActions(
@@ -1260,17 +1161,6 @@ export interface DataToken extends BaseContract {
 
     addActionsWithSig(
       addActionsParams: IDataMonetizer.AddActionsParamsStruct,
-      signature: IDataMonetizer.EIP712SignatureStruct,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    addImages(
-      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    addImagesWithSig(
-      addImagesParams: IDataMonetizer.AddImagesParamsStruct,
       signature: IDataMonetizer.EIP712SignatureStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
@@ -1332,13 +1222,13 @@ export interface DataToken extends BaseContract {
 
     publish(
       publishParams: IDataMonetizer.PublishParamsStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     publishWithSig(
       publishParams: IDataMonetizer.PublishParamsStruct,
       signature: IDataMonetizer.EIP712SignatureStruct,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(

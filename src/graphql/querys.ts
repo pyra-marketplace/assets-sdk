@@ -1,7 +1,7 @@
 import { gql, GraphQLClient } from "graphql-request";
-import { ApiConfig } from "../config";
+import APIJson from "../api.json";
 
-const client = new GraphQLClient(ApiConfig.DataverseScan);
+const client = new GraphQLClient(APIJson.DataverseScan);
 
 export async function loadDataTokensCreatedBy(
   dataTokenCreator: string

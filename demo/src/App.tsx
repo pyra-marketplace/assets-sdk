@@ -6,8 +6,7 @@ import {
 } from "@meteor-web3/connector";
 import {
   DEPLOYED_ADDRESSES as TOKEN_DEPLOYED_ADDRESSES,
-  DataToken,
-  TradeType
+  DataToken
 } from "../../src/data-token";
 import {
   DEPLOYED_ADDRESSES as UNION_DEPLOYED_ADDRESSES,
@@ -86,13 +85,6 @@ function App() {
           currency: TOKEN_DEPLOYED_ADDRESSES[chainId].WMATIC,
           amount: 1000
         },
-        shareAction: {
-          shareName: "TestShare",
-          shareSymbol: "TS",
-          currency: TOKEN_DEPLOYED_ADDRESSES[chainId].WMATIC,
-          ownerFeePoint: 1000,
-          accessibleShareAmount: 1
-        }
       },
       // timestamp: Math.floor(Date.parse(date) / 1000) + 1 * 60 * 60 * 24,
       withSig
@@ -128,45 +120,6 @@ function App() {
     });
 
     const res = await dataToken!.isCollected(address);
-    console.log(res);
-  };
-
-  const shareFile = async (tradeType: TradeType, withSig = false) => {
-    const dataAssetParser = new DataAssetParser(connector);
-    const dataAsset = await dataAssetParser.parse(indexFileId);
-
-    const dataToken = new DataToken({
-      fileId: dataAsset.fileOrFolderId,
-      assetId: dataAsset.assetId,
-      chainId: dataAsset.chainId,
-      connector
-    });
-
-    const amount = 50;
-    const price = await dataToken.share({
-      tradeType,
-      amount,
-      withSig
-    });
-    console.log(
-      `${
-        tradeType === TradeType.Buy ? "Buy" : "Sell"
-      } shares succeed, price: ${price}`
-    );
-  };
-
-  const isShared = async () => {
-    const dataAssetParser = new DataAssetParser(connector);
-    const dataAsset = await dataAssetParser.parse(indexFileId);
-
-    const dataToken = new DataToken({
-      fileId: dataAsset.fileOrFolderId,
-      assetId: dataAsset.assetId,
-      chainId: dataAsset.chainId,
-      connector
-    });
-
-    const res = await dataToken!.isShared(address);
     console.log(res);
   };
 
@@ -317,15 +270,6 @@ function App() {
     console.log(res);
   };
 
-  // const loadSharedDatatokenFiles = async () => {
-  //   const dataToken = new DataToken({
-  //     chainId,
-  //     connector
-  //   });
-  //   const res = await dataToken.loadSharedDataTokenFiles(address);
-  //   console.log(res);
-  // };
-
   const loadCreatedUnionFolders = async () => {
     const dataUnion = new DataUnion({
       connector
@@ -411,8 +355,6 @@ function App() {
       <button onClick={() => createTokenFile()}>createTokenFile</button>
       <button onClick={() => collectFile()}>collectFile</button>
       <button onClick={() => isCollected()}>isCollected</button>
-      <button onClick={() => shareFile(TradeType.Buy)}>shareFile</button>
-      <button onClick={() => isShared()}>isShared</button>
       <button onClick={() => isFileUnlocked()}>isFileUnlocked</button>
       <button onClick={() => unlockFile()}>unlockFile</button>
       <button onClick={() => createUnionFolder()}>createUnionFolder</button>
@@ -429,9 +371,6 @@ function App() {
       <button onClick={() => loadCollectedTokenFiles()}>
         loadCollectedTokenFiles
       </button>
-      {/* <button onClick={loadSharedDatatokenFiles}>
-        loadSharedDatatokenFiles
-      </button> */}
       <button onClick={() => loadCreatedUnionFolders()}>
         loadCreatedUnionFolders
       </button>

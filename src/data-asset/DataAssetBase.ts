@@ -491,11 +491,9 @@ export class DataAssetBase {
     const msgParams = {
       types: {
         PublishWithSig: [
-          { name: "resourceId", type: "string" },
           { name: "data", type: "bytes" },
           { name: "actions", type: "address[]" },
           { name: "actionInitDatas", type: "bytes[]" },
-          { name: "images", type: "bytes32[]" },
           { name: "nonce", type: "uint256" },
           { name: "deadline", type: "uint256" }
         ]
@@ -507,11 +505,9 @@ export class DataAssetBase {
         verifyingContract: this.assetContract
       },
       value: {
-        resourceId: publishParams.resourceId,
         data: publishParams.data,
         actions: publishParams.actions,
         actionInitDatas: publishParams.actionInitDatas,
-        images: publishParams.images,
         nonce,
         deadline
       }

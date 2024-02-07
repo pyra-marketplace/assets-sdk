@@ -1,7 +1,0 @@
-{
-    "DataverseScan": "https://gateway.beta.dataverse.art/v1/data-token/graphql/",
-    "CyberEventsTracker": "https://cyber-tracker.dataverse.art/api/v1/",
-    "Moralis": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6ImIwN2RhNTkwLWM5YzItNDk2Ny04ZTZkLTE5MGQxY2Q5NDgxYSIsIm9yZ0lkIjoiMzYyMDUyIiwidXNlcklkIjoiMzcyMDkyIiwidHlwZUlkIjoiYjY5YmNhYzAtNTc0Yi00M2NjLThhOTItMGJkNGUxYzA5MjAxIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2OTgxMzA4NzIsImV4cCI6NDg1Mzg5MDg3Mn0.hshklXsS3Tt3VvA9Ok6qYzwnS4MdvGqrWDGZsBLWU5I",
-    "LensV2Polygon": "https://api-v2.lens.dev/graphql/",
-    "LensV2Mumbai": "https://api-v2-mumbai-live.lens.dev/graphql/"
-}

@@ -4,15 +4,11 @@
 export type { CollectAction } from "./CollectAction";
 export type { DataUnion } from "./DataUnion";
 export type { FeeCollectModule } from "./FeeCollectModule";
-export type { IERC20 } from "./IERC20";
-export type { IERC721 } from "./IERC721";
 export type { MonthlySubscribeModule } from "./MonthlySubscribeModule";
 export type { SubscribeAction } from "./SubscribeAction";
 export * as factories from "./factories";
 export { CollectAction__factory } from "./factories/CollectAction__factory";
 export { DataUnion__factory } from "./factories/DataUnion__factory";
 export { FeeCollectModule__factory } from "./factories/FeeCollectModule__factory";
-export { IERC20__factory } from "./factories/IERC20__factory";
-export { IERC721__factory } from "./factories/IERC721__factory";
 export { MonthlySubscribeModule__factory } from "./factories/MonthlySubscribeModule__factory";
 export { SubscribeAction__factory } from "./factories/SubscribeAction__factory";

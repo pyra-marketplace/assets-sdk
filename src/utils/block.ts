@@ -1,6 +1,6 @@
 import Moralis from "moralis";
 import { ChainId } from "../types";
-import { ApiConfig } from "../config";
+import APIJson from "../api.json";
 
 export const getBlockNumberByTimestamp = async ({
   chainId,
@@ -11,7 +11,7 @@ export const getBlockNumberByTimestamp = async ({
 }) => {
   if (!Moralis.Core.isStarted) {
     await Moralis.start({
-      apiKey: ApiConfig.Moralis
+      apiKey: APIJson.Moralis
     });
   }
 
@@ -32,7 +32,7 @@ export const getTimestampByBlockNumber = async ({
 }) => {
   if (!Moralis.Core.isStarted) {
     await Moralis.start({
-      apiKey: ApiConfig.Moralis
+      apiKey: APIJson.Moralis
     });
   }
 

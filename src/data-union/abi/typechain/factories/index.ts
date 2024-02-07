@@ -4,7 +4,5 @@
 export { CollectAction__factory } from "./CollectAction__factory";
 export { DataUnion__factory } from "./DataUnion__factory";
 export { FeeCollectModule__factory } from "./FeeCollectModule__factory";
-export { IERC20__factory } from "./IERC20__factory";
-export { IERC721__factory } from "./IERC721__factory";
 export { MonthlySubscribeModule__factory } from "./MonthlySubscribeModule__factory";
 export { SubscribeAction__factory } from "./SubscribeAction__factory";

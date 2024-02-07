@@ -4,9 +4,7 @@
 export type { CollectAction } from "./CollectAction";
 export type { DataToken } from "./DataToken";
 export type { FeeCollectModule } from "./FeeCollectModule";
-export type { ShareAction } from "./ShareAction";
 export * as factories from "./factories";
 export { CollectAction__factory } from "./factories/CollectAction__factory";
 export { DataToken__factory } from "./factories/DataToken__factory";
 export { FeeCollectModule__factory } from "./factories/FeeCollectModule__factory";
-export { ShareAction__factory } from "./factories/ShareAction__factory";

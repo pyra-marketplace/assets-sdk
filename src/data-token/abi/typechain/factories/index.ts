@@ -4,4 +4,3 @@
 export { CollectAction__factory } from "./CollectAction__factory";
 export { DataToken__factory } from "./DataToken__factory";
 export { FeeCollectModule__factory } from "./FeeCollectModule__factory";
-export { ShareAction__factory } from "./ShareAction__factory";

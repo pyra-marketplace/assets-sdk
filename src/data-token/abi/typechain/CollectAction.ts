@@ -8,15 +8,12 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -39,17 +36,14 @@ export interface CollectActionInterface extends utils.Interface {
     "ACTION_CONFIG()": FunctionFragment;
     "getAssetCollectData(bytes32)": FunctionFragment;
     "getDappTreasuryData(bytes32)": FunctionFragment;
-    "getDataverseTreasuryData()": FunctionFragment;
+    "getProtocolTreasuryData()": FunctionFragment;
     "initializeAction(bytes32,bytes)": FunctionFragment;
     "isCollectModuleRegistered(address)": FunctionFragment;
     "isCollected(bytes32,address)": FunctionFragment;
     "monetizer()": FunctionFragment;
-    "owner()": FunctionFragment;
     "processAction(bytes32,address,bytes)": FunctionFragment;
     "registerCollectModule(address)": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
   };
 
   getFunction(
@@ -57,17 +51,14 @@ export interface CollectActionInterface extends utils.Interface {
       | "ACTION_CONFIG"
       | "getAssetCollectData"
       | "getDappTreasuryData"
-      | "getDataverseTreasuryData"
+      | "getProtocolTreasuryData"
       | "initializeAction"
       | "isCollectModuleRegistered"
       | "isCollected"
       | "monetizer"
-      | "owner"
       | "processAction"
       | "registerCollectModule"
-      | "renounceOwnership"
       | "supportsInterface"
-      | "transferOwnership"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -83,7 +74,7 @@ export interface CollectActionInterface extends utils.Interface {
     values: [BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getDataverseTreasuryData",
+    functionFragment: "getProtocolTreasuryData",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -99,7 +90,6 @@ export interface CollectActionInterface extends utils.Interface {
     values: [BytesLike, string]
   ): string;
   encodeFunctionData(functionFragment: "monetizer", values?: undefined): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "processAction",
     values: [BytesLike, string, BytesLike]
@@ -109,16 +99,8 @@ export interface CollectActionInterface extends utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
   ): string;
 
   decodeFunctionResult(
@@ -134,7 +116,7 @@ export interface CollectActionInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getDataverseTreasuryData",
+    functionFragment: "getProtocolTreasuryData",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -150,7 +132,6 @@ export interface CollectActionInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "monetizer", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "processAction",
     data: BytesLike
@@ -160,36 +141,12 @@ export interface CollectActionInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
 
-  events: {
-    "OwnershipTransferred(address,address)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  events: {};
 }
-
-export interface OwnershipTransferredEventObject {
-  previousOwner: string;
-  newOwner: string;
-}
-export type OwnershipTransferredEvent = TypedEvent<
-  [string, string],
-  OwnershipTransferredEventObject
->;
-
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface CollectAction extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -230,14 +187,14 @@ export interface CollectAction extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, BigNumber]>;
 
-    getDataverseTreasuryData(
+    getProtocolTreasuryData(
       overrides?: CallOverrides
     ): Promise<[string, BigNumber]>;
 
     initializeAction(
       assetId: BytesLike,
       data: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     isCollectModuleRegistered(
@@ -253,13 +210,11 @@ export interface CollectAction extends BaseContract {
 
     monetizer(overrides?: CallOverrides): Promise<[string]>;
 
-    owner(overrides?: CallOverrides): Promise<[string]>;
-
     processAction(
       assetId: BytesLike,
       collector: string,
       data: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     registerCollectModule(
@@ -267,19 +222,10 @@ export interface CollectAction extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
   };
 
   ACTION_CONFIG(overrides?: CallOverrides): Promise<string>;
@@ -294,14 +240,14 @@ export interface CollectAction extends BaseContract {
     overrides?: CallOverrides
   ): Promise<[string, BigNumber]>;
 
-  getDataverseTreasuryData(
+  getProtocolTreasuryData(
     overrides?: CallOverrides
   ): Promise<[string, BigNumber]>;
 
   initializeAction(
     assetId: BytesLike,
     data: BytesLike,
-    overrides?: Overrides & { from?: string }
+    overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   isCollectModuleRegistered(
@@ -317,13 +263,11 @@ export interface CollectAction extends BaseContract {
 
   monetizer(overrides?: CallOverrides): Promise<string>;
 
-  owner(overrides?: CallOverrides): Promise<string>;
-
   processAction(
     assetId: BytesLike,
     collector: string,
     data: BytesLike,
-    overrides?: Overrides & { from?: string }
+    overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   registerCollectModule(
@@ -331,19 +275,10 @@ export interface CollectAction extends BaseContract {
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
-  renounceOwnership(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
   supportsInterface(
     interfaceId: BytesLike,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
 
   callStatic: {
     ACTION_CONFIG(overrides?: CallOverrides): Promise<string>;
@@ -358,7 +293,7 @@ export interface CollectAction extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, BigNumber]>;
 
-    getDataverseTreasuryData(
+    getProtocolTreasuryData(
       overrides?: CallOverrides
     ): Promise<[string, BigNumber]>;
 
@@ -381,8 +316,6 @@ export interface CollectAction extends BaseContract {
 
     monetizer(overrides?: CallOverrides): Promise<string>;
 
-    owner(overrides?: CallOverrides): Promise<string>;
-
     processAction(
       assetId: BytesLike,
       collector: string,
@@ -395,29 +328,13 @@ export interface CollectAction extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
-  filters: {
-    "OwnershipTransferred(address,address)"(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): OwnershipTransferredEventFilter;
-    OwnershipTransferred(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): OwnershipTransferredEventFilter;
-  };
+  filters: {};
 
   estimateGas: {
     ACTION_CONFIG(overrides?: CallOverrides): Promise<BigNumber>;
@@ -432,12 +349,12 @@ export interface CollectAction extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getDataverseTreasuryData(overrides?: CallOverrides): Promise<BigNumber>;
+    getProtocolTreasuryData(overrides?: CallOverrides): Promise<BigNumber>;
 
     initializeAction(
       assetId: BytesLike,
       data: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
 
     isCollectModuleRegistered(
@@ -453,13 +370,11 @@ export interface CollectAction extends BaseContract {
 
     monetizer(overrides?: CallOverrides): Promise<BigNumber>;
 
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
-
     processAction(
       assetId: BytesLike,
       collector: string,
       data: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
 
     registerCollectModule(
@@ -467,18 +382,9 @@ export interface CollectAction extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
   };
 
@@ -495,14 +401,14 @@ export interface CollectAction extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getDataverseTreasuryData(
+    getProtocolTreasuryData(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     initializeAction(
       assetId: BytesLike,
       data: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     isCollectModuleRegistered(
@@ -518,13 +424,11 @@ export interface CollectAction extends BaseContract {
 
     monetizer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     processAction(
       assetId: BytesLike,
       collector: string,
       data: BytesLike,
-      overrides?: Overrides & { from?: string }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     registerCollectModule(
@@ -532,18 +436,9 @@ export interface CollectAction extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
     supportsInterface(
       interfaceId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
   };
 }

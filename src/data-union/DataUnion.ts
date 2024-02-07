@@ -100,8 +100,7 @@ export class DataUnion extends DataAssetBase {
       params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
 
-    const data: string = abiCoder.encode(["string"], [this.fileOrFolderId]);
-
+    const data: string = abiCoder.encode(["string", "string"], [resourceId, this.fileOrFolderId]);
     const actions: string[] = [];
     const actionInitDatas: string[] = [];
 
@@ -148,11 +147,9 @@ export class DataUnion extends DataAssetBase {
     }
 
     const publishParams: PublishParams = {
-      resourceId,
       data,
       actions,
-      actionInitDatas,
-      images: []
+      actionInitDatas
     };
 
     return await this.createAssetHandler(publishParams, withSig);
