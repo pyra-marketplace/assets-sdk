@@ -70,7 +70,7 @@ export class DataToken extends DataAssetBase {
       );
     }
 
-    await this.connector.provider?.request({
+    await this.connector.getProvider().request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
@@ -319,7 +319,7 @@ export class DataToken extends DataAssetBase {
       );
     }
 
-    await this.connector.provider?.request({
+    await this.connector.getProvider().request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
@@ -381,7 +381,7 @@ export class DataToken extends DataAssetBase {
       throw new Error("Signer not found, please collect wallet");
     }
 
-    await this.connector.provider?.request({
+    await this.connector.getProvider().request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
