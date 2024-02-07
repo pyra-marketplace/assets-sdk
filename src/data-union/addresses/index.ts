@@ -2,11 +2,11 @@ import { ChainId } from "../../types";
 
 export const DEPLOYED_ADDRESSES = {
   [ChainId.PolygonMumbai]: {
-    DataUnion: "0xf2d039A7E210DF6885f76EC3bAB8a79773AbaeD0",
-    CollectAction: "0x96eDBC4728aBad818baF72FB13C280C5CBA76188",
-    FeeCollectModule: "0x854C2c7B4bF9dFcC7700B61FBBED4eCFB1a35a52",
-    SubscribeAction: "0xB60e1bA92d9B4ED493f6353fFE4Fabd1D622f400",
-    MonthlySubscribeModule: "0xb4421374638493f92607E3167859f6ec5A696952",
+    DataUnion: "0x6fcb6823a013C2D563C834E10455aA81169a7226",
+    CollectAction: "0x6BBF2eD1efF82bf0910B0DEa1096c79aD348B3eA",
+    FeeCollectModule: "0xb0cd483c4de8Ddff6D1e7d6E44C0B7F091CE3575",
+    SubscribeAction: "0xe47c5F5e81b6D8d6efFb1279c67933085Afb5dEB",
+    MonthlySubscribeModule: "0x661E1Fe30cb1146046667B439FA77495254Fde5d",
 
     WMATIC: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
     WETH: "0x3c68ce8504087f89c640d02d133646d98e64ddd9",

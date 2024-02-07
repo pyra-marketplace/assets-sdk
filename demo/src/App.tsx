@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Connector,
   SYSTEM_CALL,
@@ -34,7 +34,7 @@ let unionFolderId: string;
 let indexFileId: string;
 
 function App() {
-  const [pkh, setPkh] = useState("");
+  const [pkh, setPkh] = React.useState("");
 
   const createCapability = async () => {
     const connectWalletRes = await connector.connectWallet({
@@ -244,7 +244,7 @@ function App() {
     const { startAt, endAt } = await dataUnion.subscribe({
       collectionId,
       year: 2024,
-      month: 1,
+      month: 2,
       count: 2,
       withSig
     });

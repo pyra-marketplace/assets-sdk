@@ -9,8 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@meteor-web3/connector": "^1.0.0",
-    "@arcstone/arcstone-sdk": "workspace:*",
+    "@meteor-web3/connector": "^1.0.19",
     "ethers": "^5.7.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
