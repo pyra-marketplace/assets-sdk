@@ -25,8 +25,6 @@ const postVersion = "0.0.1";
 
 let address: string;
 
-let unionFolderId: string;
-
 let indexFileId: string;
 
 function App() {
@@ -80,7 +78,7 @@ function App() {
         collectAction: {
           currency: TOKEN_DEPLOYED_ADDRESSES[chainId].WMATIC,
           amount: 1000
-        },
+        }
       },
       // timestamp: Math.floor(Date.parse(date) / 1000) + 1 * 60 * 60 * 24,
       withSig
@@ -235,7 +233,7 @@ function App() {
       <br />
       <br />
       <button onClick={() => loadCreatedTokenFiles()}>
-        loadCollectedTokenFiles
+        loadCreatedTokenFiles
       </button>
       <button onClick={() => loadCollectedTokenFiles()}>
         loadCollectedTokenFiles
