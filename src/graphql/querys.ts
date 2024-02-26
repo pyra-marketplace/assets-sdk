@@ -1,87 +1,54 @@
 import { gql, GraphQLClient } from "graphql-request";
+import axios from "axios";
 import APIJson from "../api.json";
 
 const client = new GraphQLClient(APIJson.DataverseScan);
 
+const instance = axios.create({
+  baseURL: "http://127.0.0.1:8576/api/v1/80001",
+  timeout: 60_000
+});
+
+instance.interceptors.request.use(
+  function (config) {
+    return config;
+  },
+  function (error) {
+    return Promise.reject(error);
+  }
+);
+
+instance.interceptors.response.use(
+  function (response) {
+    return response.data;
+  },
+  function (error) {
+    return Promise.reject(error);
+  }
+);
+
 export async function loadDataTokensCreatedBy(
   dataTokenCreator: string
 ): Promise<any> {
-  const query = gql`
-    query Query($owner: String) {
-      dataTokenList(owner: $owner) {
-        address
-        collect_info {
-          collect_nft_address
-          sold_list {
-            owner
-            token_id
-          }
-          sold_num
-          total
-          price {
-            amount
-            currency
-            currency_addr
-          }
-        }
-        content_uri
-        owner
-        source
-        created_at
-        end_timestamp
-        chain_id
-      }
+  const res = await instance({
+    url: "/data-token",
+    params: {
+      publisher: dataTokenCreator
     }
-  `;
-
-  const info: any = await client.request(query, {
-    owner: dataTokenCreator
   });
-  return info.dataTokenList;
+  return res;
 }
 
 export async function loadDataTokensCollectedBy(
   collector: string
 ): Promise<any> {
-  const query = gql`
-    query Query($collector: String) {
-      dataTokenCollectorList(collector: $collector) {
-        dataToken {
-          address
-          collect_info {
-            collect_nft_address
-            sold_list {
-              owner
-              token_id
-            }
-            sold_num
-            total
-            price {
-              amount
-              currency
-              currency_addr
-            }
-          }
-          content_uri
-          owner
-          source
-          created_at
-          end_timestamp
-          chain_id
-        }
-      }
+  const res = await instance({
+    url: "/data-token",
+    params: {
+      collector
     }
-  `;
-
-  const info: any = await client.request(query, {
-    collector: collector
   });
-
-  const result: any = [];
-  info.dataTokenCollectorList.forEach((item: any) => {
-    result.push(item.dataToken);
-  });
-  return result;
+  return res;
 }
 
 export async function loadDataUnionsPublishedBy(
@@ -439,38 +406,13 @@ export async function loadDataUnionSubscribers(
 }
 
 export async function loadDataToken(dataTokenId: string): Promise<any> {
-  const query = gql`
-    query Query($address: String) {
-      dataToken(address: $address) {
-        address
-        collect_info {
-          collect_nft_address
-          sold_list {
-            owner
-            token_id
-          }
-          sold_num
-          total
-          price {
-            amount
-            currency
-            currency_addr
-          }
-        }
-        content_uri
-        owner
-        source
-        created_at
-        chain_id
-        end_timestamp
-      }
+  const res = await instance({
+    url: "/data-token",
+    params: {
+      asset_id: dataTokenId
     }
-  `;
-
-  const info: any = await client.request(query, {
-    address: dataTokenId
   });
-  return info.dataToken;
+  return res;
 }
 
 export async function loadDataUnion(dataUnionId: string): Promise<any> {
