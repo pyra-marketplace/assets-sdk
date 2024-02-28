@@ -13,7 +13,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -101,8 +105,40 @@ export interface FeeCollectModuleInterface extends utils.Interface {
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "CollectModuleCollected(bytes32,address)": EventFragment;
+    "CollectModuleInitialized(bytes32,uint256,address,uint256)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "CollectModuleCollected"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "CollectModuleInitialized"): EventFragment;
 }
+
+export interface CollectModuleCollectedEventObject {
+  assetId: string;
+  collector: string;
+}
+export type CollectModuleCollectedEvent = TypedEvent<
+  [string, string],
+  CollectModuleCollectedEventObject
+>;
+
+export type CollectModuleCollectedEventFilter =
+  TypedEventFilter<CollectModuleCollectedEvent>;
+
+export interface CollectModuleInitializedEventObject {
+  assetId: string;
+  totalSupply: BigNumber;
+  currency: string;
+  amount: BigNumber;
+}
+export type CollectModuleInitializedEvent = TypedEvent<
+  [string, BigNumber, string, BigNumber],
+  CollectModuleInitializedEventObject
+>;
+
+export type CollectModuleInitializedEventFilter =
+  TypedEventFilter<CollectModuleInitializedEvent>;
 
 export interface FeeCollectModule extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -209,7 +245,29 @@ export interface FeeCollectModule extends BaseContract {
     ): Promise<boolean>;
   };
 
-  filters: {};
+  filters: {
+    "CollectModuleCollected(bytes32,address)"(
+      assetId?: BytesLike | null,
+      collector?: string | null
+    ): CollectModuleCollectedEventFilter;
+    CollectModuleCollected(
+      assetId?: BytesLike | null,
+      collector?: string | null
+    ): CollectModuleCollectedEventFilter;
+
+    "CollectModuleInitialized(bytes32,uint256,address,uint256)"(
+      assetId?: BytesLike | null,
+      totalSupply?: null,
+      currency?: null,
+      amount?: null
+    ): CollectModuleInitializedEventFilter;
+    CollectModuleInitialized(
+      assetId?: BytesLike | null,
+      totalSupply?: null,
+      currency?: null,
+      amount?: null
+    ): CollectModuleInitializedEventFilter;
+  };
 
   estimateGas: {
     COLLECT_ACTION(overrides?: CallOverrides): Promise<BigNumber>;

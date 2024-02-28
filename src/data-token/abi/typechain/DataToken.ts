@@ -375,7 +375,7 @@ export interface DataTokenInterface extends utils.Interface {
     "ApprovalForAll(address,address,bool)": EventFragment;
     "AssetActed(bytes32,address,address[],bytes[],bytes[])": EventFragment;
     "AssetActionsAdded(bytes32,address[],bytes[])": EventFragment;
-    "AssetPublished(bytes32,address,uint256,bytes,address[],bytes[])": EventFragment;
+    "AssetPublished(bytes32,address,uint256,uint256,bytes,address[],bytes[])": EventFragment;
     "EIP712DomainChanged()": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
@@ -444,12 +444,13 @@ export interface AssetPublishedEventObject {
   assetId: string;
   publisher: string;
   publicationId: BigNumber;
+  publishAt: BigNumber;
   data: string;
   actions: string[];
   actionInitDatas: string[];
 }
 export type AssetPublishedEvent = TypedEvent<
-  [string, string, BigNumber, string, string[], string[]],
+  [string, string, BigNumber, BigNumber, string, string[], string[]],
   AssetPublishedEventObject
 >;
 
@@ -978,10 +979,11 @@ export interface DataToken extends BaseContract {
       actionInitDatas?: null
     ): AssetActionsAddedEventFilter;
 
-    "AssetPublished(bytes32,address,uint256,bytes,address[],bytes[])"(
+    "AssetPublished(bytes32,address,uint256,uint256,bytes,address[],bytes[])"(
       assetId?: BytesLike | null,
       publisher?: string | null,
       publicationId?: BigNumberish | null,
+      publishAt?: null,
       data?: null,
       actions?: null,
       actionInitDatas?: null
@@ -990,6 +992,7 @@ export interface DataToken extends BaseContract {
       assetId?: BytesLike | null,
       publisher?: string | null,
       publicationId?: BigNumberish | null,
+      publishAt?: null,
       data?: null,
       actions?: null,
       actionInitDatas?: null

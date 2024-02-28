@@ -13,7 +13,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -145,8 +149,24 @@ export interface CollectActionInterface extends utils.Interface {
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "CollectNFTDeployed(bytes32,address)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "CollectNFTDeployed"): EventFragment;
 }
+
+export interface CollectNFTDeployedEventObject {
+  assetId: string;
+  collectNFT: string;
+}
+export type CollectNFTDeployedEvent = TypedEvent<
+  [string, string],
+  CollectNFTDeployedEventObject
+>;
+
+export type CollectNFTDeployedEventFilter =
+  TypedEventFilter<CollectNFTDeployedEvent>;
 
 export interface CollectAction extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -334,7 +354,16 @@ export interface CollectAction extends BaseContract {
     ): Promise<boolean>;
   };
 
-  filters: {};
+  filters: {
+    "CollectNFTDeployed(bytes32,address)"(
+      assetId?: BytesLike | null,
+      collectNFT?: null
+    ): CollectNFTDeployedEventFilter;
+    CollectNFTDeployed(
+      assetId?: BytesLike | null,
+      collectNFT?: null
+    ): CollectNFTDeployedEventFilter;
+  };
 
   estimateGas: {
     ACTION_CONFIG(overrides?: CallOverrides): Promise<BigNumber>;

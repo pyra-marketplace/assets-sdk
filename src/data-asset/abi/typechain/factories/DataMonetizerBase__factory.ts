@@ -272,6 +272,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "uint256",
+        name: "actAt",
+        type: "uint256",
+      },
+      {
+        indexed: false,
         internalType: "address[]",
         name: "actions",
         type: "address[]",
@@ -336,6 +342,12 @@ const _abi = [
         indexed: true,
         internalType: "uint256",
         name: "publicationId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "publishAt",
         type: "uint256",
       },
       {

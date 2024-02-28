@@ -339,9 +339,9 @@ export interface DataMonetizerBaseInterface extends utils.Interface {
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
-    "AssetActed(bytes32,address,address[],bytes[],bytes[])": EventFragment;
+    "AssetActed(bytes32,address,uint256,address[],bytes[],bytes[])": EventFragment;
     "AssetActionsAdded(bytes32,address[],bytes[])": EventFragment;
-    "AssetPublished(bytes32,address,uint256,bytes,address[],bytes[])": EventFragment;
+    "AssetPublished(bytes32,address,uint256,uint256,bytes,address[],bytes[])": EventFragment;
     "EIP712DomainChanged()": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
@@ -382,12 +382,13 @@ export type ApprovalForAllEventFilter = TypedEventFilter<ApprovalForAllEvent>;
 export interface AssetActedEventObject {
   assetId: string;
   actor: string;
+  actAt: BigNumber;
   actions: string[];
   actionProcessDatas: string[];
   actionReturnDatas: string[];
 }
 export type AssetActedEvent = TypedEvent<
-  [string, string, string[], string[], string[]],
+  [string, string, BigNumber, string[], string[], string[]],
   AssetActedEventObject
 >;
 
@@ -410,12 +411,13 @@ export interface AssetPublishedEventObject {
   assetId: string;
   publisher: string;
   publicationId: BigNumber;
+  publishAt: BigNumber;
   data: string;
   actions: string[];
   actionInitDatas: string[];
 }
 export type AssetPublishedEvent = TypedEvent<
-  [string, string, BigNumber, string, string[], string[]],
+  [string, string, BigNumber, BigNumber, string, string[], string[]],
   AssetPublishedEventObject
 >;
 
@@ -903,9 +905,10 @@ export interface DataMonetizerBase extends BaseContract {
       approved?: null
     ): ApprovalForAllEventFilter;
 
-    "AssetActed(bytes32,address,address[],bytes[],bytes[])"(
+    "AssetActed(bytes32,address,uint256,address[],bytes[],bytes[])"(
       assetId?: BytesLike | null,
       actor?: string | null,
+      actAt?: null,
       actions?: null,
       actionProcessDatas?: null,
       actionReturnDatas?: null
@@ -913,6 +916,7 @@ export interface DataMonetizerBase extends BaseContract {
     AssetActed(
       assetId?: BytesLike | null,
       actor?: string | null,
+      actAt?: null,
       actions?: null,
       actionProcessDatas?: null,
       actionReturnDatas?: null
@@ -929,10 +933,11 @@ export interface DataMonetizerBase extends BaseContract {
       actionInitDatas?: null
     ): AssetActionsAddedEventFilter;
 
-    "AssetPublished(bytes32,address,uint256,bytes,address[],bytes[])"(
+    "AssetPublished(bytes32,address,uint256,uint256,bytes,address[],bytes[])"(
       assetId?: BytesLike | null,
       publisher?: string | null,
       publicationId?: BigNumberish | null,
+      publishAt?: null,
       data?: null,
       actions?: null,
       actionInitDatas?: null
@@ -941,6 +946,7 @@ export interface DataMonetizerBase extends BaseContract {
       assetId?: BytesLike | null,
       publisher?: string | null,
       publicationId?: BigNumberish | null,
+      publishAt?: null,
       data?: null,
       actions?: null,
       actionInitDatas?: null
