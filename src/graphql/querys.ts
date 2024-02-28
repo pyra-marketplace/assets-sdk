@@ -5,7 +5,7 @@ import APIJson from "../api.json";
 const client = new GraphQLClient(APIJson.DataverseScan);
 
 const instance = axios.create({
-  baseURL: "http://127.0.0.1:8576/api/v1/80001",
+  baseURL: "http://127.0.0.1:8576/api/v1/*",
   timeout: 60_000
 });
 
@@ -206,41 +206,16 @@ export async function loadDataUnionsCollectedBy(
 export async function loadDataTokenCollectors(
   dataTokenId: string
 ): Promise<any> {
-  const query = gql`
-    query Query($dataTokenId: String) {
-      dataTokenCollectorList(dataTokenId: $dataTokenId) {
-        collector
-        dataToken {
-          address
-          collect_info {
-            collect_nft_address
-            sold_list {
-              owner
-              token_id
-            }
-            sold_num
-            total
-            price {
-              amount
-              currency
-              currency_addr
-            }
-          }
-          content_uri
-          owner
-          source
-        }
-        collect_nft
-        collect_nft_token_id
-        created_at
-      }
-    }
-  `;
+  // GetDataTokenCollectorController
 
-  const info: any = await client.request(query, {
-    dataTokenId: dataTokenId
+  const res = await instance({
+    url: "/data-token/collector",
+    params: {
+      asset_id: dataTokenId
+    }
   });
-  return info.dataTokenCollectorList;
+
+  return res;
 }
 
 export async function loadDataUnionSubscriptionsBy(
@@ -514,38 +489,13 @@ export async function isDataUnionCollectedBy(
 export async function loadDataTokens(
   dataTokenIds: Array<string>
 ): Promise<any> {
-  const query = gql`
-    query Query($dataTokenIds: [String!]) {
-      dataTokenList(dataTokenIds: $dataTokenIds) {
-        address
-        collect_info {
-          collect_nft_address
-          sold_list {
-            owner
-            token_id
-          }
-          sold_num
-          total
-          price {
-            amount
-            currency
-            currency_addr
-          }
-        }
-        content_uri
-        owner
-        source
-        created_at
-        chain_id
-        end_timestamp
-      }
+  const res = await instance({
+    url: "/data-token",
+    params: {
+      asset_ids: dataTokenIds
     }
-  `;
-
-  const info: any = await client.request(query, {
-    dataTokenIds: dataTokenIds
   });
-  return info.dataTokenList;
+  return res;
 }
 
 export async function loadDataUnions(
