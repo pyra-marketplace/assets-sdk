@@ -159,65 +159,34 @@ function App() {
     console.log(res);
   };
 
-  // const loadDatatokens = async () => {
-  //   const dataTokenIds = [
-  //     "0xd5a9fA9B780a92091B789e57B794c1dd86F3D134",
-  //     "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0",
-  //     "0xee81E5318d2CBEF8d08080dA6a931d9f502208A9"
-  //   ];
+  const loadDataTokens = async () => {
+    const dataTokenIds = [
+      "0xd5a9fA9B780a92091B789e57B794c1dd86F3D134",
+      "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0",
+      "0xee81E5318d2CBEF8d08080dA6a931d9f502208A9"
+    ];
 
-  //   const res = await loadDataTokens(dataTokenIds);
+    const res = await DataToken.loadDataTokens(dataTokenIds);
 
-  //   console.log(res);
-  // };
+    console.log(res);
+  };
 
-  // const isDatatokenCollectedBy = async () => {
-  //   const dataTokenId = "0x50eD54ae8700f23E24cB6316ddE8869978AB4d5f";
-  //   const res = await connector.runOS({
-  //     method: SYSTEM_CALL.isDatatokenCollectedBy,
-  //     params: { dataTokenId, collector: address }
-  //   });
-  //   await isDatatokenCollectedBy({ dataTokenId, collector: address });
-  //   console.log(res);
-  // };
+  const loadDataTokenCollectors = async () => {
+    const dataTokenId = "0xd5a9fA9B780a92091B789e57B794c1dd86F3D134";
 
-  // const loadDataUnions = async () => {
-  //   const res = await connector.runOS({
-  //     method: SYSTEM_CALL.loadDataUnions,
-  //     params: [
-  //       "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b"
-  //     ]
-  //   });
-  //   console.log(res);
-  // };
+    const res = await DataToken.loadDataTokenCollectors(dataTokenId);
 
-  // const isDataUnionCollectedBy = async () => {
-  //   const dataUnionId =
-  //     "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b";
-  //   const res = await connector.runOS({
-  //     method: SYSTEM_CALL.isDataUnionCollectedBy,
-  //     params: {
-  //       dataUnionId,
-  //       collector: address
-  //     }
-  //   });
-  //   console.log(res);
-  // };
+    console.log(res);
+  };
 
-  // const isDataUnionSubscribedBy = async () => {
-  //   const dataUnionId =
-  //     "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b";
-  //   const res = await connector.runOS({
-  //     method: SYSTEM_CALL.isDataUnionSubscribedBy,
-  //     params: {
-  //       dataUnionId,
-  //       subscriber: address,
-  //       timestamp: 0
-  //     }
-  //   });
-  //   console.log(res);
-  // };
-
+  const isDataTokenCollectedBy = async () => {
+    const dataTokenId = "0x50eD54ae8700f23E24cB6316ddE8869978AB4d5f";
+    const res = await DataToken.isDataTokenCollectedBy({
+      dataTokenId,
+      collector: address
+    });
+    console.log(res);
+  };
   /*** read operation */
 
   return (
@@ -238,14 +207,9 @@ function App() {
       <button onClick={() => loadCollectedTokenFiles()}>
         loadCollectedTokenFiles
       </button>
-      {/* <button onClick={loadDatatokens}>loadDatatokens</button>
-      <button onClick={isDatatokenCollectedBy}>isDatatokenCollectedBy</button>
-      <button onClick={isDatatokenSharedBy}>isDatatokenSharedBy</button>
-      <br />
-      <br />
-      <button onClick={loadDataUnions}>loadDataUnions</button>
-      <button onClick={isDataUnionCollectedBy}>isDataUnionCollectedBy</button>
-      <button onClick={isDataUnionSubscribedBy}>isDataUnionSubscribedBy</button> */}
+      <button onClick={loadDataTokens}>loadDataTokens</button>
+      <button onClick={loadDataTokenCollectors}>loadDataTokenCollectors</button>
+      <button onClick={isDataTokenCollectedBy}>isDataTokenCollectedBy</button>
     </div>
   );
 }

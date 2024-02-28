@@ -1,12 +1,11 @@
 import { BigNumber, BigNumberish, ethers } from "ethers";
 import { Connector, SYSTEM_CALL, FileContent } from "@meteor-web3/connector";
 import {
-  //   isDataTokenCollectedBy,
+  isDataTokenCollectedBy,
   loadDataTokensCollectedBy,
-  loadDataTokensCreatedBy
-  //   loadDataTokenCollectors,
-  //   loadDataToken,
-  //   loadDataTokens,
+  loadDataTokensCreatedBy,
+  loadDataTokenCollectors,
+  loadDataTokens
 } from "../graphql";
 import { abiCoder } from "../utils/abi-coder";
 import { DataAssetBase } from "../data-asset/DataAssetBase";
@@ -449,6 +448,27 @@ export class DataToken extends DataAssetBase {
       params: { fileIds }
     });
 
+    return res;
+  }
+
+  public static async loadDataTokens(dataTokenIds: Array<string>) {
+    const res = await loadDataTokens(dataTokenIds);
+    return res;
+  }
+
+  public static async loadDataTokenCollectors(dataTokenId: string) {
+    const res = await loadDataTokenCollectors(dataTokenId);
+    return res;
+  }
+
+  public static async isDataTokenCollectedBy({
+    dataTokenId,
+    collector
+  }: {
+    dataTokenId: string;
+    collector: string;
+  }) {
+    const res = await isDataTokenCollectedBy(dataTokenId, collector);
     return res;
   }
 }
