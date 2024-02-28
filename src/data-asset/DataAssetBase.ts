@@ -343,9 +343,6 @@ export class DataAssetBase {
     publishParams: PublishParams,
     withSig: boolean = false
   ) {
-    if (!this.fileOrFolderId) {
-      throw new Error("File or folder Id cannot be empty");
-    }
     if (!this.assetContract) {
       throw new Error(
         "AssetContract cannot be empty, please pass in through constructor"
