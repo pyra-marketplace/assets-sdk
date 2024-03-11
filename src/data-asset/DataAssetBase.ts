@@ -168,7 +168,11 @@ export class DataAssetBase {
     (acl as LinkedAssetConditionInput).functionParams = [
       linkedAsset.assetId,
       ":userAddress",
-      ...(attached ? Object.values(attached).map((item) => String(item)) : [])
+      ...(attached
+        ? (acl as LinkedAssetConditionInput).functionAbi.inputs
+            .slice(2)
+            .map((_item) => attached[_item.name])
+        : [])
     ];
     (acl as LinkedAssetConditionInput).chain = getChainNameFromChainId(
       linkedAsset.chainId

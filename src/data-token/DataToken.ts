@@ -75,7 +75,10 @@ export class DataToken extends DataAssetBase {
       params: [{ chainId: `0x${this.chainId.toString(16)}` }]
     });
 
-    const data: string = abiCoder.encode(["string", "string"], [resourceId, this.fileOrFolderId]);
+    const data: string = abiCoder.encode(
+      ["string", "string"],
+      [resourceId, this.fileOrFolderId]
+    );
     const actions: string[] = [];
     const actionInitDatas: string[] = [];
 
