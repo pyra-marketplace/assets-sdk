@@ -171,7 +171,7 @@ export class DataAssetBase {
       ...(attached
         ? (acl as LinkedAssetConditionInput).functionAbi.inputs
             .slice(2)
-            .map((_item) => attached[_item.name])
+            .map((_item) => String(attached[_item.name]))
         : [])
     ];
     (acl as LinkedAssetConditionInput).chain = getChainNameFromChainId(
