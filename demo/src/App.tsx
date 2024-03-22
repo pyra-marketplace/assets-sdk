@@ -2,7 +2,7 @@ import React from "react";
 import {
   Connector,
   SYSTEM_CALL,
-  MeteorWalletProvider
+  MeteorWebProvider
 } from "@meteor-web3/connector";
 import {
   DEPLOYED_ADDRESSES as TOKEN_DEPLOYED_ADDRESSES,
@@ -12,12 +12,12 @@ import { DataAssetParser } from "../../src/data-asset/DataAssetParser";
 import "./App.scss";
 import { ChainId } from "../../src/types";
 
-const connector = new Connector(new MeteorWalletProvider());
+const connector = new Connector(new MeteorWebProvider());
 
-const appId = "2a4af629-5648-4d37-991f-920d0482dfe9";
+const appId = "9aaae63f-3445-47d5-8785-c23dd16e4965";
 
 const postModelId =
-  "kjzl6hvfrbw6c8ythi7im2k8uxwqa1ijzwm1odotq1dsmkw8520zde4bldreom9";
+  "kjzl6hvfrbw6c8h0oiiv2ccikb2thxsu98sy0ydi6oshj6sjuz9dga94463anvf";
 
 const chainId = ChainId.PolygonMumbai;
 
@@ -90,7 +90,6 @@ function App() {
   const collectFile = async (withSig: boolean = false) => {
     const dataAssetParser = new DataAssetParser(connector);
     const dataAsset = await dataAssetParser.parse(indexFileId);
-
     const dataToken = new DataToken({
       chainId: dataAsset.chainId,
       fileId: dataAsset.fileOrFolderId,
@@ -101,7 +100,9 @@ function App() {
     const collectionId = await dataToken!.collect(withSig);
     console.log("DataToken collected, collectionId:", collectionId.toNumber());
   };
+  /*** wirte operation */
 
+  /*** read operation */
   const isCollected = async () => {
     const dataAssetParser = new DataAssetParser(connector);
     const dataAsset = await dataAssetParser.parse(indexFileId);
@@ -140,9 +141,7 @@ function App() {
       console.error(error);
     }
   };
-  /*** wirte operation */
 
-  /*** read operation */
   const loadCreatedTokenFiles = async () => {
     const dataToken = new DataToken({
       connector
@@ -159,64 +158,16 @@ function App() {
     console.log(res);
   };
 
-  // const loadDatatokens = async () => {
-  //   const dataTokenIds = [
-  //     "0xd5a9fA9B780a92091B789e57B794c1dd86F3D134",
-  //     "0xc4bc152f88b23c5cBD26d7447706C7A55bB953c0",
-  //     "0xee81E5318d2CBEF8d08080dA6a931d9f502208A9"
-  //   ];
+  const loadDatatokens = async () => {
+    const dataTokenIds = [
+      "0x197da5229824a7f9a485aae50487771dcd8a20770951d0a188a36c152635b8fb",
+      "0x3d1c168cb7f98f242946571c24c50f95b95d0b300495c817cf68aba4f07f5113"
+    ];
 
-  //   const res = await loadDataTokens(dataTokenIds);
+    const res = await DataToken.loadDataTokens(dataTokenIds);
 
-  //   console.log(res);
-  // };
-
-  // const isDatatokenCollectedBy = async () => {
-  //   const dataTokenId = "0x50eD54ae8700f23E24cB6316ddE8869978AB4d5f";
-  //   const res = await connector.runOS({
-  //     method: SYSTEM_CALL.isDatatokenCollectedBy,
-  //     params: { dataTokenId, collector: address }
-  //   });
-  //   await isDatatokenCollectedBy({ dataTokenId, collector: address });
-  //   console.log(res);
-  // };
-
-  // const loadDataUnions = async () => {
-  //   const res = await connector.runOS({
-  //     method: SYSTEM_CALL.loadDataUnions,
-  //     params: [
-  //       "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b"
-  //     ]
-  //   });
-  //   console.log(res);
-  // };
-
-  // const isDataUnionCollectedBy = async () => {
-  //   const dataUnionId =
-  //     "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b";
-  //   const res = await connector.runOS({
-  //     method: SYSTEM_CALL.isDataUnionCollectedBy,
-  //     params: {
-  //       dataUnionId,
-  //       collector: address
-  //     }
-  //   });
-  //   console.log(res);
-  // };
-
-  // const isDataUnionSubscribedBy = async () => {
-  //   const dataUnionId =
-  //     "0x6eeef1ffc904e0d3f20e6039dcf742cc1e9e2909e40f6a4aa5941f8426be086b";
-  //   const res = await connector.runOS({
-  //     method: SYSTEM_CALL.isDataUnionSubscribedBy,
-  //     params: {
-  //       dataUnionId,
-  //       subscriber: address,
-  //       timestamp: 0
-  //     }
-  //   });
-  //   console.log(res);
-  // };
+    console.log(res);
+  };
 
   /*** read operation */
 
@@ -227,25 +178,18 @@ function App() {
       <hr />
       <button onClick={() => createTokenFile()}>createTokenFile</button>
       <button onClick={() => collectFile()}>collectFile</button>
+      <br />
+      <br />
       <button onClick={() => isCollected()}>isCollected</button>
       <button onClick={() => isFileUnlocked()}>isFileUnlocked</button>
       <button onClick={() => unlockFile()}>unlockFile</button>
-      <br />
-      <br />
       <button onClick={() => loadCreatedTokenFiles()}>
         loadCreatedTokenFiles
       </button>
       <button onClick={() => loadCollectedTokenFiles()}>
         loadCollectedTokenFiles
       </button>
-      {/* <button onClick={loadDatatokens}>loadDatatokens</button>
-      <button onClick={isDatatokenCollectedBy}>isDatatokenCollectedBy</button>
-      <button onClick={isDatatokenSharedBy}>isDatatokenSharedBy</button>
-      <br />
-      <br />
-      <button onClick={loadDataUnions}>loadDataUnions</button>
-      <button onClick={isDataUnionCollectedBy}>isDataUnionCollectedBy</button>
-      <button onClick={isDataUnionSubscribedBy}>isDataUnionSubscribedBy</button> */}
+      <button onClick={loadDatatokens}>loadDatatokens</button>
     </div>
   );
 }

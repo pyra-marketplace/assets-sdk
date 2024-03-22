@@ -40,7 +40,7 @@
         "prepare": "husky install"
     },
     "dependencies": {
-        "@meteor-web3/connector": "^1.0.24",
+        "@meteor-web3/connector": "^1.0.36",
         "@lit-protocol/constants": "^2.2.61",
         "axios": "^1.5.1",
         "ethers": "^5.7.2",
