@@ -475,9 +475,9 @@ export class DataAssetBase {
       (e) => e.event === "AssetActed"
     );
     if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
-      throw new Error("Filter Published event failed");
+      throw new Error("Filter AssetActed event failed");
     }
-    const actionReturnDatas: BytesLike[] = targetEvents[0].args[4];
+    const actionReturnDatas: BytesLike[] = targetEvents[0].args[5];
     return actionReturnDatas;
   }
 
