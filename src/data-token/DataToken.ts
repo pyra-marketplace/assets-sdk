@@ -492,6 +492,19 @@ export class DataToken extends DataAssetBase {
     return dataTokens;
   }
 
+  static async loadDataTokenCollectors(dataTokenId: string) {
+    const dataTokens = (
+      await http.request({
+        url: `*/data-token/collector`,
+        method: "get",
+        params: {
+          asset_id: dataTokenId
+        }
+      })
+    ).data;
+    return dataTokens;
+  }
+
   static async loadDataTokensCollectedBy(collector: string) {
     const dataTokens = (
       await http.request({

@@ -161,10 +161,20 @@ function App() {
   const loadDatatokens = async () => {
     const dataTokenIds = [
       "0x197da5229824a7f9a485aae50487771dcd8a20770951d0a188a36c152635b8fb",
-      "0x3d1c168cb7f98f242946571c24c50f95b95d0b300495c817cf68aba4f07f5113"
+      "0x3d1c168cb7f98f242946571c24c50f95b95d0b300495c817cf68aba4f07f5113",
+      "0x3b3d3cf47e860c70a6d5bad343388bce165eae7d9a3ba861aa30bbdcb1908acd"
     ];
 
     const res = await DataToken.loadDataTokens(dataTokenIds);
+
+    console.log(res);
+  };
+
+  const loadDataTokenCollectors = async () => {
+    const dataTokenId =
+      "0x3b3d3cf47e860c70a6d5bad343388bce165eae7d9a3ba861aa30bbdcb1908acd";
+
+    const res = await DataToken.loadDataTokenCollectors(dataTokenId);
 
     console.log(res);
   };
@@ -190,6 +200,7 @@ function App() {
         loadCollectedTokenFiles
       </button>
       <button onClick={loadDatatokens}>loadDatatokens</button>
+      <button onClick={loadDataTokenCollectors}>loadDataTokenCollectors</button>
     </div>
   );
 }
