@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import {
   Attached,
   DataAsset,
@@ -58,14 +59,16 @@ export class DataAssetBase {
     assetContract?: string;
     assetId?: string;
   }) {
-    const provider = connector.getProvider();
-    const ethersProvider = new ethers.providers.Web3Provider(provider, "any");
-    this.signer = ethersProvider.getSigner();
     this.chainId = chainId;
     this.connector = connector;
     this.assetContract = assetContract;
     this.fileOrFolderId = fileOrFolderId;
     this.assetId = assetId;
+    try {
+      const provider = connector.getProvider();
+      const ethersProvider = new ethers.providers.Web3Provider(provider, "any");
+      this.signer = ethersProvider.getSigner();
+    } catch (error) {}
   }
 
   // public async createAssetHandler(method: Function): Promise<string> {
