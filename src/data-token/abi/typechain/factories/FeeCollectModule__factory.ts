@@ -80,56 +80,6 @@ const _abi = [
     type: "error",
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "assetId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "collector",
-        type: "address",
-      },
-    ],
-    name: "CollectModuleCollected",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "assetId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "totalSupply",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "currency",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "CollectModuleInitialized",
-    type: "event",
-  },
-  {
     inputs: [],
     name: "COLLECT_ACTION",
     outputs: [

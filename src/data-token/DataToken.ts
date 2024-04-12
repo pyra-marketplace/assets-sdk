@@ -1,13 +1,8 @@
 import { BigNumber, BigNumberish, ethers } from "ethers";
 import { Connector, SYSTEM_CALL, FileContent } from "@meteor-web3/connector";
-import {
-  //   isDataTokenCollectedBy,
-  loadDataTokensCollectedBy,
-  loadDataTokensCreatedBy
-  //   loadDataTokenCollectors,
-  //   loadDataToken,
-  //   loadDataTokens,
-} from "../graphql";
+// import //   isDataTokenCollectedBy,
+// //   loadDataTokenCollectors,
+// "../graphql";
 import { abiCoder } from "../utils/abi-coder";
 import { DataAssetBase } from "../data-asset/DataAssetBase";
 import {
@@ -17,13 +12,11 @@ import {
 } from "../data-asset/types";
 import { ChainId } from "../types";
 import { getChainNameFromChainId } from "../utils";
-import {
-  DataToken__factory,
-  CollectAction__factory,
-  FeeCollectModule__factory
-} from "./abi/typechain";
-import { DEPLOYED_ADDRESSES } from "./addresses";
-import { TokenAsset } from "./types";
+import { switchNetwork } from "../utils/network";
+import { http } from "../utils/http";
+import { retryRPC } from "../utils/retryRPC";
+import { FeeCollectModule__factory } from "./abi/typechain";
+import { DEPLOYED_ADDRESSES } from "./configs";
 
 export class DataToken extends DataAssetBase {
   constructor({
@@ -70,12 +63,10 @@ export class DataToken extends DataAssetBase {
       );
     }
 
-    await this.connector.getProvider().request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: `0x${this.chainId.toString(16)}` }]
-    });
-
-    const data: string = abiCoder.encode(["string", "string"], [resourceId, this.fileOrFolderId]);
+    const data: string = abiCoder.encode(
+      ["string", "string"],
+      [resourceId, this.fileOrFolderId]
+    );
     const actions: string[] = [];
     const actionInitDatas: string[] = [];
 
@@ -106,6 +97,8 @@ export class DataToken extends DataAssetBase {
       actions,
       actionInitDatas
     };
+
+    await switchNetwork({ connector: this.connector, chainId: this.chainId });
 
     return await this.createAssetHandler(publishParams, withSig);
   }
@@ -205,7 +198,7 @@ export class DataToken extends DataAssetBase {
     this.fileOrFolderId = createIndexFileRes.fileContent.file.fileId;
 
     await this.publish({
-      resourceId: "test-resource-id" ?? modelId,
+      resourceId: modelId,
       actionsConfig,
       withSig
     });
@@ -239,8 +232,7 @@ export class DataToken extends DataAssetBase {
     });
 
     await this.publish({
-      resourceId:
-        "test-resource-id" ?? res.fileContent.file?.contentType?.resourceId,
+      resourceId: res.fileContent.file?.contentType?.resourceId ?? "",
       actionsConfig,
       withSig
     });
@@ -261,15 +253,21 @@ export class DataToken extends DataAssetBase {
         "AssetId cannot be empty, please call createAssetHandler first"
       );
     }
-    if (!this.signer) {
-      throw new Error("Signer not found, please collect wallet");
+    if (!this.chainId) {
+      throw new Error(
+        "ChainId cannot be empty, please pass in through constructor"
+      );
     }
-    const dataToken = DataToken__factory.connect(
-      this.assetContract,
-      this.signer
-    );
-    const tokenAsset: TokenAsset = await dataToken.getTokenAsset(this.assetId);
-    return tokenAsset;
+
+    const res = await retryRPC({
+      chainId: this.chainId,
+      contractFactory: "dataToken__factory",
+      assetContract: this.assetContract,
+      method: "getTokenAsset",
+      params: [this.assetId]
+    });
+
+    return res;
   }
 
   public async isCollected(account: string) {
@@ -278,21 +276,20 @@ export class DataToken extends DataAssetBase {
         "AssetId cannot be empty, please call createAssetHandler first"
       );
     }
+
     if (!this.chainId) {
       throw new Error(
         "ChainId cannot be empty, please pass in through constructor"
       );
     }
-    if (!this.signer) {
-      throw new Error("Signer not found, please collect wallet");
-    }
 
-    const collectAction = CollectAction__factory.connect(
-      DEPLOYED_ADDRESSES[this.chainId].CollectAction,
-      this.signer
-    );
-
-    const res = await collectAction.isCollected(this.assetId, account);
+    const res = await retryRPC({
+      chainId: this.chainId,
+      contractFactory: "collectAction__factory",
+      assetContract: DEPLOYED_ADDRESSES[this.chainId].CollectAction,
+      method: "isCollected",
+      params: [this.assetId, account]
+    });
 
     return res;
   }
@@ -318,11 +315,6 @@ export class DataToken extends DataAssetBase {
         "ChainId cannot be empty, please pass in through constructor"
       );
     }
-
-    await this.connector.getProvider().request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: `0x${this.chainId.toString(16)}` }]
-    });
 
     const tokenAsset = await this.getTokenAsset();
 
@@ -363,6 +355,8 @@ export class DataToken extends DataAssetBase {
       actionInitDatas
     };
 
+    await switchNetwork({ connector: this.connector, chainId: this.chainId });
+
     return await this._addActions(addActionsParams, withSig);
   }
 
@@ -381,10 +375,7 @@ export class DataToken extends DataAssetBase {
       throw new Error("Signer not found, please collect wallet");
     }
 
-    await this.connector.getProvider().request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: `0x${this.chainId.toString(16)}` }]
-    });
+    await switchNetwork({ connector: this.connector, chainId: this.chainId });
 
     const feeCollectModuleContract = FeeCollectModule__factory.connect(
       DEPLOYED_ADDRESSES[this.chainId].FeeCollectModule,
@@ -398,7 +389,6 @@ export class DataToken extends DataAssetBase {
       amount,
       DEPLOYED_ADDRESSES[this.chainId].FeeCollectModule
     );
-
     const actionProcessData = abiCoder.encode(
       ["address", "uint256"],
       [currency, amount]
@@ -409,7 +399,6 @@ export class DataToken extends DataAssetBase {
       actions: [DEPLOYED_ADDRESSES[this.chainId].CollectAction],
       actionProcessDatas: [actionProcessData]
     };
-
     const [actionReturnData] = await this._act(actParams, withSig);
     const [collectionId] = abiCoder.decode(
       ["uint256", "bytes"],
@@ -420,32 +409,125 @@ export class DataToken extends DataAssetBase {
   }
 
   public async loadCreatedTokenFiles(creator: string) {
-    const dataTokens: any[] = await loadDataTokensCreatedBy(creator);
-
-    const fileIds = dataTokens.map((dataToken) =>
-      dataToken.source.replace("ceramic://", "")
+    const dataTokens: any[] = await DataToken.loadDataTokensCreatedBy(creator);
+    const dataTokenRecord = Object.fromEntries(
+      dataTokens.map((item) => [item.file_id, item])
     );
+    if (dataTokens.length > 0) {
+      const fileIds = dataTokens.map((dataToken) => dataToken.file_id);
 
-    const res = await this.connector.runOS({
-      method: SYSTEM_CALL.loadFilesBy,
-      params: { fileIds }
-    });
+      const res = await this.connector.runOS({
+        method: SYSTEM_CALL.loadFilesBy,
+        params: {
+          modelId: dataTokens[0].resource_id,
+          fileIds
+        }
+      });
 
-    return res;
+      const files = Object.fromEntries(
+        Object.entries(res).map(([fileId, file]) => {
+          if (file.fileContent.file?.accessControl?.monetizationProvider) {
+            (
+              file.fileContent.file.accessControl.monetizationProvider
+                .dataAsset as Record<string, any>
+            )["assetDetail"] = dataTokenRecord[fileId];
+          }
+          return [fileId, file];
+        })
+      );
+
+      return files;
+    }
+    return [];
   }
 
   public async loadCollectedTokenFiles(collector: string) {
-    const dataTokens: any[] = await loadDataTokensCollectedBy(collector);
-
-    const fileIds = dataTokens.map((dataToken) =>
-      dataToken.source.replace("ceramic://", "")
+    const dataTokens: any[] =
+      await DataToken.loadDataTokensCollectedBy(collector);
+    const dataTokenRecord = Object.fromEntries(
+      dataTokens.map((item) => [item.file_id, item])
     );
 
-    const res = await this.connector.runOS({
-      method: SYSTEM_CALL.loadFilesBy,
-      params: { fileIds }
-    });
+    if (dataTokens.length > 0) {
+      const fileIds = dataTokens.map((dataToken) => dataToken.file_id);
 
-    return res;
+      const res = await this.connector.runOS({
+        method: SYSTEM_CALL.loadFilesBy,
+        params: {
+          modelId:
+            // .sort((a, b) => parseInt(b.publish_at) - parseInt(a.publish_at))
+            // .find((item) => item.resource_id !== "test-resource-id")
+            dataTokens[0].resource_id,
+          fileIds
+        }
+      });
+
+      const files = Object.fromEntries(
+        Object.entries(res).map(([fileId, file]) => {
+          if (file.fileContent.file?.accessControl?.monetizationProvider) {
+            (
+              file.fileContent.file.accessControl.monetizationProvider
+                .dataAsset as Record<string, any>
+            )["assetDetail"] = dataTokenRecord[fileId];
+          }
+          return [fileId, file];
+        })
+      );
+
+      return files;
+    }
+    return [];
+  }
+
+  static async loadDataTokens(dataTokenIds: string[]) {
+    const dataTokens = (
+      await http.request({
+        url: `*/data-token`,
+        method: "get",
+        params: {
+          asset_ids: dataTokenIds.join(",")
+        }
+      })
+    ).data;
+    return dataTokens;
+  }
+
+  static async loadDataTokenCollectors(dataTokenId: string) {
+    const dataTokens = (
+      await http.request({
+        url: `*/data-token/collector`,
+        method: "get",
+        params: {
+          asset_id: dataTokenId
+        }
+      })
+    ).data;
+    return dataTokens;
+  }
+
+  static async loadDataTokensCollectedBy(collector: string) {
+    const dataTokens = (
+      await http.request({
+        url: `*/data-token`,
+        method: "get",
+        params: {
+          collector
+        }
+      })
+    ).data;
+    return dataTokens;
+  }
+
+  static async loadDataTokensCreatedBy(creator: string) {
+    const dataTokens = (
+      await http.request({
+        url: `*/data-token`,
+        method: "get",
+        params: {
+          publisher: creator
+        }
+      })
+    ).data;
+    return dataTokens;
   }
 }

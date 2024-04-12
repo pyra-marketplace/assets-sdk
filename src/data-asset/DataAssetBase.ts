@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import {
   Attached,
   DataAsset,
@@ -58,14 +59,16 @@ export class DataAssetBase {
     assetContract?: string;
     assetId?: string;
   }) {
-    const provider = connector.getProvider();
-    const ethersProvider = new ethers.providers.Web3Provider(provider, "any");
-    this.signer = ethersProvider.getSigner();
     this.chainId = chainId;
     this.connector = connector;
     this.assetContract = assetContract;
     this.fileOrFolderId = fileOrFolderId;
     this.assetId = assetId;
+    try {
+      const provider = connector.getProvider();
+      const ethersProvider = new ethers.providers.Web3Provider(provider, "any");
+      this.signer = ethersProvider.getSigner();
+    } catch (error) {}
   }
 
   // public async createAssetHandler(method: Function): Promise<string> {
@@ -168,7 +171,11 @@ export class DataAssetBase {
     (acl as LinkedAssetConditionInput).functionParams = [
       linkedAsset.assetId,
       ":userAddress",
-      ...(attached ? Object.values(attached).map((item) => String(item)) : [])
+      ...(attached
+        ? (acl as LinkedAssetConditionInput).functionAbi.inputs
+            .slice(2)
+            .map((_item) => String(attached[_item.name]))
+        : [])
     ];
     (acl as LinkedAssetConditionInput).chain = getChainNameFromChainId(
       linkedAsset.chainId
@@ -219,7 +226,7 @@ export class DataAssetBase {
 
   protected async applyFileConditions(fileId?: string) {
     if (!fileId && !this.fileOrFolderId) {
-      throw new Error("File or folder Id cannot be empty");
+      throw new Error("File Id cannot be empty");
     }
     const dependencies = this.linkedAssetConditions?.map((item) => {
       if ((item as OrCondition)?.operator) {
@@ -298,25 +305,87 @@ export class DataAssetBase {
     return res;
   }
 
-  protected async applyFolderConditions() {
-    if (!this.fileOrFolderId) {
-      throw new Error("File or folder Id cannot be empty");
+  protected async applyFolderConditions(folderId?: string) {
+    if (!folderId && !this.fileOrFolderId) {
+      throw new Error("Folder Id cannot be empty");
     }
-    const monetizationProvider = {
-      dataAsset: {
-        assetId: this.assetId,
-        assetContract: this.assetContract,
-        chainId: this.chainId
-      }
-    } as MonetizationProvider;
 
+    const dependencies = this.linkedAssetConditions?.map((item) => {
+      if ((item as OrCondition)?.operator) {
+        return;
+      }
+      item = item as (
+        | LinkedAssetConditionInput
+        | AndCondition
+        | TimestampCondition
+      )[];
+      item[0] = item[0] as LinkedAssetConditionInput;
+      return {
+        linkedAsset: {
+          assetId: item[0].functionParams[0],
+          assetContract: item[0].contractAddress,
+          chainId: getChainIdFromChainName(item[0].chain)
+        },
+        attached: Object.fromEntries(
+          item[0].functionAbi.inputs
+            .slice(2)
+            .map((_item, index) => [
+              _item.name,
+              (
+                (
+                  item as (
+                    | LinkedAssetConditionInput
+                    | AndCondition
+                    | TimestampCondition
+                  )[]
+                )[0] as LinkedAssetConditionInput
+              ).functionParams.slice(2)[index]
+            ])
+        )
+      };
+    });
+
+    const monetizationProvider = {
+      ...(this.sourceAssetConditions &&
+        this.sourceAssetConditions.length > 0 && {
+          dataAsset: {
+            assetId: this.assetId,
+            assetContract: this.assetContract,
+            chainId: this.chainId
+          }
+        }),
+      dependencies
+    } as MonetizationProvider;
     this.monetizationProvider = monetizationProvider;
+
+    const decryptionConditions = [
+      ...(this.generalAccessConditions ? [this.generalAccessConditions] : []),
+      ...(this.sourceAssetConditions
+        ? [{ operator: "or" as const }, this.sourceAssetConditions]
+        : []),
+      ...(this.linkedAssetConditions
+        ? [{ operator: "or" as const }, this.linkedAssetConditions]
+        : [])
+    ] as DecryptionConditions;
+
+    const encryptionProvider =
+      decryptionConditions.length > 0
+        ? {
+            protocol: EncryptionProtocol.Lit,
+            decryptionConditions,
+            decryptionConditionsType:
+              DecryptionConditionsType.UnifiedAccessControlCondition
+          }
+        : undefined;
+
+    this.encryptionProvider = encryptionProvider;
 
     const res = await this.connector.runOS({
       method: SYSTEM_CALL.monetizeFolder,
       params: {
-        folderId: this.fileOrFolderId!,
-        monetizationProvider
+        folderId: folderId ?? this.fileOrFolderId!,
+        monetizationProvider,
+        encryptionProvider
       }
     });
 
@@ -343,9 +412,9 @@ export class DataAssetBase {
     publishParams: PublishParams,
     withSig: boolean = false
   ) {
-    if (!this.fileOrFolderId) {
-      throw new Error("File or folder Id cannot be empty");
-    }
+    // if (!this.fileOrFolderId) {
+    //   throw new Error("File or folder Id cannot be empty");
+    // }
     if (!this.assetContract) {
       throw new Error(
         "AssetContract cannot be empty, please pass in through constructor"
@@ -409,9 +478,9 @@ export class DataAssetBase {
       (e) => e.event === "AssetActed"
     );
     if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
-      throw new Error("Filter Published event failed");
+      throw new Error("Filter AssetActed event failed");
     }
-    const actionReturnDatas: BytesLike[] = targetEvents[0].args[4];
+    const actionReturnDatas: BytesLike[] = targetEvents[0].args[5];
     return actionReturnDatas;
   }
 

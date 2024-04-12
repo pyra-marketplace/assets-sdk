@@ -373,7 +373,7 @@ export interface DataTokenInterface extends utils.Interface {
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
-    "AssetActed(bytes32,address,address[],bytes[],bytes[])": EventFragment;
+    "AssetActed(bytes32,address,uint256,address[],bytes[],bytes[])": EventFragment;
     "AssetActionsAdded(bytes32,address[],bytes[])": EventFragment;
     "AssetPublished(bytes32,address,uint256,uint256,bytes,address[],bytes[])": EventFragment;
     "EIP712DomainChanged()": EventFragment;
@@ -416,12 +416,13 @@ export type ApprovalForAllEventFilter = TypedEventFilter<ApprovalForAllEvent>;
 export interface AssetActedEventObject {
   assetId: string;
   actor: string;
+  actAt: BigNumber;
   actions: string[];
   actionProcessDatas: string[];
   actionReturnDatas: string[];
 }
 export type AssetActedEvent = TypedEvent<
-  [string, string, string[], string[], string[]],
+  [string, string, BigNumber, string[], string[], string[]],
   AssetActedEventObject
 >;
 
@@ -953,9 +954,10 @@ export interface DataToken extends BaseContract {
       approved?: null
     ): ApprovalForAllEventFilter;
 
-    "AssetActed(bytes32,address,address[],bytes[],bytes[])"(
+    "AssetActed(bytes32,address,uint256,address[],bytes[],bytes[])"(
       assetId?: BytesLike | null,
       actor?: string | null,
+      actAt?: null,
       actions?: null,
       actionProcessDatas?: null,
       actionReturnDatas?: null
@@ -963,6 +965,7 @@ export interface DataToken extends BaseContract {
     AssetActed(
       assetId?: BytesLike | null,
       actor?: string | null,
+      actAt?: null,
       actions?: null,
       actionProcessDatas?: null,
       actionReturnDatas?: null

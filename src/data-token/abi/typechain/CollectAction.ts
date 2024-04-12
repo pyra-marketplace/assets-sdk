@@ -39,7 +39,6 @@ export interface CollectActionInterface extends utils.Interface {
   functions: {
     "ACTION_CONFIG()": FunctionFragment;
     "getAssetCollectData(bytes32)": FunctionFragment;
-    "getDappTreasuryData(bytes32)": FunctionFragment;
     "getProtocolTreasuryData()": FunctionFragment;
     "initializeAction(bytes32,bytes)": FunctionFragment;
     "isCollectModuleRegistered(address)": FunctionFragment;
@@ -54,7 +53,6 @@ export interface CollectActionInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "ACTION_CONFIG"
       | "getAssetCollectData"
-      | "getDappTreasuryData"
       | "getProtocolTreasuryData"
       | "initializeAction"
       | "isCollectModuleRegistered"
@@ -71,10 +69,6 @@ export interface CollectActionInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAssetCollectData",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getDappTreasuryData",
     values: [BytesLike]
   ): string;
   encodeFunctionData(
@@ -113,10 +107,6 @@ export interface CollectActionInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getAssetCollectData",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getDappTreasuryData",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -202,11 +192,6 @@ export interface CollectAction extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[CollectAction.CollectDataStructOutput]>;
 
-    getDappTreasuryData(
-      assetId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[string, BigNumber]>;
-
     getProtocolTreasuryData(
       overrides?: CallOverrides
     ): Promise<[string, BigNumber]>;
@@ -255,11 +240,6 @@ export interface CollectAction extends BaseContract {
     overrides?: CallOverrides
   ): Promise<CollectAction.CollectDataStructOutput>;
 
-  getDappTreasuryData(
-    assetId: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<[string, BigNumber]>;
-
   getProtocolTreasuryData(
     overrides?: CallOverrides
   ): Promise<[string, BigNumber]>;
@@ -307,11 +287,6 @@ export interface CollectAction extends BaseContract {
       assetId: BytesLike,
       overrides?: CallOverrides
     ): Promise<CollectAction.CollectDataStructOutput>;
-
-    getDappTreasuryData(
-      assetId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[string, BigNumber]>;
 
     getProtocolTreasuryData(
       overrides?: CallOverrides
@@ -373,11 +348,6 @@ export interface CollectAction extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getDappTreasuryData(
-      assetId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     getProtocolTreasuryData(overrides?: CallOverrides): Promise<BigNumber>;
 
     initializeAction(
@@ -421,11 +391,6 @@ export interface CollectAction extends BaseContract {
     ACTION_CONFIG(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getAssetCollectData(
-      assetId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getDappTreasuryData(
       assetId: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
