@@ -26,6 +26,21 @@ export const DEPLOYED_ADDRESSES = {
     WETH: "0x5300000000000000000000000000000000000004",
     USDC: "0x690000EF01deCE82d837B5fAa2719AE47b156697",
     USDT: "0x551197e6350936976DfFB66B2c3bb15DDB723250"
+  },
+  [ChainId.Base]: {
+    DataToken: "",
+    CollectAction: "",
+    FeeCollectModule: "",
+
+    WETH: "0x4200000000000000000000000000000000000006",
+    USDC: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+  },
+  [ChainId.BaseSepolia]: {
+    DataToken: "0xD3ba62d203D8B8Be795e6f1F77bb71948B0a8205",
+    CollectAction: "0x8325A514ef2A8Af1B2B02F418E108207B6a45DA5",
+    FeeCollectModule: "0xcF9E24E4F808bC017493D5fCF9BA685182D87352",
+
+    WETH: "0x4200000000000000000000000000000000000006"
   }
 };
 
@@ -44,5 +59,15 @@ export const RPC = {
     "https://polygon-mumbai.blockpi.network/v1/rpc/public",
     "https://rpc.ankr.com/polygon_mumbai",
     "https://polygon-mumbai-bor-rpc.publicnode.com"
+  ],
+  [ChainId.Base]: [
+    "https://base-rpc.publicnode.com",
+    "https://base.blockpi.network/v1/rpc/public",
+    "https://base.llamarpc.com"
+  ],
+  [ChainId.BaseSepolia]: [
+    "https://public.stackup.sh/api/v1/node/base-sepolia",
+    "https://base-sepolia.blockpi.network/v1/rpc/public",
+    "https://base-sepolia-rpc.publicnode.com"
   ]
 };

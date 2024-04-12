@@ -53,6 +53,40 @@ export async function switchNetwork({
             }
           ]
         });
+      } else if (chainIdHex === "0x2105") {
+        await provider.request?.({
+          method: "wallet_addEthereumChain",
+          params: [
+            {
+              chainId: "0x2105",
+              chainName: "Base LlamaNodes",
+              rpcUrls: RPC[ChainId.Base],
+              nativeCurrency: {
+                name: "ETH",
+                symbol: "ETH",
+                decimals: 18
+              },
+              blockExplorerUrls: ["https://basescan.org"]
+            }
+          ]
+        });
+      } else if (chainIdHex === "0x14a34") {
+        await provider.request?.({
+          method: "wallet_addEthereumChain",
+          params: [
+            {
+              chainId: "0x14a34",
+              chainName: "Base Sepolia Testnet",
+              rpcUrls: RPC[ChainId.BaseSepolia],
+              nativeCurrency: {
+                name: "ETH",
+                symbol: "ETH",
+                decimals: 18
+              },
+              blockExplorerUrls: ["https://base-sepolia.blockscout.com"]
+            }
+          ]
+        });
       } else {
         throw new Error(
           "Unrecognized chain ID. Try adding the chain from https://chainlist.org"
