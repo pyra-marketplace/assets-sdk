@@ -8,7 +8,7 @@ export function getChainNameFromChainId(chainId: number): string {
     return "base";
   }
   if (chainId === 84532) {
-    return "base sepolia";
+    return "baseSepolia";
   }
 
   for (let i = 0; i < Object.keys(LIT_CHAINS).length; i++) {
@@ -29,7 +29,7 @@ export function getChainIdFromChainName(chainName: string): number {
   if (chainName === "base") {
     return 8453;
   }
-  if (chainName === "base sepolia") {
+  if (chainName === "baseSepolia") {
     return 84532;
   }
 
