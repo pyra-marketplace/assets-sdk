@@ -4,6 +4,12 @@ export function getChainNameFromChainId(chainId: number): string {
   if (chainId === 314) {
     return "filecoin";
   }
+  if (chainId === 8453) {
+    return "base";
+  }
+  if (chainId === 84532) {
+    return "base sepolia";
+  }
 
   for (let i = 0; i < Object.keys(LIT_CHAINS).length; i++) {
     const chainName = Object.keys(LIT_CHAINS)[i];
@@ -19,6 +25,12 @@ export function getChainNameFromChainId(chainId: number): string {
 export function getChainIdFromChainName(chainName: string): number {
   if (chainName === "filecoin") {
     return 314;
+  }
+  if (chainName === "base") {
+    return 8453;
+  }
+  if (chainName === "base sepolia") {
+    return 84532;
   }
 
   for (let i = 0; i < Object.keys(LIT_CHAINS).length; i++) {
