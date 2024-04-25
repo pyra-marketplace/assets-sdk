@@ -19,7 +19,7 @@ const appId = "9aaae63f-3445-47d5-8785-c23dd16e4965";
 const postModelId =
   "kjzl6hvfrbw6c8h0oiiv2ccikb2thxsu98sy0ydi6oshj6sjuz9dga94463anvf";
 
-const chainId = ChainId.PolygonMumbai;
+const chainId = ChainId.BaseSepolia;
 
 const postVersion = "0.0.1";
 
@@ -76,7 +76,7 @@ function App() {
       },
       actionsConfig: {
         collectAction: {
-          currency: TOKEN_DEPLOYED_ADDRESSES[chainId].WMATIC,
+          currency: TOKEN_DEPLOYED_ADDRESSES[chainId].WETH,
           amount: 1000
         }
       },
