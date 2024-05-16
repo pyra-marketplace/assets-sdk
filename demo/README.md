@@ -17,3 +17,17 @@ pnpm dev
 ```bash
 pnpm build
 ```
+
+## Local Testing
+
+Make sure you have the source code of Dataverse Kernel. Then, build the kernel and link it to the demo:
+
+```bash
+pnpm link $PATH_TO_KERNEL
+```
+
+Then, run the test:
+
+```bash
+pnpm test
+```
